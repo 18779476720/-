@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>aurora开发</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>aurora开发</h1>
+<hr />
+<h2>快速开发脚本</h2>
+<h3>1、根据表生成增删改查plsql</h3>
+<pre><code>/*************************************************
+
+  -- Author: ZP  
+  -- Created   : 2017/11/13 16:57:47  
+  -- Ver   : 1.1   
+  -- Purpose   : 根据表名快速生成表插入和修改过程脚本   
+  -- Parameters: 表名  
+**************************************************/
+DECLARE   
+  l_table_name   VARCHAR2(2000) := '&amp;table_name';   
+  v_package_name VARCHAR2(100) := '&amp;package_name';
+  v_pk   VARCHAR2(60);
+BEGIN  
+  dbms_output.enable(300000);    
+  l_table_name := UPPER(l_table_name);    
+  IF v_package_name IS NULL THEN
+v_package_name := 'c_package_name,';
+  ELSE
+v_package_name := '''' || v_package_name || ''',';
+  END IF;
+  SELECT lower(cu.COLUMN_NAME)
+INTO v_pk
+FROM user_cons_columns cu, user_constraints au
+   WHERE cu.constraint_name = au.constraint_name
+ AND au.constraint_type = 'P'
+ AND au.table_name = l_table_name;
+  --查询过程
+  dbms_output.put_line('/*select t.* from (select ');
+  FOR rec IN (SELECT lower(column_name) column_name
+FROM user_tab_columns
+   WHERE table_name = l_table_name) LOOP
+IF rec.column_name &lt;&gt; v_pk THEN
+  dbms_output.put_line(rec.column_name || ',');
+END IF;
+  END LOOP;
+  dbms_output.put_line(v_pk);
+  dbms_output.put_line('from ' || l_table_name || ')t where t.' || v_pk ||
+   '=${@' || v_pk || '};*/');
+  dbms_output.put_line('');
+  dbms_output.put_line('');
+  --插入过程
+  dbms_output.put_line('--==========================================================
+--procedure name  : insert_' || lower(l_table_name) || '
+--discription : 
+--note:
+--parameter   :
+--==========================================================');
+  dbms_output.put_line(' procedure insert_' || lower(l_table_name) || '(');
+  FOR rec IN (SELECT lower(column_name) column_name, data_type
+FROM user_tab_columns
+   WHERE table_name = l_table_name) LOOP
+IF rec.column_name NOT IN ('creation_date',
+   'last_update_date',
+   'created_by',
+   'last_updated_by') THEN
+  dbms_output.put_line('p_' || rec.column_name || '  ' ||
+   rec.data_type || ',');
+END IF;
+
+  END LOOP;
+  dbms_output.put_line('p_user_id NUMBER');
+  dbms_output.put_line(') is  v_data ' || lower(l_table_name) ||
+   '%ROWTYPE;   begin');
+
+  FOR rec IN (SELECT lower(column_name) column_name
+FROM user_tab_columns
+   WHERE table_name = l_table_name) LOOP
+IF rec.column_name IN ('creation_date', 'last_update_date') THEN
+  dbms_output.put_line('v_data.' || rec.column_name || ' := sysdate;');
+ELSIF rec.column_name IN ('created_by', 'last_updated_by') THEN
+  dbms_output.put_line('v_data.' || rec.column_name ||
+   ' := p_user_id;');
+ELSE
+  dbms_output.put_line('v_data.' || rec.column_name || ' :=  ' || 'p_' ||
+   rec.column_name || ';');
+END IF;
+  END LOOP;
+
+  dbms_output.put_line('insert into ' || lower(l_table_name) ||
+   ' values  v_data ;');
+  dbms_output.put_line('EXCEPTION
+  WHEN OTHERS THEN
+sys_raise_app_error_pkg.raise_sys_others_error(p_message =&gt; dbms_utility.format_error_backtrace || '' '' ||
+SQLERRM,
+   p_created_by  =&gt; p_user_id,
+   p_package_name=&gt; ' ||
+   v_package_name || '
+   p_procedure_function_name =&gt; ''insert_' ||
+   lower(l_table_name) ||
+   ''');
+raise_application_error(sys_raise_app_error_pkg.c_error_number,
+sys_raise_app_error_pkg.g_err_line_id);');
+  dbms_output.put_line('end  insert_' || lower(l_table_name) || ';');
+  dbms_output.put_line('');
+  dbms_output.put_line('');
+  --修改过程
+  dbms_output.put_line('--==========================================================
+--procedure name  : update_' || lower(l_table_name) || '
+--discription : 
+--note:
+--parameter   :
+--==========================================================');
+  dbms_output.put_line(' procedure update_' || lower(l_table_name) || '(');
+  FOR rec IN (SELECT lower(column_name) column_name, data_type
+FROM user_tab_columns
+   WHERE table_name = l_table_name) LOOP
+IF rec.column_name NOT IN ('creation_date',
+   'last_update_date',
+   'created_by',
+   'last_updated_by') THEN
+  dbms_output.put_line('p_' || rec.column_name || '  ' ||
+   rec.data_type || ',');
+END IF;
+  END LOOP;
+
+  dbms_output.put_line('p_user_id NUMBER');
+  dbms_output.put_line(') is  v_data ' || lower(l_table_name) ||
+   '%ROWTYPE;   begin');
+  dbms_output.put_line('update ' || lower(l_table_name) || ' t  set ');
+  FOR rec IN (SELECT lower(column_name) column_name
+FROM user_tab_columns
+   WHERE table_name = l_table_name) LOOP
+IF rec.column_name IN ('creation_date',
+   'last_update_date',
+   'created_by',
+   'last_updated_by') THEN
+  NULL;
+ELSE
+  dbms_output.put_line('t.' || rec.column_name || ' =  ' || 'p_' ||
+   rec.column_name || ',');
+END IF;
+  END LOOP;
+  dbms_output.put_line('t.last_update_date = sysdate,');
+  dbms_output.put_line('t.last_updated_by = p_user_id');
+  dbms_output.put_line('where t.' || v_pk || '=p_' || v_pk || ';');
+  dbms_output.put_line('EXCEPTION
+  WHEN OTHERS THEN
+sys_raise_app_error_pkg.raise_sys_others_error(p_message =&gt; dbms_utility.format_error_backtrace || '' '' ||
+SQLERRM,
+   p_created_by  =&gt; p_user_id,
+   p_package_name=&gt; ' ||
+   v_package_name || '
+   p_procedure_function_name =&gt; ''update_' ||
+   lower(l_table_name) ||
+   ''');
+raise_application_error(sys_raise_app_error_pkg.c_error_number,
+sys_raise_app_error_pkg.g_err_line_id);');
+  dbms_output.put_line('end  update_' || lower(l_table_name) || ';');
+  dbms_output.put_line('');
+  dbms_output.put_line('');
+  --删除过程
+  dbms_output.put_line('--==========================================================
+--procedure name  : delete_' || lower(l_table_name) || '
+--discription : 
+--note:
+--parameter   :
+--==========================================================');
+  dbms_output.put_line(' procedure delete_' || lower(l_table_name) || '(');
+  dbms_output.put_line('p_' || v_pk || ' NUMBER,');
+  dbms_output.put_line('p_user_id NUMBER)IS');
+  dbms_output.put_line('begin DELETE FROM ' || lower(l_table_name) || ' t');
+  dbms_output.put_line('where t.' || v_pk || '=p_' || v_pk || ';');
+  dbms_output.put_line('EXCEPTION
+  WHEN OTHERS THEN
+sys_raise_app_error_pkg.raise_sys_others_error(p_message =&gt; dbms_utility.format_error_backtrace || '' '' ||
+SQLERRM,
+   p_created_by  =&gt; p_user_id,
+   p_package_name=&gt; ' ||
+   v_package_name || '
+   p_procedure_function_name =&gt; ''delete_' ||
+   lower(l_table_name) ||
+   ''');
+raise_application_error(sys_raise_app_error_pkg.c_error_number,
+sys_raise_app_error_pkg.g_err_line_id);');
+  dbms_output.put_line('end  delete_' || lower(l_table_name) || ';');
+EXCEPTION
+  WHEN no_data_found THEN
+RAISE_APPLICATION_ERROR(-20001, '表不存在');
+END;
+</code></pre>
+
+<h3>2、根据表内注释生成双语提示</h3>
+<pre><code>   /*************************************************
+  -- author: zhangdada
+  -- created   : 2017/11/13 16:57:47
+  -- ver   : 1.1
+  -- purpose   : 根据表名快速生成prompt脚本
+  -- parameters: 表名
+**************************************************/
+DECLARE
+  v_table_name VARCHAR2(100) := 'LJ_PROJECT_BUDGET_HEAD';
+  v_titel  VARCHAR2(100) := 'LJ_PRJ';
+  v_start  VARCHAR2(1000);
+  v_endVARCHAR2(1000);
+  v_str1   VARCHAR2(100) := 'sys_prompt_pkg.sys_prompts_load(''';
+  v_str2   VARCHAR2(100) := ''');';
+  v_zhsVARCHAR2(100) := ''',''ZHS'',''';
+  v_us VARCHAR2(100) := ''',''US'',''';
+BEGIN
+  v_start := 'WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+spool INITIALIZE_PROMPT.log
+set feedback off
+set define off
+begin';
+  v_end   := 'end; 
+/
+commit;
+set feedback on
+set define on
+spool off
+exit';
+  dbms_output.put_line(v_start);
+  FOR rec IN (SELECT *
+FROM user_col_comments u
+   WHERE upper(u.table_name) = upper(v_table_name)
+ AND u.comments IS NOT NULL)
+  LOOP
+dbms_output.put_line(v_str1 || v_titel || '.' || rec.column_name || v_zhs || rec.comments || v_str2);
+dbms_output.put_line(v_str1 || v_titel || '.' || rec.column_name || v_us || lower(rec.column_name) || v_str2);
+  END LOOP;
+  dbms_output.put_line(v_end);
+END;
+</code></pre>
+
+<hr />
+<h2>培训资料</h2>
+<pre><code>--常用目录
+webRoot\images --图片资源目录
+webRoot\modules --screen、svc目录
+webRoot\WEB-INF --配置文件、bm目录
+webRoot\WEB-INF\aurora.database\datasource.config --数据库连接配置
+webRoot\WEB-INF\aurora.plugin.quartz\job.config --页面job计划任务 ，本机环境需注释、不启用
+webRoot\WEB-INF\aurora.plugin.sap\sap.config --SAP环境信息
+webRoot\WEB-INF\aurora.ui --UI组件目录（不允许修改）
+webRoot\WEB-INF\classes --bm目录
+webRoot\WEB-INF\uncertain.local.xml --日志配置、UI目录配置（路径不正确，应用起不来）
+
+--配置本地环境
+1.在tomcat\conf\server.xml 的Host标签下添加&lt;Context path=&quot;/应用访问路径&quot; docBase=&quot;本机应用目录&quot; /&gt;
+2.检查 tomcat\bin\startup.bat 文件中的环境变量是否正确
+set &quot;CATALINA_HOME=本机tomcat路径&quot;
+set &quot;JAVA_HOME=本机jdk安装路径&quot;
+set &quot;JRE_HOME=本机jdk安装路径下jre目录路径&quot;
+3.检查应用 webRoot\WEB-INF\uncertain.local.xml中路径是否正确
+4.检查应用 webRoot\WEB-INF\aurora.database\datasource.config中数据库连接是否正确
+
+--JSON
+{&quot;parameter&quot;:[
+   {&quot;is_login_required&quot;:0,&quot;is_entry_page&quot;:0,&quot;service_name&quot;:&quot;aboutUs.screen&quot;,&quot;service_id&quot;:1323851,&quot;is_access_checked&quot;:0,&quot;title&quot;:&quot;ABOUTUS.SCREEN.TITLE&quot;,&quot;language_title&quot;:&quot;关于我们&quot;,&quot;is_system_access&quot;:0,&quot;_id&quot;:1003,&quot;_status&quot;:&quot;update&quot;},
+   {&quot;is_login_required&quot;:0,&quot;is_entry_page&quot;:0,&quot;service_name&quot;:&quot;appt_product_demo_book.screen&quot;,&quot;service_id&quot;:1329680,&quot;is_access_checked&quot;:0,&quot;title&quot;:&quot;APPT_PRODUCT_DEMO_BOOK.SCREEN.TITLE&quot;,&quot;language_title&quot;:&quot;预约产品演示1&quot;,&quot;is_system_access&quot;:1,&quot;_id&quot;:1005,&quot;_status&quot;:&quot;update&quot;}
+]}
+
+{} --一行数据
+[{},{}] --多行数据
+&quot;参数&quot;:值 --数据
+
+
+--工号命名
+模块号+4位流水 步长10
+流水号
+1xxx --基础数据类能功能
+5xxx --业务数据类功能
+7xxx --查询类报表功能
+
+
+--功能定义
+1.页面注册
+云平台管理=》开发维护=》页面注册
+2.功能定义
+云平台管理=》系统管理-云级=》功能定义
+
+--参数
+--功能代码
+--功能名称
+--功能描述
+--上级节点
+--功能级别  G 目录 F 功能
+--功能阵营 纯备注字段
+--功能类型 纯备注字段
+--页面
+--序列
+BEGIN
+sys_data_load_pkg.load_sys_function('TEST0829','测试功能0829','','MANAGER','F','SYSTEM','STANDARD','modules/test/TEST0829/cux_employee.screen','0829','','');
+END;
+
+--分配页面 分配当前功能可访问页面
+--分配bm 分配当前功能可访bm
+
+3.为角色分配功能
+云平台管理=》系统管理-云级=》系统角色管理
+
+4.更新缓存
+云平台管理=》开发维护=》缓存数据重载
+
+
+
+--值集表
+#改变当前SESSION语言环境
+ALTER SESSION SET NLS_LANGUAGE='SIMPLIFIED CHINESE';
+
+SELECT code_value,
+   code_value_name
+  FROM sys_code_values_v
+ WHERE code = 'SEX';
+
+select * from sys_codes ;
+select * from sys_code_values where code_id = 382;
+
+--创建值集
+BEGIN
+  sys_code_pkg.insert_sys_code('SEX', 'SEX', 'SEX', 'SEX', 'US');
+  sys_code_pkg.update_sys_code('SEX', '性别', '性别', '性别', 'ZHS');
+
+  sys_code_pkg.insert_sys_code_value('SEX', 'FEMALE', 'Female', 'US');
+  sys_code_pkg.update_sys_code_value('SEX', 'FEMALE', '女', 'ZHS');
+
+  sys_code_pkg.insert_sys_code_value('SEX', 'MALE', 'Male', 'US');
+  sys_code_pkg.update_sys_code_value('SEX', 'MALE', '男', 'ZHS');
+
+  sys_code_pkg.insert_sys_code_value('SEX', 'INDETERMINATE', 'Indeterminate', 'US');
+  sys_code_pkg.update_sys_code_value('SEX', 'INDETERMINATE', '不确定', 'ZHS');
+END;
+
+--页面多语言
+select * from sys_prompts WHERE PROMPT_CODE LIKE 'DEPT%';
+
+BEGIN
+  sys_prompt_pkg.sys_prompts_load('CUX_EMPLOYEE.EMPLOYEE_NAME','ZHS' ,'员工姓名');
+  sys_prompt_pkg.sys_prompts_load('CUX_EMPLOYEE.EMPLOYEE_NAME','US' ,'Employee Name');
+END;
+
+--系统异常处理
+select * from sys_raise_app_errors order by 1 desc;--系统日志表
+
+begin
+  sys_raise_app_error_pkg.raise_user_define_error(p_message_code=&gt; 'TEST0829_EMPLOYEE_NAME_IS_NULL_ERROR',
+  p_created_by  =&gt; p_user_id,
+  p_package_name=&gt; 'cux_employee_pkg',
+  p_procedure_function_name =&gt; 'insert_cux_employee');
+  --raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+end;
+
+--错误消息多语言
+select * from sys_messages where message_name like '%用户不能为空%';
+
+begin
+  sys_message_pkg.insert_message('TEST0829_EMPLOYEE_NAME_IS_NULL_ERROR','Error','Employee Name Is Null.','US');
+  sys_message_pkg.insert_message('TEST0829_EMPLOYEE_NAME_IS_NULL_ERROR','错误','员工姓名不能为空！','ZHS');
+end;
+</code></pre>
+
+<hr />
+<h1>开发脚本</h1>
+<hr />
+<h3>功能、目录 脚本</h3>
+<pre><code>--目录注册
+  sys_data_load_pkg.load_sys_function('HN_CSI','供应商认证','供应商认证','','G','GROUP','','','1010','','ZHS');
+  sys_data_load_pkg.load_sys_function('HN_CERT','现场考察','现场考察','HN_CSI','G','GROUP','HN_CSI','','1010','','ZHS');
+
+--功能注册
+  sys_data_load_pkg.load_sys_function('HN_CERT1010','现场考察计划','现场考察计划','HN_CERT','F','GROUP','STANDARD','modules/cux/HN/cert/CERT1010/hn_cert_scene_inspection_main.screen','1010','','ZHS');
+</code></pre>
+
+<h3>双语言提示：</h3>
+<pre><code>sys_prompt_pkg.sys_prompts_load('HN_CERT.HEAD_ID', 'ZHS', '头ID');
+sys_prompt_pkg.sys_prompts_load('HN_CERT.HEAD_ID', 'US', 'head_id');
+</code></pre>
+
+<h3>值集：</h3>
+<pre><code>  sys_code_pkg.delete_sys_code('HN_SCHEME_STATUS_SYSCODE'); 
+  sys_code_pkg.insert_sys_code('HN_SCHEME_STATUS_SYSCODE', '寻源方案状态', '寻源方案状态', '寻源方案状态', 'ZHS', ''); 
+  sys_code_pkg.update_sys_code('HN_SCHEME_STATUS_SYSCODE', 'SCHEME_STATUS', 'SCHEME_STATUS', 'SCHEME_STATUS', 'US', ''); 
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','NEW','新建','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','NEW','NEW','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVING','审批中','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVING','APPROVING','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','CANCELLED','已取消','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','CANCELLED','CANCELLED','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVED','审批通过','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVED','APPROVED','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','REJECTED','审批拒绝','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','REJECTED','REJECTED','US','');
+</code></pre>
+
+<h3>系统消息：</h3>
+<pre><code>sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR');
+sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR', '错误','请至少选择一种&lt;潜在供应商寻找方式&gt;','ZHS');
+sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR', 'Error','请至少选择一种&lt;潜在供应商寻找方式&gt;','US');
+</code></pre>
+
+<h2>锁表查询</h2>
+<hr />
+<pre><code>SELECT l.session_id sid,
+   s.serial#,
+   l.locked_mode,
+   l.oracle_username,
+   l.os_user_name,
+   s.machine,
+   s.terminal,
+   o.object_name,
+   s.logon_time
+  FROM v$locked_object l, all_objects o, v$session s
+ WHERE l.object_id = o.object_id
+   AND l.session_id = s.sid
+ ORDER BY sid, s.serial#;
+</code></pre>
+
+<hr />
+<h1>pdf打印</h1>
+<hr />
+<h3>1、screen文件</h3>
+<pre><code>增加svc链接
+&lt;a:link id=&quot;hn_fnd_source_result_export_pdf&quot; url=&quot;${/request/@context_path}/modules/cux/HN/fnd/FND2010/hn_fnd_source_result_export_pdf.svc&quot;/&gt;
+
+//保存pdf
+function hn_fnd_source_result_export(){
+Aurora.request({
+url: $('hn_fnd_source_result_export_pdf').getUrl()+ '?head_id=${/parameter/@head_id}',//传参数
+success: function(res) {
+window.open(&quot;${/request/@context_path}&quot; + res.result.fileName);
+}
+});
+}
+</code></pre>
+
+<h3>1、svc文件</h3>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!--
+$Author: chenglu 
+$Date: 2018-11-7 09:22
+$Revision: 1.0  
+$Purpose: 
+--&gt;
+&lt;a:service xmlns:p=&quot;uncertain.proc&quot; xmlns:a=&quot;http://www.aurora-framework.org/application&quot; xmlns:s=&quot;aurora.plugin.script&quot; trace=&quot;true&quot;&gt;
+&lt;a:init-procedure&gt;
+&lt;a:model-query model=&quot;cux.HN.fnd.FND2010.hn_fnd_source_result_head_query&quot; rootPath=&quot;header&quot;/&gt; //rootPath:是js里面判断取值的一个参数
+&lt;a:model-query model=&quot;cux.HN.fnd.FND2010.hn_fnd_source_result_line_query&quot; rootPath=&quot;fndline&quot;/&gt; //
+&lt;p:echo/&gt;
+&lt;s:server-script import=&quot;hnfndsourcepdf.js&quot;&gt;&lt;![CDATA[
+//调用，生成指定的pdf文件
+exportToPdf();
+]]&gt;&lt;/s:server-script&gt;
+&lt;/a:init-procedure&gt;
+&lt;a:service-output output=&quot;/parameter&quot;/&gt;
+&lt;/a:service&gt;
+</code></pre>
+
+<h3>1、js文件</h3>
+<pre><code>importClass(java.io.FileOutputStream);
+importClass(java.io.File);
+importClass(java.io.FileInputStream);
+importClass(java.nio.charset.Charset);
+importClass(java.awt.Color);
+importClass(com.itextpdf.text.Document);
+importClass(com.itextpdf.text.pdf.PdfWriter);
+importClass(com.itextpdf.text.Paragraph);
+importClass(com.itextpdf.text.pdf.BaseFont);
+importClass(com.itextpdf.text.Font);
+importClass(com.itextpdf.text.pdf.PdfPCell);
+importClass(com.itextpdf.text.pdf.PdfPTable);
+importClass(com.itextpdf.text.BaseColor);
+importClass(com.itextpdf.text.Element);
+importClass(com.itextpdf.text.Image);
+importClass(com.itextpdf.text.PageSize);
+importClass(com.itextpdf.text.pdf.PdfContentByte);
+importClass(com.itextpdf.text.pdf.PdfReader);
+importClass(com.itextpdf.text.pdf.PdfStamper);
+importClass(com.itextpdf.text.pdf.draw.LineSeparator);
+importClass(javax.servlet.http.HttpServlet);
+importClass(javax.servlet.http.HttpServletRequest);
+importClass(Packages.aurora.service.ServiceInstance);
+importPackage(com.itextpdf.text.pdf.fonts);
+importPackage(java.lang);
+
+var dsf = $instance(&quot;aurora.database.service.IDatabaseServiceFactory&quot;);
+// var logger = $logger('server-script');
+
+// 获取 context 中的 parameter 节点，后续写入文档路径，供前台 JS 调用
+var parameter = $ctx.parameter;
+
+// 设置字体，中文显示需要引入 itext-asian.jar
+var baseFont = BaseFont.createFont('STSong-Light', 'UniGB-UCS2-H',
+        BaseFont.NOT_EMBEDDED);
+
+var survey_type_code;
+
+// 设置字号
+var fontChinese = new Font(baseFont, 10, Font.NORMAL);
+var fontSubTitle = new Font(baseFont, 10, Font.BOLD);
+var fontChineseBold = new Font(baseFont, 12, Font.BOLD);
+var fontChineseBig = new Font(baseFont, 20, Font.BOLD);
+
+function isEmpty(obj) {
+    for ( var name in obj) {
+        return false;
+    }
+    return true;
+}
+
+function setPdfTableCell(content, width, datatable, font) {
+    var cell = new PdfPCell(new Paragraph(content, font));
+    cell.setColspan(width);
+    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+    datatable.addCell(cell);
+}
+
+function getValue(value, back) {
+    if (typeof (value) == 'undefined') {
+        if (typeof (back) == 'undefined') {
+            return '';
+        } else {
+            return String(back);
+        }
+    }
+
+    if (value == 'Y') {
+        return '是';
+    }
+
+    if (value == 'N') {
+        return '否';
+    }
+
+    return String(value);
+}
+
+function addTitle(surveyDocument, title) {
+    var p = new Paragraph(title, fontChineseBold);
+    p.setSpacingBefore(10);
+    p.setSpacingAfter(10);
+    surveyDocument.add(p);
+
+}
+
+function addSubTitle(surveyDocument, title) {
+    var p = new Paragraph(title, fontSubTitle);
+    p.setSpacingAfter(10);
+    p.setSpacingBefore(10);
+    p.setFirstLineIndent(30);
+    surveyDocument.add(p);
+
+}
+
+function addUnderLine(surveyDocument) {
+    var underline = new LineSeparator();
+    underline.setOffset(1);
+    surveyDocument.add(underline);
+}
+
+function addSubUnderLine(surveyDocument) {
+    var underline = new LineSeparator();
+    underline.setOffset(1);
+    underline.setPercentage(90);
+    surveyDocument.add(underline);
+}
+
+function addTableRow(table, content, column, cell, font) {
+    var colSpanCount = 1;
+
+    // 行中有合并单元格的字段
+    if (column != cell) {
+
+        // 一行只显示一个字段信息
+        if (column == 2) {
+            colSpanCount = cell - 1;
+        } else {
+            colSpanCount = cell / column + 1;
+        }
+    }
+
+    for (var i = 0; i &lt; column; i++) {
+        var cell = new PdfPCell(new Paragraph(content[i], font));
+        cell.setBorderWidth(0);
+        if (i % 2 == 1) {
+            cell.setColspan(colSpanCount);
+            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        } else {
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        }
+        table.addCell(cell);
+    }
+}
+
+function addHeaderRow(surveyDocument, content, columns, cells, widthPercentage) {
+
+    // 设置无边框的表格，并填充元素
+    var headerTable = new PdfPTable(cells);
+    headerTable.setWidthPercentage(widthPercentage);
+    headerTable.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
+
+    for (var i = 0; i &lt; columns; i++) {
+        var cell = new PdfPCell(new Paragraph(content[i], fontChinese));
+        cell.setBorderWidth(0);
+        if (i % 2 == 1) {
+            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        } else {
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        }
+
+        if (columns == 2) {
+            if (i == 1) {
+                cell.setColspan(cells - 1);
+            }
+        }
+
+        if (columns == 4) {
+            if (i == 3) {
+                cell.setColspan(cells - 3);
+            }
+        }
+
+        headerTable.addCell(cell);
+    }
+    surveyDocument.add(headerTable);
+}
+
+//创建明细表格通用方法
+function addDetailTable(surveyDocument, datas, title, title_code, width, font) {
+    // 获取表格宽度的cell总数
+    var sum = 0;
+    for (var i = 0; i &lt; width.length; i++) {
+        sum += parseInt(width[i]);
+    }
+
+    // 设置核心表格，并循环添加数据
+    var datatable = new PdfPTable(sum);
+    datatable.setWidthPercentage(100);
+    datatable.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
+    datatable.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+    // datatable.setSpacingAfter(40);
+
+    // 添加标题
+    for (var i = 0; i &lt; title.length; i++) {
+        var cell = new PdfPCell(new Paragraph(title[i], font));
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setColspan(width[i]);
+        datatable.addCell(cell);
+    }
+
+    // 添加明细
+    for (var i = 0; i &lt; datas.length; i++) {
+        for (var j = 0; j &lt; title_code.length; j++) {
+            eval('setPdfTableCell(getValue(datas[i].' + title_code[j]
+                    + '), width[j], datatable, font)');
+        }
+    }
+    surveyDocument.add(datatable);
+}
+
+
+function addHnFndSourceResult(surveyDocument) {
+    var datas = $ctx.model.getChild(&quot;header&quot;).getChildren();
+    if (!isEmpty(datas)) {
+
+        // 设置格式
+        var vendor1 = [ '结果编号:', getValue(datas[0].result_number),'结果标题:',
+                getValue(datas[0].result_title) ];
+        var vendor2 = [ '寻源方案编号:', getValue(datas[0].source_scheme_number),
+                '寻源供应商数量:', getValue(datas[0].source_quantity) ];
+
+        var vendor3 = ['寻源供应商类别:',getValue(datas[0].vendor_type_desc),'部门名称:',getValue(datas[0].unit_name)  ];
+        var vendor4 = ['已调查数量:', getValue(datas[0].investigated_quantity),'待调查数量:', getValue(datas[0].last_investigate_quantity)  ];
+        var vendor5 = ['待考察认证数量:', getValue(datas[0].nspection_cert_quantity),'结果类型 编码:', getValue(datas[0].result_type_desc)];
+        var vendor6 = ['创建人:', getValue(datas[0].create_by_desc),   '结果状态:',  getValue(datas[0].result_status_desc)];
+        var vendor7 = ['创建日期:',getValue(datas[0].create_date_desc), '待调查名称:', getValue(datas[0].investigate_desc)];
+        // 设置标题和分割线
+        addTitle(surveyDocument, '寻源结果');
+        addUnderLine(surveyDocument);
+
+        // 按行添加数据
+        addHeaderRow(surveyDocument, vendor1, 4, 4, 100);
+        addHeaderRow(surveyDocument, vendor2, 4, 4, 100);
+        addHeaderRow(surveyDocument, vendor3, 4, 4, 100);
+        addHeaderRow(surveyDocument, vendor4, 4, 4, 100);
+        addHeaderRow(surveyDocument, vendor5, 4, 4, 100);
+        addHeaderRow(surveyDocument, vendor6, 4, 4, 100);
+        addHeaderRow(surveyDocument, vendor7, 4, 4, 100);
+
+    }
+}
+
+//寻源行表导出
+function addfndsourceLineInfo(surveyDocument) {
+    // 获取数据
+    var datas = $ctx.model.getChild(&quot;fndline&quot;).getChildren();
+
+    if (!isEmpty(datas)) {
+        var subcontractTableTitle = [ '供应商代码', '供应商名称', '商务达标', '技术达标', '质量达标','红线不达标说明','其他不达标说明','是否考察认证','考察认证优先级','供应商调查表编号' ];
+        var subcontractTableTitleCode = [ 'vendor_code', 'vendor_name',
+                'business_flag', 'technology_flag', 'quality_flag','not_standard_desc','other_standard_desc','inspection_cert_flag','inspection_cert_priority_desc','supplier_survey_number' ];
+        var subcontractTableWidth = [ 2, 2, 1, 1, 1, 2, 2, 1, 1, 2 ];
+
+        // 标题
+        addTitle(surveyDocument, '');
+
+        // 输出表格
+        addDetailTable(surveyDocument, datas, subcontractTableTitle,
+                subcontractTableTitleCode, subcontractTableWidth, fontChinese);
+    }
+}
+
+// 主函数
+function exportToPdf() {
+
+    var datas = $ctx.model.getChild(&quot;header&quot;).getChildren();
+
+    // 新建文件对象
+    var surveyDocument = new Document();
+
+    // 获取 context 的数据
+    var context = $ctx.getData();
+
+    // 初始化实例
+    var serviceInstance = ServiceInstance.getInstance(context);
+    var request = serviceInstance.getRequest();
+
+    // 获取当前工程路径
+    var file = request.getSession().getServletContext().getRealPath(
+            File.separator);
+
+    // pdf文档保存路径
+    var fileRoute = file + '/attached/' + getValue(datas[0].survey_number)
+            + &quot;.pdf&quot;;
+    parameter.fileName = '/attached/' + getValue(datas[0].survey_number)
+            + &quot;.pdf&quot;;
+
+    var writer = PdfWriter.getInstance(surveyDocument, new FileOutputStream(
+            fileRoute));
+
+    // 打开文件，开始写入
+    surveyDocument.open();
+
+    // 设置 logo
+    // var img = Image.getInstance(file + 'images/suguang.png');
+    // img.scalePercent(70);
+    // img.setAlignment(Element.ALIGN_LEFT);
+    // //img.setAbsolutePosition(20, 770);
+    // surveyDocument.add(img);
+
+    // 设置pdf标题
+    var pf = new Paragraph(getValue(datas[0].company_name), fontChineseBig);
+    pf.setAlignment(Element.ALIGN_CENTER);
+    pf.setSpacingAfter(10);
+    surveyDocument.add(pf);
+    pf = new Paragraph(&quot;寻源结果&quot;, fontChineseBold);
+    pf.setAlignment(Element.ALIGN_CENTER);
+    pf.setSpacingAfter(20);
+    surveyDocument.add(pf);
+
+    // 寻源头
+    addHnFndSourceResult(surveyDocument);
+    addfndsourceLineInfo(surveyDocument);
+
+    surveyDocument.close();
+}
+</code></pre>
+
+<hr />
+<h1>js校验</h1>
+<hr />
+<p>前台时间大小判断</p>
+<pre><code>//时间格式化
+function timeStamp2String(time) {
+var datetime = new Date();
+datetime.setTime(time);
+var year = datetime.getFullYear();
+var month = datetime.getMonth() + 1 &lt; 10 ? &quot;0&quot; + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
+var date = datetime.getDate() &lt; 10 ? &quot;0&quot; + datetime.getDate() : datetime.getDate();
+var hour = datetime.getHours() &lt; 10 ? &quot;0&quot; + datetime.getHours() : datetime.getHours();
+var minute = datetime.getMinutes() &lt; 10 ? &quot;0&quot; + datetime.getMinutes() : datetime.getMinutes();
+var second = datetime.getSeconds() &lt; 10 ? &quot;0&quot; + datetime.getSeconds() : datetime.getSeconds();
+return year + &quot;-&quot; + month + &quot;-&quot; + date;
+}
+
+
+//比较时间大小
+function compareDate(checkStartDate, checkEndDate) {
+var arys1 = new Array();
+var arys2 = new Array();
+if (checkStartDate != null &amp;&amp; checkEndDate != null) {
+arys1 = checkStartDate.split('-');
+var sdate = new Date(arys1[0], parseInt(arys1[1] - 1), arys1[2]);
+arys2 = checkEndDate.split('-');
+var edate = new Date(arys2[0], parseInt(arys2[1] - 1), arys2[2]);
+if (sdate &gt; edate) {
+return true;
+} else {
+return false;
+}
+}
+}
+</code></pre>
+
+<p>身份证校验：</p>
+<pre><code>function hn_fnd9100_legal_identity_num_check(record, name, value) {
+var hn_re = /^(^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$)|(^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])((\d{4})|\d{3}[Xx])$)$/;
+var data = $('fnd_enterprise_ds').getCurrentRecord().data;
+if (data['legal_rep_identity_type'] == 'ID_CARD' &amp;&amp; typeof(data['legal_rep_identity_num']) != 'undefined') {
+if (hn_re.test(data['legal_rep_identity_num'])) {
+return true;
+} else {
+return '${l:HN_REGISER.LEGAL_REP_IDENTITY_NUM}';
+}
+}
+return true;
+
+}
+</code></pre>
+
+<p>名字只能是中文和英文：</p>
+<pre><code>function hn_fnd9100_legal_name_check(record, name, value) {
+var name = /^[\u4E00-\u9FA5A-Za-z]+$/;
+var data = $('fnd_enterprise_ds').getCurrentRecord().data;
+if (name.test(data['legal_rep_name'])) {
+return true;
+} else {
+return '${l:HN_REGISER.ALL_NAME!}';
+}
+return true;
+
+}
+</code></pre>
+
+<h1>正则表达式</h1>
+<hr />
+<pre><code>一、校验数字的表达式
+
+1 数字：^[0-9]*$ 
+
+2 n位的数字：^\d{n}$
+
+3 至少n位的数字：^\d{n,}$ 
+
+4 m-n位的数字：^\d{m,n}$ 
+
+5 零和非零开头的数字：^(0|[1-9][0-9]*)$ 
+
+6 非零开头的最多带两位小数的数字：^([1-9][0-9]*)+(.[0-9]{1,2})?$ 
+
+7 带1-2位小数的正数或负数：^(\-)?\d+(\.\d{1,2})?$ 
+
+8 正数、负数、和小数：^(\-|\+)?\d+(\.\d+)?$ 
+
+9 有两位小数的正实数：^[0-9]+(.[0-9]{2})?$
+
+10 有1~3位小数的正实数：^[0-9]+(.[0-9]{1,3})?$
+
+11 非零的正整数：^[1-9]\d*$ 或 ^([1-9][0-9]*){1,3}$ 或 ^\+?[1-9][0-9]*$
+
+12 非零的负整数：^\-[1-9][]0-9&quot;*$ 或 ^-[1-9]\d*$
+
+13 非负整数：^\d+$ 或 ^[1-9]\d*|0$
+
+14 非正整数：^-[1-9]\d*|0$ 或 ^((-\d+)|(0+))$
+
+15 非负浮点数：^\d+(\.\d+)?$ 或 ^[1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0$
+
+16 非正浮点数：^((-\d+(\.\d+)?)|(0+(\.0+)?))$ 或 ^(-([1-9]\d*\.\d*|0\.\d*[1-9]\d*))|0?\.0+|0$
+
+17 正浮点数：^[1-9]\d*\.\d*|0\.\d*[1-9]\d*$ 或 ^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$
+
+18 负浮点数：^-([1-9]\d*\.\d*|0\.\d*[1-9]\d*)$ 或 ^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$
+
+19 浮点数：^(-?\d+)(\.\d+)?$ 或 ^-?([1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0)$
+
+二、校验字符的表达式
+
+1 汉字：^[\u4e00-\u9fa5]{0,}$ 
+
+2 英文和数字：^[A-Za-z0-9]+$ 或 ^[A-Za-z0-9]{4,40}$ 
+
+3 长度为3-20的所有字符：^.{3,20}$ 
+
+4 由26个英文字母组成的字符串：^[A-Za-z]+$ 
+
+5 由26个大写英文字母组成的字符串：^[A-Z]+$ 
+
+6 由26个小写英文字母组成的字符串：^[a-z]+$ 
+
+7 由数字和26个英文字母组成的字符串：^[A-Za-z0-9]+$ 
+
+8 由数字、26个英文字母或者下划线组成的字符串：^\w+$ 或 ^\w{3,20}$ 
+
+9 中文、英文、数字包括下划线：^[\u4E00-\u9FA5A-Za-z0-9_]+$
+
+10 中文、英文、数字但不包括下划线等符号：^[\u4E00-\u9FA5A-Za-z0-9]+$ 或 ^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$
+
+11 可以输入含有^%&amp;',;=?$\&quot;等字符：[^%&amp;',;=?$\x22]+
+
+12 禁止输入含有~的字符：[^~\x22]+
+
+三、特殊需求表达式
+
+1 Email地址：^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$ 
+
+2 域名：[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.? 
+
+3 InternetURL：[a-zA-z]+://[^\s]* 或 ^http://([\w-]+\.)+[\w-]+(/[\w-./?%&amp;=]*)?$ 
+
+4 手机号码：^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$ 
+
+5 电话号码(&quot;XXX-XXXXXXX&quot;、&quot;XXXX-XXXXXXXX&quot;、&quot;XXX-XXXXXXX&quot;、&quot;XXX-XXXXXXXX&quot;、&quot;XXXXXXX&quot;和&quot;XXXXXXXX)：^(\(\d{3,4}-)|\d{3.4}-)?\d{7,8}$  
+
+6 国内电话号码(0511-4405222、021-87888822)：\d{3}-\d{8}|\d{4}-\d{7} 
+
+7 身份证号(15位、18位数字)：^\d{15}|\d{18}$ 
+
+8 短身份证号码(数字、字母x结尾)：^([0-9]){7,18}(x|X)?$ 或 ^\d{8,18}|[0-9x]{8,18}|[0-9X]{8,18}?$ 
+
+9 帐号是否合法(字母开头，允许5-16字节，允许字母数字下划线)：^[a-zA-Z][a-zA-Z0-9_]{4,15}$
+
+10 密码(以字母开头，长度在6~18之间，只能包含字母、数字和下划线)：^[a-zA-Z]\w{5,17}$
+
+11 强密码(必须包含大小写字母和数字的组合，不能使用特殊字符，长度在8-10之间)：^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$
+
+12 日期格式：^\d{4}-\d{1,2}-\d{1,2}
+
+13 一年的12个月(01～09和1～12)：^(0?[1-9]|1[0-2])$
+
+14 一个月的31天(01～09和1～31)：^((0?[1-9])|((1|2)[0-9])|30|31)$
+
+15 钱的输入格式：
+
+16 1.有四种钱的表示形式我们可以接受:&quot;10000.00&quot; 和 &quot;10,000.00&quot;, 和没有 &quot;分&quot; 的 &quot;10000&quot; 和 &quot;10,000&quot;：^[1-9][0-9]*$
+
+17 2.这表示任意一个不以0开头的数字,但是,这也意味着一个字符&quot;0&quot;不通过,所以我们采用下面的形式：^(0|[1-9][0-9]*)$
+
+18 3.一个0或者一个不以0开头的数字.我们还可以允许开头有一个负号：^(0|-?[1-9][0-9]*)$
+
+19 4.这表示一个0或者一个可能为负的开头不为0的数字.让用户以0开头好了.把负号的也去掉,因为钱总不能是负的吧.下面我们要加的是说明可能的小数部分：^[0-9]+(.[0-9]+)?$
+
+20 5.必须说明的是,小数点后面至少应该有1位数,所以&quot;10.&quot;是不通过的,但是 &quot;10&quot; 和 &quot;10.2&quot; 是通过的：^[0-9]+(.[0-9]{2})?$
+
+21 6.这样我们规定小数点后面必须有两位,如果你认为太苛刻了,可以这样：^[0-9]+(.[0-9]{1,2})?$
+
+22 7.这样就允许用户只写一位小数.下面我们该考虑数字中的逗号了,我们可以这样：^[0-9]{1,3}(,[0-9]{3})*(.[0-9]{1,2})?$
+
+23 8.1到3个数字,后面跟着任意个 逗号+3个数字,逗号成为可选,而不是必须：^([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,2})?$
+
+24 备注：这就是最终结果了,别忘了&quot;+&quot;可以用&quot;*&quot;替代如果你觉得空字符串也可以接受的话(奇怪,为什么?)最后,别忘了在用函数时去掉去掉那个反斜杠,一般的错误都在这里
+
+25 xml文件：^([a-zA-Z]+-?)+[a-zA-Z0-9]+\\.[x|X][m|M][l|L]$
+
+26 中文字符的正则表达式：[\u4e00-\u9fa5]
+
+27 双字节字符：[^\x00-\xff] (包括汉字在内，可以用来计算字符串的长度(一个双字节字符长度计2，ASCII字符计1))
+
+28 空白行的正则表达式：\n\s*\r (可以用来删除空白行)
+
+29 HTML标记的正则表达式：&lt;(\S*?)[^&gt;]*&gt;.*?&lt;/\1&gt;|&lt;.*? /&gt; (网上流传的版本太糟糕，上面这个也仅仅能部分，对于复杂的嵌套标记依旧无能为力)
+
+30 首尾空白字符的正则表达式：^\s*|\s*$或(^\s*)|(\s*$) (可以用来删除行首行尾的空白字符(包括空格、制表符、换页符等等)，非常有用的表达式)
+
+31 腾讯QQ号：[1-9][0-9]{4,} (腾讯QQ号从10000开始)
+
+32 中国邮政编码：[1-9]\d{5}(?!\d) (中国邮政编码为6位数字) 33 IP地址：\d+\.\d+\.\d+\.\d+ (提取IP地址时有用) 34 IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)) 
+</code></pre>
+
+<h2>游标向表中插入多条数据</h2>
+<hr />
+<pre><code>decale
+
+
+ CURSOR hn_site_cursor IS
+  SELECT hl.unit_desc,
+ hl.cert_team_employee_name person_desc,
+ 'INSP' person_type_code,
+ hl.employee_position position_desc,
+ nvl(hl.team_leader_flag, 'N') principal_flag
+FROM hn_cert_plan_team_line hl
+   WHERE hl.head_id = (SELECT DISTINCT hd.head_id
+ FROM hn_cert_plan_head hd
+WHERE hd.cert_plan_no = p_cert_plan_no);
+
+
+begin
+ --默认将现场考察计划的人员插入
+OPEN hn_site_cursor;
+LOOP
+  FETCH hn_site_cursor
+INTO v_unit_desc,
+ v_person_desc,
+ v_person_type_code,
+ v_position_desc,
+ v_principal_flag;
+  EXIT WHEN hn_site_cursor%NOTFOUND;
+  hn_cert_site_assess_report_pkg.site_report_line_person_insert(p_head_id  =&gt; o_head_id,
+p_line_num =&gt; 1,
+p_person_desc  =&gt; v_person_desc,
+p_unit_desc=&gt; v_unit_desc,
+p_position_desc=&gt; v_position_desc,
+p_principal_flag   =&gt; v_principal_flag,
+p_person_type_code =&gt; v_person_type_code,
+p_user_id  =&gt; p_user_id);
+
+END LOOP;
+CLOSE hn_site_cursor;
+
+end；
+</code></pre>
+
+<h1>权限控制</h1>
+<p>bm文件：</p>
+<pre><code>头部：
+&lt;bm:model xmlns:s=&quot;aurora.plugin.script&quot; xmlns:bm=&quot;http://www.aurora-framework.org/schema/bm&quot;&gt;
+
+select 语句后面：
+#AUTHORIY_FROM# #WHERE_CLAUSE# #AUTHORIY_WHERE# #ORDER_BY_CLAUSE#
+
+&lt;bm:data-filters&gt;
+&lt;bm:data-filter expression=&quot;1=1&quot;/&gt;
+&lt;/bm:data-filters&gt;
+
+
+&lt;authority foundation_code=&quot;HN_CERT_PLAN&quot;&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;CREATER&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;owner_company_id&quot; type=&quot;COMPANY&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;RECEIVER&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;business_unit_id&quot; type=&quot;BUSINESS_UNIT&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;PUR_ORGANIZATION&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;PUR_BUYER&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;inv_organization_id&quot; type=&quot;INV_ORGANIZATION&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;SD_ORGANIZATION&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;coop_company_id&quot; type=&quot;VENDOR&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;CLIENT&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;PURHASE_MATERIAL&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;SALES_PRODUCTION&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;CLIENT_SITE&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;useless_id&quot; type=&quot;VENDOR_SITE&quot;/&gt;
+&lt;authority-segment source_alias=&quot;v&quot; source_name=&quot;unit_id&quot; type=&quot;UNIT&quot;/&gt;
+&lt;/authority&gt;
+&lt;bm:features&gt;
+&lt;s:bm-script&gt;&lt;![CDATA[
+var cx = Packages.aurora.javascript.Context.getCurrentContext();
+Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this, $ctx.getData(), &quot;fnd_flex_dynamic_tools.js&quot;);
+Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this, $ctx.getData(), &quot;fnd_dynamic_authority.js&quot;);
+]]&gt;&lt;/s:bm-script&gt;
+&lt;/bm:features&gt;
+</code></pre>
+
+<h1>页面开发</h1>
+<hr />
+<p>附件上传</p>
+<pre><code>var head_id = '${/parameter/@head_id}';
+
+
+function hn_cert1010_scene_inspection_edit_atta() {
+var url = '${/request/@context_path}/attachment_file_upload.screen?pkvalue=' + head_id + '&amp;table_name=HN_CERT_PLAN_HEAD';
+new Aurora.Window({
+id: 'hn_cert1010_scene_inspection_edit_atta_win',
+title: '${l:HN.UPLOAD_ATTM}',
+url: url,
+width: 500,
+height: 400
+});
+}
+</code></pre>
+
+<p>附件下载</p>
+<pre><code>function hn_fnd1010_vendor_source_detail_atta_download() {
+var url = '${/request/@context_path}/attachment_file_download.screen?pkvalue=' + head_id + '&amp;table_name=HN_SOURCE_SCHEME_HEAD';
+new Aurora.Window({
+id: 'hn_fnd1010_vendor_source_detail_atta_win',
+title: '${l:HN.DOWNLOAD_ATTM}',
+url: url,
+width: 500,
+height: 400
+});
+}
+</code></pre>
+
+<p>操作记录:</p>
+<pre><code>function hn_cert1010_option_record() {
+new Aurora.Window({
+id: 'operation_record_win',
+url: $('hn_cert1010_detail_option_record_query').getUrl() + '?operation_table_id=' + ${/parameter/@head_id} + '&amp;operation_table=hn_cert_plan_head',
+title: '${l:HN.OPTION_RECORD}',
+height: 450,
+width: 600
+});
+}
+</code></pre>
+
+<p>操作记录页面：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;a:screen xmlns:a=&quot;http://www.aurora-framework.org/application&quot;&gt;
+&lt;a:init-procedure&gt;&lt;![CDATA[
+]]&gt;&lt;/a:init-procedure&gt;
+&lt;a:view&gt;
+&lt;script&gt;&lt;![CDATA[
+function operation_record_back() {
+$('operation_record_win').close();
+}
+]]&gt;&lt;/script&gt;
+&lt;a:dataSets&gt;
+&lt;a:dataSet id=&quot;operation_record_ds&quot; autoQuery=&quot;true&quot; model=&quot;cux.HN.public.hn_operation_record_query&quot; queryUrl=&quot;${/request/@context_path}/autocrud/cux.HN.public.hn_operation_record_query/query?operation_table=${/parameter/@operation_table}&amp;amp;operation_table_id=${/parameter/@operation_table_id}&quot;/&gt;
+&lt;/a:dataSets&gt;
+&lt;a:screenTopToolbar&gt;
+&lt;a:toolbarButton click=&quot;operation_record_back&quot; text=&quot;返回&quot; width=&quot;100&quot;/&gt;
+&lt;/a:screenTopToolbar&gt;
+&lt;a:grid autoAppend=&quot;false&quot; bindTarget=&quot;operation_record_ds&quot; height=&quot;350&quot; navBar=&quot;true&quot; width=&quot;570&quot;&gt;
+&lt;a:columns&gt;
+&lt;a:column name=&quot;user_name&quot; align=&quot;center&quot; prompt=&quot;操作人&quot; width=&quot;200&quot;/&gt;
+&lt;a:column name=&quot;creation_date&quot; align=&quot;center&quot; prompt=&quot;操作日期&quot; width=&quot;150&quot;/&gt;
+&lt;a:column name=&quot;status_desc&quot; align=&quot;center&quot; prompt=&quot;状态&quot; width=&quot;200&quot;/&gt;
+&lt;/a:columns&gt;
+&lt;/a:grid&gt;
+&lt;/a:view&gt;
+&lt;/a:screen&gt;
+</code></pre>
+
+<p>操作记录查询bm：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;bm:model xmlns:bm=&quot;http://www.aurora-framework.org/schema/bm&quot; needAccessControl=&quot;false&quot;&gt;
+&lt;bm:operations&gt;
+&lt;bm:operation name=&quot;query&quot;&gt;
+&lt;bm:query-sql&gt;&lt;![CDATA[
+SELECT
+h.user_name,
+h.status_desc,
+h.operation_desc,
+TO_CHAR(h.creation_date, 'yyyy-mm-dd hh24:mi:ss') AS creation_date
+FROM
+hn_operation_records h
+WHERE
+h.operation_table   =${@operation_table} AND
+h.operation_table_id=${@operation_table_id}
+ORDER BY
+creation_date DESC
+]]&gt;&lt;/bm:query-sql&gt;
+&lt;/bm:operation&gt;
+&lt;/bm:operations&gt;
+&lt;/bm:model&gt;
+</code></pre>
+
+<p>操作记录表：</p>
+<pre><code>-- create table
+create table hn_operation_records
+(
+  record_id  number not null,
+  user_idnumber,
+  user_name  varchar2(240),
+  status varchar2(30),
+  status_descvarchar2(100),
+  operation_desc varchar2(2000),
+  operation_tablevarchar2(30),
+  operation_table_id number,
+  created_by number,
+  creation_date  date,
+  last_updated_bynumber,
+  last_update_date   date
+);
+-- add comments to the table 
+comment on table hn_operation_records
+  is '操作记录';
+-- create/recreate indexes 
+create index hn_operation_records_n1 on hn_operation_records (operation_table, operation_table_id);
+-- create/recreate primary, unique and foreign key constraints 
+alter table hn_operation_records
+  add primary key (record_id);
+--sequence
+create sequence hn_operation_records_s;
+</code></pre>
+
+<p>表增加字段</p>
+<pre><code>-- add/modify columns 
+alter table bid_clarifications add technology_comments varchar2(3000);
+-- add comments to the columns 
+comment on column bid_clarifications.technology_comments
+is 'xxx';
+</code></pre>
+
+<p>表修改：</p>
+<pre><code>alter table 表名 modify （字段名1 类型,字段名2 类型,字段名3 类型.....）  
+alter table student modify(id number(4));---将student表中id字段改为number，长度4   
+alter table student modify(id number(4),studentName varchar2(100));
+</code></pre>
+
+<p>值集：</p>
+<pre><code>&lt;a:dataSet id=&quot;hn_fnd1010_scheme_type_ds&quot; lookupCode=&quot;HN_SCHEME_TYPE_SYSCODE&quot;/&gt;
+
+&lt;a:field name=&quot;scheme_type_desc&quot; displayField=&quot;code_value_name&quot; options=&quot;hn_fnd1010_scheme_type_ds&quot; returnField=&quot;scheme_type_code&quot; valueField=&quot;code_value&quot;/&gt;
+</code></pre>
+
+<p>勾选框：</p>
+<pre><code>&lt;a:field name=&quot;method_dept_recommend_flag&quot; checkedValue=&quot;Y&quot; defaultValue=&quot;N&quot; uncheckedValue=&quot;N&quot;/&gt;
+</code></pre>
+
+<p>lov：</p>
+<pre><code>&lt;a:field name=&quot;unit_name&quot; lovHeight=&quot;510&quot; lovService=&quot;cux.HN.public.hn_hrm_unit_lov&quot; lovWidth=&quot;600&quot; readOnly=&quot;true&quot; title=&quot;HN.UNIT_NAME&quot;&gt;
+    &lt;a:mapping&gt;
+        &lt;a:map from=&quot;unit_id&quot; to=&quot;unit_id&quot;/&gt;
+        &lt;a:map from=&quot;unit_code&quot; to=&quot;unit_code&quot;/&gt;
+        &lt;a:map from=&quot;unit_name&quot; to=&quot;unit_name&quot;/&gt;
+        &lt;/a:mapping&gt;
+&lt;/a:field&gt;
+</code></pre>
+
+<p>lov bm文件：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;bm:model xmlns:bm=&quot;http://www.aurora-framework.org/schema/bm&quot; needAccessControl=&quot;false&quot;&gt;
+&lt;bm:operations&gt;
+    &lt;bm:operation name=&quot;query&quot;&gt;
+        &lt;bm:query-sql&gt;&lt;![CDATA[
+            SELECT
+                *
+            FROM
+                (SELECT
+                    u.unit_id,
+                    u.unit_code,
+                    u.unit_desc unit_name
+                FROM
+                    hrm_units_vl u
+                WHERE
+                    u.business_group=${/session/@business_group} AND
+                    u.enabled_flag  ='Y'
+                ORDER BY
+                    u.unit_code
+                ) v #WHERE_CLAUSE#
+        ]]&gt;&lt;/bm:query-sql&gt;
+    &lt;/bm:operation&gt;
+&lt;/bm:operations&gt;
+&lt;bm:fields&gt;
+    &lt;bm:field name=&quot;unit_id&quot;/&gt;
+    &lt;bm:field name=&quot;unit_code&quot; displayWidth=&quot;150&quot; forDisplay=&quot;true&quot; forQuery=&quot;true&quot; prompt=&quot;HN.UNIT_CODE&quot;/&gt;
+    &lt;bm:field name=&quot;unit_name&quot; displayWidth=&quot;200&quot; forDisplay=&quot;true&quot; forQuery=&quot;true&quot; prompt=&quot;HN.UNIT_NAME&quot;/&gt;
+&lt;/bm:fields&gt;
+&lt;bm:query-fields&gt;
+    &lt;bm:query-field name=&quot;unit_code&quot; queryExpression=&quot;v.unit_code like &amp;apos;%&amp;apos;||${@unit_code}||&amp;apos;%&amp;apos;&quot;/&gt;
+    &lt;bm:query-field name=&quot;unit_name&quot; queryExpression=&quot;v.unit_name like &amp;apos;%&amp;apos;||${@unit_name}||&amp;apos;%&amp;apos;&quot;/&gt;
+&lt;/bm:query-fields&gt;
+&lt;/bm:model&gt;
+</code></pre>
+
+<h1>aurora js 函数</h1>
+<hr />
+<p>更新事件：</p>
+<pre><code>function hn_fnd1010_vendor_source_create_head_update(ds, record, name, value, oldvalue) {
+
+            if (name == 'scheme_type_code') {
+                if (value == 'EQUIPMENT') {
+                    record.getField('item_type_desc').setRequired(true); /*combobox选中装备供应商寻源方案 则控制div打开*/
+                    document.getElementById('hn_fnd1010_Lmaterial_certification_requirements_div').style.display = &quot;block&quot;;
+                } else {
+                    record.getField('item_type_desc').setRequired(false);
+                    document.getElementById('hn_fnd1010_Lmaterial_certification_requirements_div').style.display = &quot;none&quot;;
+                }
+            } else if (name == 'category_id') {
+                record.set('item_id', '');
+                record.set('item_code', '');
+                record.set('item_name', '');
+                if (value) {
+                    record.getField('item_code').setRequired(false);
+                    record.getField('item_code').setReadOnly(false);
+                    record.getField('item_code').setLovPara('category_id', value);
+                } else {
+                    record.getField('item_code').setRequired(false);
+                    record.getField('item_code').setReadOnly(true);
+                    record.getField('item_code').setLovPara('category_id', '');//设置lov参数
+                }
+            } else if (name == 'reason_others_flag') {
+                if (value == 'Y') {
+                    record.getField('vendor_reason_remark').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_reason_remark_div').style.display = &quot;block&quot;;
+                } else {
+                    record.set('vendor_reason_remark', '');
+                    record.getField('vendor_reason_remark').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_reason_remark_div').style.display = &quot;none&quot;;
+                }
+            } else if (name == 'vendor_type_code') {
+                if (value == 'OTHERS') {
+                    record.getField('vendor_type_remark').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &quot;block&quot;;
+                } else {
+                    record.set('vendor_type_remark', '');
+                    record.getField('vendor_type_remark').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &quot;none&quot;;
+                }
+            } else if (name == 'method_others_flag') {
+                if (value == 'Y') {
+                    record.getField('vendor_method_remark').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_method_remark_div').style.display = &quot;block&quot;;
+                } else {
+                    record.set('vendor_method_remark', '');
+                    record.getField('vendor_method_remark').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_method_remark_div').style.display = &quot;none&quot;;
+                }
+            } else if (name == 'need_others_flag') {
+                if (value == 'Y') {
+                    record.getField('need_meterial_certification').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_need_remark_div').style.display = &quot;block&quot;;
+                } else {
+                    record.set('need_meterial_certification', '');
+                    record.getField('need_meterial_certification').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_need_remark_div').style.display = &quot;none&quot;;
+                }
+            } else if (name == 'need_not_suitable_flag') {
+                if (value == 'Y') {
+                    record.getField('need_not_suitable').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_need_not_suitable_div').style.display = &quot;block&quot;;
+                } else {
+                    record.set('need_not_suitable', '');
+                    record.getField('need_not_suitable').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_need_not_suitable_div').style.display = &quot;none&quot;;
+                }
+            }
+            if (name == 'item_type_code') {
+                if (value == 'COATER_MADE') {
+                    document.getElementById('hn_fnd1010_need_sublots_test_div').style.display = &quot;block&quot;;
+                    document.getElementById('hn_fnd1010_need_proto_test_div').style.display = &quot;none&quot;;
+                }
+                if (value == 'EQUIPMENT') {
+                    document.getElementById('hn_fnd1010_need_proto_test_div').style.display = &quot;block&quot;;
+                    document.getElementById('hn_fnd1010_need_sublots_test_div').style.display = &quot;none&quot;;
+                }
+            }
+
+
+        }
+</code></pre>
+
+<p>主页面行里面 链接函数 </p>
+<pre><code>function hn_fnd1010_renderer(value, record, name) {
+            var head_id = record.get('head_id');
+            var scheme_number = record.get('scheme_number');
+            var scheme_status = record.get('scheme_status');
+            if (name == 'scheme_number') {
+                return '&lt;a href=&quot;javascript:hn_fnd1010_vendor_source_edit(' + head_id + ',' + '\'' + scheme_status + '\'' + ')&quot;&gt;' + value + '&lt;/a&gt;';
+            } else if (name == 'option_record') {
+                return '&lt;a href=&quot;javascript:hn_fnd1010_option_record(' + head_id + ')&quot;&gt;${l:HN.OPTION_RECORD}&lt;/a&gt;';
+            }
+        }
+
+function hn_fnd1010_vendor_source_edit(head_id, scheme_status) {
+            var url = $('hn_fnd1010_vendor_source_query_link').getUrl();
+            var titel = '${l:HN_FND.VENDOR_SOURCE_DETAIL}';
+            if (scheme_status == 'NEW' || scheme_status == 'REJECTED') {
+                url = $('hn_fnd1010_vendor_source_edit_link').getUrl();
+                titel = '${l:HN_FND.VENDOR_SOURCE_EDIT}';
+            }
+            new Aurora.Window({
+                id: 'hn_vendor_source_detail_win',
+                url: url + '?head_id=' + head_id + '&amp;scheme_status=' + scheme_status + '&amp;show_back_flag=Y',
+                title: titel,
+                fullScreen: true
+            });
+        }
+</code></pre>
+
+<p>行号自动增加</p>
+<pre><code>        function create_line_num_add(dataSet, record, index) {
+            // 生成行号
+            records = dataSet.getAll();
+            var line_num = 0;
+            if (records.length &gt; 1) {
+                for (var t = 0;t &lt; records.length;t++) {
+                    if (line_num &lt; records[t].get('line_num')) {
+                        line_num = records[t].get('line_num');
+                    }
+                }
+            }
+            record.set('line_num', line_num * 1 + 1);
+        }
+
+dataset 事件加入：
+            &lt;a:events&gt;
+                &lt;a:event name=&quot;add&quot; handler=&quot;create_line_num_add&quot;/&gt;
+            &lt;/a:events&gt;
+</code></pre>
+
+<h2>部门权限管理</h2>
+<pre><code>            //部门
+            var pur_unit = $('sys8220_fnd_user_authority_unit_result_ds').getAll();
+            if ($('sys8220_fnd_user_authority_unit_result_ds').validate()) {
+                for (var p = 0;p &lt; pur_unit.length;p++) {
+                    if (pur_unit[p].get('checked') == 'Y') {
+                        pur_unit[p].set('user_id', '${/parameter/@user_id}');
+                        pur_unit[p].set('authority_type', 'UNIT');
+                        pur_unit[p].set('assign_id', pur_unit[p].get('authority_id'));
+                        authority.push(pur_unit[p].data);
+                    }
+                }
+            } else {
+                return false;
+            }
+
+
+
+
+
+        /**************************************************************
+         * 定位查询开始，部门
+         **************************************************************/
+
+        /**************************************************************
+         * 静态全局参数说明：
+         *  每组数据查询所需多个全局变量(多个数据多组变量，分别以_01,_02...表示)
+         *  参数1：显示位置（初始为0）
+         *  参数2：匹配结果数组
+         *  参数3：是否初始化匹配结果数组标识
+         **************************************************************/
+        var show_index_09 = 0; //显示位置
+        var row_list_09 = []; //匹配结果数组
+        var init_flag_09 = false; //初始化标识
+        /**************************************************************
+         * 动态全局参数说明：
+         *  每组数据查询所需多个全局变量(多个数据多组变量，分别以_01,_02...表示)
+         *  参数1：grid绑定的DS对象
+         *  参数2：查询条件绑定的DS对象
+         *  参数3：grid对象
+         *  参数4：查询条件的参数名称
+         *  参数5：查询匹配的参数名称（可以有多个，用_1,_2表示）
+         **************************************************************/
+        var grid_ds_09 = 'sys8220_fnd_user_authority_unit_result_ds'; //grid绑定的DS
+        var query_ds_09 = 'sys8220_fnd_user_authority_unit_query_ds'; //查询条件绑定的DS
+        var grid_09 = 'sys8220_fnd_user_authority_unit_result_ds_grid'; //grid对象
+        var query_name_09 = 'data_code_name'; //查询条件的参数名称
+        var indexof_09_1 = 'data_name'; //匹配参数1
+        var indexof_09_2 = 'data_code'; //匹配参数2
+        //初始全局变量
+
+        function initGlobalPara_09() {
+            show_index_09 = 0;
+            row_list_09 = [];
+            init_flag_09 = false;
+        }
+
+        //初始化定位数组
+
+        function initRowList_09(para) {
+
+            //获取树形结果数据
+            var records = $(grid_ds_09).getAll();
+
+            //对数据进行遍历
+            for (var i = 0;i &lt; records.length;i++) {
+
+                //判断是否包含当前查询字符，包含则将其位置放入匹配结果数组
+                if (!Aurora.isEmpty(records[i].get(indexof_09_1))) {
+                    if (records[i].get(indexof_09_1).indexOf(para) != -1 || records[i].get(indexof_09_1).indexOf(para.toUpperCase()) != -1) {
+                        row_list_09.push($(grid_ds_09).indexOf(records[i]));
+                    }
+                }
+
+                if (!Aurora.isEmpty(records[i].get(indexof_09_2))) {
+                    if (records[i].get(indexof_09_2).indexOf(para) != -1 || records[i].get(indexof_09_2).indexOf(para.toUpperCase()) != -1) {
+                        row_list_01.push($(grid_ds_09).indexOf(records[i]));
+                    }
+                }
+            }
+
+            //改变初始化标识
+            init_flag_09 = true;
+        }
+
+        //查询按钮执行方法
+
+        function sys8220_fndUserAuthorityUnitQuery() {
+
+            //获取查询条件字符串
+            var record = $(query_ds_09).getCurrentRecord();
+
+            //判断查询条件的值是否为空，为空不做查询操作
+            if (!Ext.isEmpty(record.get(query_name_09))) {
+
+                //判断是否初始化定位数组
+                if (!init_flag_09) {
+                    initRowList_09(record.get(query_name_09));
+                }
+
+                //结果匹配数组有值时
+                if (row_list_09.length &gt; 0) {
+
+                    //显示匹配数组里的位置
+                    $(grid_09).selectRow(row_list_09[show_index_09]);
+
+                    //判断显示位置是否越界,没有则++，有责回到初始0
+                    if (show_index_09 &lt; row_list_09.length - 1) {
+                        show_index_09++;
+                    } else {
+                        show_index_09 = 0;
+                    }
+                }
+            }
+        }
+
+        //查询dataset更新事件
+
+        function sys8220_fndUserAuthorityUnitQueryDsUpdate(ds, record, name, value, oldvalue) {
+            $(query_ds_09).getCurrentRecord().dirty = false;
+            if (name == query_name_09) {
+                //查询条件改变，重置全局定位变量
+                initGlobalPara_09();
+            }
+        }
+        /**************************************************************
+         * 定位查询结束,部门
+         **************************************************************/
+</code></pre>
+
+<p>部门bm文件：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+!--
+    $Author: chenglu
+    $Date: 
+    $Revision: 
+    $Purpose: 子账户管理，权限管理页面，部门查询BM
+--&gt;
+&lt;bm:model xmlns:bm=&quot;http://www.aurora-framework.org/schema/bm&quot;&gt;
+&lt;bm:operations&gt;
+    &lt;bm:operation name=&quot;query&quot;&gt;
+        &lt;bm:query-sql&gt;&lt;![CDATA[
+            select * from (
+    SELECT t.unit_id AS data_id,
+       t.unit_code AS data_code,
+       t.unit_desc AS data_name,
+       t.company_id,
+       t.unit_id AS authority_id,
+       t.parent_unit_id AS parent_data_id,
+       (SELECT pu.unit_code || '-' || pu.unit_desc
+          FROM hrm_units_vl pu
+         WHERE pu.unit_id = t.parent_unit_id) AS parent_unit_display,
+       t.operate_unit_id,
+       t.chief_position_id,
+       t.org_unit_level_id,
+       t.enabled_flag,
+       t.assign_types_id,
+       NULL AS sequence,
+       NULL AS expand,
+       decode((SELECT fua.authority_id
+                FROM fnd_user_authority fua
+               WHERE fua.user_id = ${@user_id}
+                 AND fua.authority_type = 'UNIT'
+                 AND fua.assign_id = t.unit_id),
+              NULL,
+              'N',
+              'Y') AS checked,
+       'UNIT' AS authority_type
+  FROM hrm_units_vl t
+  where t.enabled_flag='Y'
+  AND t.business_group = ${/session/@business_group}) v
+        ]]&gt;&lt;/bm:query-sql&gt;
+        &lt;/bm:operation&gt;
+    &lt;/bm:operations&gt;
+&lt;/bm:model&gt;
+</code></pre>
+
+<h1>eclipse 导出脚本设置</h1>
+<pre><code>aurora  -&gt; editor -&gt;
+
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+
+spool INSTALL_SERVICE_REGISTER.log
+
+set feedback off
+set define off
+begin
+
+    --页面注册
+&lt;#if (pages)??&gt;
+   &lt;#list pages as s&gt;
+    sys_data_load_pkg.load_sys_service('${s.page_path}', '${s.page_name}', 1, 1, 0);
+   &lt;/#list&gt;
+&lt;/#if&gt;
+
+    --功能定义
+&lt;#if (function)??&gt;
+    sys_data_load_pkg.load_sys_function('${function.function_code}', '${function.function_name}', '${function.function_name}', '${module.module_code}', 'F', 'SYSTEM', 'STANDARD', '${function.host_path}', '${function.function_order}', '', '');
+&lt;/#if&gt;
+
+    --分配页面
+&lt;#if (pages)??&gt;
+    &lt;#list pages as p&gt;
+    sys_data_load_pkg.load_function_service('${function.host_path}', '${p.page_path}');
+    &lt;/#list&gt;
+&lt;/#if&gt;
+
+    --分配BM
+&lt;#if (models)??&gt;
+    &lt;#list models as m&gt;
+    sys_data_load_pkg.load_function_bm('${function.host_path}', '${m.bm_path}');
+    &lt;/#list&gt;
+&lt;/#if&gt;
+
+end;
+/
+
+commit;
+set feedback on
+set define on
+
+spool off
+
+exit
+</code></pre>
+
+<h2>搭建环境缓存网址：</h2>
+<pre><code>https://pms.going-link.com/w/aurora/no-cache-config
+</code></pre>
+
+<h1>hap网址</h1>
+<pre><code>https://rdc.hand-china.com/gitlab/wh-training-2018/
+
+https://rdc.hand-china.com/gitlab/users/sign_in
+
+图标地址：http://localhost:8080/sys_icon.html
+
+hosts:   https://raw.githubusercontent.com/vokins/yhosts/master/hosts   
+
+aurora标签：http://aurora.hand-china.com/doc/tagdoc/index.html
+
+
+
+kendo UI:
+
+kendoUI:https://www.evget.com/demo-sample/8616
+
+https://blog.csdn.net/a1786223749/article/details/78330908#1kendolov带出的值出现-null和undefined
+
+http://freemarker.foofun.cn/dgui_quickstart_template.html
+
+http://eco.hand-china.com/doc/hap/latest/dev_guide/03.frontend/04_kendo_lov.html
+
+http://eco.hand-china.com/doc/hap/latest/dev_guide/02.backend/13_mybatis2.html
+
+http://eco.hand-china.com/doc/hap/latest/dev_guide/02.backend/11_multi_language.html
+</code></pre>
+
+<h1>git操作</h1>
+<pre><code>在此之前需要切换到自己所需要提交的分支路径
+
+
+1.git add .
+
+2 git commit -m &quot;.....&quot;
+
+3 git push -u origin ...(分支名，master主分支)
+
+
+git :
+
+git log:查看日志
+
+git status: 查看状态
+
+touch “文件名”： 创建文件夹
+
+git branch -a： 查看所有分支
+
+git branch -d  dev（分支名称） :  清除分支
+
+git checkout 分支名： 切换分支
+
+
+git merge dev（分支名称）：合并分支，需要先切换到主分支上
+
+vim 文件名： 修改文件
+
+git checkout -b 分支名 ： 创建分支
+
+
+eclipse  git  提交： 备注写错了     reset - soft  再次commit 来解决
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->
