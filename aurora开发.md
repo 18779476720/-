@@ -1604,7 +1604,68 @@ lov bm文件：
         	</bm:operation>
 	    </bm:operations>
 	</bm:model>
-            
+ 
+
+# 邮件发送 
+
+
+	1、在前台 事件维护中过程名配置：sys_notify_template_pkg.create_notify_common_evt（统一配置）
+	   接收者类型维护 过程名自己写的（hn_emial_send_pkg.hn_admi_score_send）
+	   代码：
+	PROCEDURE hn_admi_score_send(p_message_id        NUMBER,
+                               p_event_param       NUMBER,
+                               p_recipient_id      NUMBER,
+                               p_recipient_type_id NUMBER,
+                               p_user_id           NUMBER) IS
+  		BEGIN
+    	--发送给准入评估人员
+    FOR push_user_rec IN (SELECT DISTINCT su.user_id,
+                                          su.email,
+                                          su.description user_desc,
+                                          su.mobile_phone
+                            FROM hn_vendor_admi_report_head vah,
+                                 hn_vendor_admi_report_line val,
+                                 sys_user                   su
+                           WHERE val.head_id = vah.head_id
+                             AND val.score_user_id = su.user_id
+                             AND nvl(su.frozen_flag, 'N') = 'N'
+                             AND su.start_date <= SYSDATE
+                             AND (su.end_date IS NULL OR su.end_date >= SYSDATE)
+                             AND vah.head_id = p_event_param)
+    LOOP
+    
+      sys_notify_message_pkg.insert_notify_recipient(p_message_id        => p_message_id,
+                                                     p_recipient_type_id => p_recipient_type_id,
+                                                     p_recipient_user_id => push_user_rec.user_id,
+                                                     p_recipient_name    => push_user_rec.user_desc,
+                                                     p_recipient_mobile  => push_user_rec.mobile_phone,
+                                                     p_recipient_mail    => push_user_rec.email,
+                                                     p_created_by        => p_user_id);
+    END LOOP;
+  	EXCEPTION
+    WHEN OTHERS THEN
+      sys_raise_app_error_pkg.raise_sys_others_error(p_message                 => dbms_utility.format_error_backtrace || ' ' || SQLERRM,
+                                                     p_created_by              => p_user_id,
+                                                     p_package_name            => 'HN_EMIAL_SEND_PKG',
+                                                     p_procedure_function_name => 'hn_admi_score_send');
+      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+ 	 END hn_admi_score_send;
+
+
+	事件消息模板：（【大写】）
+
+	SELECT DISTINCT vah.admi_report_number  
+	FROM hn_vendor_admi_report_head vah 
+	WHERE
+	vah.head_id=:pk_value 
+
+	2、在需要触发事件的过程中维护触发事件：
+
+	--发送邮件事件
+    evt_event_core_pkg.fire_event(p_event_name => 'HN_ADMI_REPORT_ISSUE', p_event_param => p_head_id, p_created_by => p_user_id);
+
+
+      
              
 
 
