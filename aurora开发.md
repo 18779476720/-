@@ -1664,6 +1664,27 @@ lov bm文件：
 	--发送邮件事件
     evt_event_core_pkg.fire_event(p_event_name => 'HN_ADMI_REPORT_ISSUE', p_event_param => p_head_id, p_created_by => p_user_id);
 
+# 包pkg抛出异常处理 #
+
+	WHEN e_error THEN
+      sys_raise_app_error_pkg.raise_user_define_error(p_message_code            => 'HN_FND_SOURCE_RESULT_UNIQUE_ERROR',
+                                                      p_created_by              => p_user_id,
+                                                      p_token_1                 => '#VENDOR_NAME',
+                                                      p_token_value_1           => v_vendor_name,
+                                                      p_package_name            => c_hn_source_result_pkg,
+                                                      p_procedure_function_name => 'source_result_line_insert');
+      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+    WHEN OTHERS THEN
+      sys_raise_app_error_pkg.raise_sys_others_error(p_message                 => dbms_utility.format_error_backtrace || ' ' || SQLERRM,
+                                                     p_created_by              => p_user_id,
+                                                     p_package_name            => c_hn_source_result_pkg,
+                                                     p_procedure_function_name => 'source_result_line_insert');
+      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+
+	消息代码维护：
+			sys_message_pkg.delete_message('HN_FND_SOURCE_RESULT_UNIQUE_ERROR');
+ 			sys_message_pkg.insert_message('HN_FND_SOURCE_RESULT_UNIQUE_ERROR', '错误','<#VENDOR_NAME>供应商维护重复！','ZHS');
+  			sys_message_pkg.insert_message('HN_FND_SOURCE_RESULT_UNIQUE_ERROR', 'Error','<#VENDOR_NAME>供应商维护重复！','US');
 
       
              
