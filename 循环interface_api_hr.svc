@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:service xmlns:p="uncertain.proc" xmlns:a="http://www.aurora-framework.org/application" xmlns:s="aurora.plugin.script" trace="true">
+    <a:init-procedure>
+        <p:switch test="/parameter/@api_code">
+            <p:case value="HR_ORG_ITF">
+                <!--组织-->
+                <a:model-query fetchAll="true" model="api.API1030.hr_org_param_url" rootPath="api_url"/>
+            </p:case>
+            <p:case value="HR_EMP_ITF">
+                <!--人员-->
+                <a:model-query fetchAll="true" model="api.API1030.hr_emp_param_url" rootPath="api_url"/>
+            </p:case>
+            <p:case value="*">
+                <a:model-query fetchAll="true" model="api.PUBLIC.api_get_request_url_hr" rootPath="api_url"/>
+            </p:case>
+        </p:switch>
+        <s:server-script import="lj_hr_request.js"><![CDATA[
+            var records = $ctx.model.getChild('api_url').getChildren();
+            //循环处理数据去请求接口
+            for (var i = 0;i < records.length;i++) {
+                //获取api_method
+                var api_method = records[i].api_method;
+                var request_header = null;
+                var request_data = null;
+                //处理头
+                if (records[i].request_header) {
+                    request_header = JSON.parse(records[i].request_header);
+                }
+                if (api_method == 'GET') {
+                    //处理参数
+                    if (records[i].request_data) {
+                        request_data = JSON.parse(records[i].request_data);
+                    }
+                } else {
+                    //POST PATCH 方式直接传字符串形式
+                    if (records[i].request_data) {
+                        request_data = records[i].request_data;
+                    }
+                }
+                if (records[i].api_url) {
+                    request({
+                        url: records[i].api_url,
+                        api_method: api_method,
+                        api_code: records[i].api_code,
+                        request_header: request_header,
+                        request_data: request_data,
+                        success: function(args) {
+                            var rec = {
+                                'history_id': records[i].history_id,
+                                'url': records[i].api_url,
+                                'config_id': records[i].config_id,
+                                'parent_id': records[i].parent_id,
+                                'api_id': records[i].api_id,
+                                'api_code': records[i].api_code,
+                                'request_header': records[i].request_header,
+                                'request_data': records[i].request_data,
+                                'response_data': args
+                            };
+                            $bm("api.PUBLIC.api_exec_process_hr").insert(rec);
+                        },
+                        failure: function(args) {
+                            raise_app_error(args.error.message);
+                        }
+                    });
+                }
+            }
+        ]]></s:server-script>
+    </a:init-procedure>
+    <a:service-output/>
+</a:service>
