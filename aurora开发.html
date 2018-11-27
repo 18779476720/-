@@ -2224,6 +2224,172 @@ spool off
 exit
 </code></pre>
 
+<h1>Oracle定时任务</h1>
+<pre><code>1、创建job定时任务  实现自动调用存储过程
+
+declare
+  job number;
+BEGIN
+  DBMS_JOB.SUBMIT(  
+        JOB =&gt; job,  /*自动生成JOB_ID*/  
+        WHAT =&gt; 'proc_add_test;',  /*需要执行的存储过程名称或SQL语句*/  
+        NEXT_DATE =&gt; sysdate+3/(24*60),  /*初次执行时间-下一个3分钟*/  
+        INTERVAL =&gt; 'trunc(sysdate,''mi'')+1/(24*60)' /*每隔1分钟执行一次*/
+      );  
+  commit;
+end;
+
+2、可以通过查询系统表查看该job信息
+select * from user_jobs;
+
+3、手动sql调用job
+    begin
+        DBMS_JOB.RUN(40); /*40 job的id*/
+    end;
+
+4、删除任务
+    begin
+        /*删除自动执行的job*/
+        dbms_job.remove(40);
+    end;
+
+5、停止job
+dbms.broken(job，broken，nextdate);   
+dbms_job.broken(v_job,true,next_date);        /*停止一个job,里面参数true也可是false，next_date（某一时刻停止）也可是sysdate（立刻停止）。 */
+
+6、修改间隔时间
+dbms_job.interval(job，interval);
+
+7、修改下次执行时间
+dbms_job.next_date(job，next_date);
+
+8、修改要执行的操作 
+dbms_job.what（jobno，'sp_fact_charge_code;'）；  --修改某个job名 
+</code></pre>
+
+<p>9、存job信息的表user_jobs主要字段说明</p>
+<table>
+<thead>
+<tr>
+	<th>列名</th>
+	<th align="center">数据类型</th>
+	<th align="right">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>JOB</td>
+	<td align="center">NUMBER</td>
+	<td align="right">任务的唯一标示号</td>
+</tr>
+<tr>
+	<td>LOG_USER</td>
+	<td align="center">VARCHAR2(30)</td>
+	<td align="right">提交任务的用户</td>
+</tr>
+<tr>
+	<td>PRIV_USER</td>
+	<td align="center">VARCHAR2(30)</td>
+	<td align="right">赋予任务权限的用户</td>
+</tr>
+<tr>
+	<td>SCHEMA_USER</td>
+	<td align="center">VARCHAR2(30)</td>
+	<td align="right">对任务作语法分析的用户模式</td>
+</tr>
+<tr>
+	<td>LAST_DATE</td>
+	<td align="center">DATE</td>
+	<td align="right">最后一次成功运行任务的时间</td>
+</tr>
+<tr>
+	<td>LAST_SEC</td>
+	<td align="center">VARCHAR2(8)</td>
+	<td align="right">如HH24:MM:SS格式的last_date日期的小时，分钟和秒</td>
+</tr>
+<tr>
+	<td>THIS_DATE</td>
+	<td align="center">DATE</td>
+	<td align="right">正在运行任务的开始时间，如果没有运行任务则为null</td>
+</tr>
+<tr>
+	<td>THIS_SEC</td>
+	<td align="center">VARCHAR2(8)</td>
+	<td align="right">如HH24:MM:SS格式的this_date日期的小时，分钟和秒</td>
+</tr>
+<tr>
+	<td>NEXT_DATE</td>
+	<td align="center">DATE</td>
+	<td align="right">下一次定时运行任务的时间</td>
+</tr>
+<tr>
+	<td>NEXT_SEC</td>
+	<td align="center">VARCHAR2(8)</td>
+	<td align="right">如HH24:MM:SS格式的next_date日期的小时，分钟和秒</td>
+</tr>
+<tr>
+	<td>TOTAL_TIME</td>
+	<td align="center">NUMBER</td>
+	<td align="right">该任务运行所需要的总时间，单位为秒</td>
+</tr>
+<tr>
+	<td>BROKEN</td>
+	<td align="center">VARCHAR2(1)</td>
+	<td align="right">标志参数，Y标示任务中断，以后不会运行</td>
+</tr>
+<tr>
+	<td>INTERVAL</td>
+	<td align="center">VARCHAR2(200)</td>
+	<td align="right">用于计算下一运行时间的表达式</td>
+</tr>
+<tr>
+	<td>FAILURES</td>
+	<td align="center">NUMBER</td>
+	<td align="right">任务运行连续没有成功的次数</td>
+</tr>
+<tr>
+	<td>WHAT</td>
+	<td align="center">VARCHAR2(2000)</td>
+	<td align="right">执行任务的PL/SQL块</td>
+</tr>
+</tbody>
+</table>
+<p>10.INTERVAL参数常用值示例</p>
+<pre><code>    1. 每天午夜12点            ''TRUNC(SYSDATE + 1)''     
+    2. 每天早上8点30分         ''TRUNC(SYSDATE + 1) + （8*60+30）/(24*60)''     
+    3. 每星期二中午12点         ''NEXT_DAY(TRUNC(SYSDATE ), ''''TUESDAY'''' ) + 12/24''     
+    4. 每个月第一天的午夜12点    ''TRUNC(LAST_DAY(SYSDATE ) + 1)''     
+    5. 每个季度最后一天的晚上11点 ''TRUNC(ADD_MONTHS(SYSDATE + 2/24, 3 ), ''Q'' ) -1/24''     
+    6. 每星期六和日早上6点10分    ''TRUNC(LEAST(NEXT_DAY(SYSDATE, ''''SATURDAY&quot;), NEXT_DAY(SYSDATE, &quot;SUNDAY&quot;))) + （6×60+10）/（24×60）''    
+    7. 每3秒钟执行一次             'sysdate+3/(24*60*60)'   
+    8. 每2分钟执行一次           'sysdate+2/(24*60)'    
+    9. 1:每分钟执行  
+    10. Interval =&gt; TRUNC(sysdate,'mi') + 1/ (24*60) --每分钟执行  
+    11. interval =&gt; 'sysdate+1/（24*60）'  --每分钟执行  
+    12. interval =&gt; 'sysdate+1'    --每天  
+    13. interval =&gt; 'sysdate+1/24'   --每小时  
+    14. interval =&gt; 'sysdate+2/24*60' --每2分钟  
+    15. interval =&gt; 'sysdate+30/24*60*60'  --每30秒  
+    16. 2:每天定时执行  
+    17. Interval =&gt; TRUNC(sysdate+1)  --每天凌晨0点执行  
+    18. Interval =&gt; TRUNC(sysdate+1)+1/24  --每天凌晨1点执行  
+    19. Interval =&gt; TRUNC(SYSDATE+1)+(8*60+30)/(24*60)  --每天早上8点30分执行  
+    20. 3:每周定时执行  
+    21. Interval =&gt; TRUNC(next_day(sysdate,'星期一'))+1/24  --每周一凌晨1点执行  
+    22. Interval =&gt; TRUNC(next_day(sysdate,1))+2/24  --每周一凌晨2点执行  
+    23. 4:每月定时执行  
+    24. Interval =&gt;TTRUNC(LAST_DAY(SYSDATE)+1)  --每月1日凌晨0点执行  
+    25. Interval =&gt;TRUNC(LAST_DAY(SYSDATE))+1+1/24  --每月1日凌晨1点执行  
+    26. 5:每季度定时执行  
+    27. Interval =&gt; TRUNC(ADD_MONTHS(SYSDATE,3),'q')  --每季度的第一天凌晨0点执行  
+    28. Interval =&gt; TRUNC(ADD_MONTHS(SYSDATE,3),'q') + 1/24  --每季度的第一天凌晨1点执行  
+    29. Interval =&gt; TRUNC(ADD_MONTHS(SYSDATE+ 2/24,3),'q')-1/24  --每季度的最后一天的晚上11点执行  
+    30. 6:每半年定时执行  
+    31. Interval =&gt; ADD_MONTHS(trunc(sysdate,'yyyy'),6)+1/24  --每年7月1日和1月1日凌晨1点  
+    32. 7:每年定时执行  
+    33. Interval =&gt;ADD_MONTHS(trunc(sysdate,'yyyy'),12)+1/24  --每年1月1日凌晨1点执行  
+</code></pre>
+
 <h2>搭建环境缓存网址：</h2>
 <pre><code>https://pms.going-link.com/w/aurora/no-cache-config
 </code></pre>
