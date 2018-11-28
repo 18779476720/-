@@ -1457,7 +1457,143 @@ bm文件：
       add primary key (record_id);
     --sequence
     create sequence hn_operation_records_s;
-    
+创建表
+
+		-- create table
+		create table hn_cert_plan_head
+		(
+		  head_id                   number not null,
+		  cert_plan_no              varchar2(100),
+		  unit_id                   varchar2(100),
+		  vendor_code               varchar2(100),
+		  cert_start_date           date,
+		  cert_end_date             date,
+		  cert_target               varchar2(3000),
+		  cert_status               varchar2(100),
+		  delete_falg               varchar2(1),        
+		  business_group            varchar2(100),
+		  attribute1                varchar2(100),
+		  attribute2                varchar2(100),
+		  attribute3                varchar2(100),
+		  attribute4                varchar2(100),
+		  attribute5                varchar2(100),
+		  attribute6                varchar2(100),
+		  attribute7                varchar2(100),
+		  attribute8                varchar2(100),
+		  attribute9                varchar2(100),
+		  attribute10               varchar2(100),
+		  attribute11               varchar2(100),
+		  attribute12               varchar2(100),
+		  attribute13               varchar2(100),
+		  attribute14               varchar2(100),
+		  attribute15               varchar2(100),
+		  attribute16               varchar2(100),
+		  attribute17               varchar2(100),
+		  attribute18               varchar2(100),
+		  attribute19               varchar2(100),
+		  attribute20               varchar2(100),
+		  created_by                number,
+		  creation_date             date,
+		  last_updated_by           number,
+		  last_update_date          date
+		);
+		-- add comments to the table 
+		comment on table hn_cert_plan_head
+		  is '现场考察头表';
+		-- add comments to the columns 
+		comment on column hn_cert_plan_head.head_id
+		  is '头ID';
+		comment on column hn_cert_plan_head.cert_plan_no
+		  is '计划单号';
+		comment on column hn_cert_plan_head.unit_id
+		  is '部门ID';
+		comment on column hn_cert_plan_head.vendor_code
+		  is '供应商编码';
+		comment on column hn_cert_plan_head.cert_start_date
+		  is '考察开始从';
+		comment on column hn_cert_plan_head.cert_end_date
+		  is '考察日期至';
+		comment on column hn_cert_plan_head.cert_target
+		  is '考察目标';
+		comment on column hn_cert_plan_head.cert_status
+		  is '考察状态';
+		comment on column hn_cert_plan_head.delete_falg
+		  is '删除标志';
+		-- create/recreate primary, unique and foreign key constraints 
+		alter table hn_cert_plan_head
+		  add constraint hn_cert_plan_head_pk primary key (head_id);
+		
+		--sequence
+		create sequence hn_cert_plan_head_s;
+
+创建视图
+
+	 CREATE OR REPLACE view hn_cert_plan_head_vl AS
+	        SELECT h.head_id,
+	               h.cert_plan_no,
+	               h.unit_id,
+	               un.unit_desc,
+	               su.user_name,
+	               h.vendor_code,
+	               fcv.company_full_name,
+	               to_char(h.cert_start_date,'yyyy-mm-dd') cert_start_date,
+	               to_char(h.cert_end_date,'yyyy-mm-dd') cert_end_date,
+	               h.cert_target,
+	               h.cert_status,
+	               (SELECT s.code_value_name
+	                  FROM sys_code_values_v s
+	                 WHERE s.code = 'HN_CERT_STATUS_SYSCODE'
+	                   AND s.code_value = h.cert_status
+	                   AND s.code_enabled_flag = 'Y'
+	                   AND s.code_value_enabled_flag = 'Y') cert_status_desc,
+	               h.delete_falg,
+	               h.business_group,
+	               h.attribute1,
+	               h.attribute2,
+	               h.attribute3,
+	               h.attribute4,
+	               h.attribute5,
+	               h.attribute6,
+	               h.attribute7,
+	               h.attribute8,
+	               h.attribute9,
+	               h.attribute10,
+	               h.attribute11,
+	               h.attribute12,
+	               h.attribute13,
+	               h.attribute14,
+	               h.attribute15,
+	               h.attribute16,
+	               h.attribute17,
+	               h.attribute18,
+	               h.attribute19,
+	               h.attribute20,
+	               h.created_by,
+	               to_char(h.creation_date,'yyyy-mm-dd') create_date_desc,
+	               h.last_updated_by,
+	               h.last_update_date
+	          FROM hn_cert_plan_head h ,
+	          (SELECT distinct hu.unit_desc,hu.unit_id
+	  FROM hrm_positions         hp,
+	       hrm_units_vl          hu,
+	       hrm_employee_user     heu,
+	       hrm_employee_position hep
+	 WHERE hu.unit_id = hp.unit_id
+	   AND hp.position_id = hep.position_id
+	   AND hep.employee_id = heu.employee_id
+	   AND heu.primary_user_flag = 'Y'
+	   AND hep.primary_position_flag = 'Y') un,
+	   (select fc.company_code,fc.company_full_name from fnd_companies_vl fc where fc.enabled_flag='Y' and fc.supply_flag='Y') fcv,
+	   (SELECT
+	                        u.user_id,
+	                        u.user_name user_code,
+	                        u.user_desc user_name
+	                    FROM
+	                        sys_user_v u) su
+	          where h.unit_id=un.unit_id
+	          and h.vendor_code = fcv.company_code
+	          and h.created_by=su.user_id
+	    
 
 表增加字段
 
@@ -2041,7 +2177,7 @@ lov bm文件：
 9、存job信息的表user_jobs主要字段说明
 
 | 列名        | 数据类型           | 解释  |
-| ------------- |:-------------:| -----:|
+| ------------- |:-------------:|:-----:|
 |JOB	|NUMBER	|任务的唯一标示号
 |LOG_USER	|VARCHAR2(30)	|提交任务的用户
 |PRIV_USER	|VARCHAR2(30)	|赋予任务权限的用户
@@ -2095,6 +2231,31 @@ lov bm文件：
 		33. Interval =>ADD_MONTHS(trunc(sysdate,'yyyy'),12)+1/24  --每年1月1日凌晨1点执行  
 
 
+# Oracle预定义异常 #
+
+| 错误号        | 异常错误信息名称    | 说明  |
+| ------------- |:-------------:|:-----:|
+|ORA-00001 |DUP_VAL_ON_INDEX|试图破坏一个唯一性限制 
+|ORA-00051|TIMEOUT_ON_RESOURCE|在等待资源时发生超时
+|ORA-01001|INVALID_CURSOR |试图使用一个无效的游标
+|ORA-01012|NOT_LOGGED_ON|没有连接到ORACLE
+|ORA-01017|LOGIN_DENIED|无效的用户名及口令
+|ORA-01403|NO_DATA_FOUND|SELECT INTO没有找到数据
+|ORA-01422|TWO_MANY_ROWS|SELECT INTO 返回多行
+|ORA-01410|SYS_INVALID_ROWID|从字符串向ROWID转换发生错误
+|ORA-01476|ZERO_DIVIDE|数字值除零时触发的异常
+|ORA-01722|INVALID_NUMBER|转换一个数字失败
+|ORA-06500|STORAGE_ERROR|内存不够引发的内部错误
+|ORA-06501|PROGRAM_ERROR|存在PL/SQL内部问题
+|ORA-06502|VALUE_ERROR|转换或截断错误
+|ORA-06504|ROWTYPE_MISMATCH|宿主游标变量与 PL/SQL 游标变量的返回类型不兼容 
+|ORA-06511|CURSOR_ALREADY_OPEN|游标已经打开
+|ORA-06530|ACCESS_INTO_NULL|未定义对象
+|ORA-06531|COLLECTION_IS_NULL|集合元素未初始化 
+|ORA-06532|SUBSCRIPT_OUTSIDE_LIMIT|使用嵌套表或 VARRAY 时，将下标指定为负数 
+|ORA-06533|SUBSCRIPT_BEYOND_COUNT|元素下标超过嵌套表或 VARRAY 的最大值 
+|ORA-06592|CASE_NOT_FOUND|CASE 中若未包含相应的 WHEN ，并且没有设置 
+|ORA-30625|SELF_IS_NULL|使用对象类型时，在 null 对象上调用对象方法 
 
 
 ## 搭建环境缓存网址： ##

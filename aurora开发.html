@@ -1704,6 +1704,143 @@ alter table hn_operation_records
 create sequence hn_operation_records_s;
 </code></pre>
 
+<p>创建表</p>
+<pre><code>    -- create table
+    create table hn_cert_plan_head
+    (
+      head_id                   number not null,
+      cert_plan_no              varchar2(100),
+      unit_id                   varchar2(100),
+      vendor_code               varchar2(100),
+      cert_start_date           date,
+      cert_end_date             date,
+      cert_target               varchar2(3000),
+      cert_status               varchar2(100),
+      delete_falg               varchar2(1),        
+      business_group            varchar2(100),
+      attribute1                varchar2(100),
+      attribute2                varchar2(100),
+      attribute3                varchar2(100),
+      attribute4                varchar2(100),
+      attribute5                varchar2(100),
+      attribute6                varchar2(100),
+      attribute7                varchar2(100),
+      attribute8                varchar2(100),
+      attribute9                varchar2(100),
+      attribute10               varchar2(100),
+      attribute11               varchar2(100),
+      attribute12               varchar2(100),
+      attribute13               varchar2(100),
+      attribute14               varchar2(100),
+      attribute15               varchar2(100),
+      attribute16               varchar2(100),
+      attribute17               varchar2(100),
+      attribute18               varchar2(100),
+      attribute19               varchar2(100),
+      attribute20               varchar2(100),
+      created_by                number,
+      creation_date             date,
+      last_updated_by           number,
+      last_update_date          date
+    );
+    -- add comments to the table 
+    comment on table hn_cert_plan_head
+      is '现场考察头表';
+    -- add comments to the columns 
+    comment on column hn_cert_plan_head.head_id
+      is '头ID';
+    comment on column hn_cert_plan_head.cert_plan_no
+      is '计划单号';
+    comment on column hn_cert_plan_head.unit_id
+      is '部门ID';
+    comment on column hn_cert_plan_head.vendor_code
+      is '供应商编码';
+    comment on column hn_cert_plan_head.cert_start_date
+      is '考察开始从';
+    comment on column hn_cert_plan_head.cert_end_date
+      is '考察日期至';
+    comment on column hn_cert_plan_head.cert_target
+      is '考察目标';
+    comment on column hn_cert_plan_head.cert_status
+      is '考察状态';
+    comment on column hn_cert_plan_head.delete_falg
+      is '删除标志';
+    -- create/recreate primary, unique and foreign key constraints 
+    alter table hn_cert_plan_head
+      add constraint hn_cert_plan_head_pk primary key (head_id);
+
+    --sequence
+    create sequence hn_cert_plan_head_s;
+</code></pre>
+
+<p>创建视图</p>
+<pre><code> CREATE OR REPLACE view hn_cert_plan_head_vl AS
+        SELECT h.head_id,
+               h.cert_plan_no,
+               h.unit_id,
+               un.unit_desc,
+               su.user_name,
+               h.vendor_code,
+               fcv.company_full_name,
+               to_char(h.cert_start_date,'yyyy-mm-dd') cert_start_date,
+               to_char(h.cert_end_date,'yyyy-mm-dd') cert_end_date,
+               h.cert_target,
+               h.cert_status,
+               (SELECT s.code_value_name
+                  FROM sys_code_values_v s
+                 WHERE s.code = 'HN_CERT_STATUS_SYSCODE'
+                   AND s.code_value = h.cert_status
+                   AND s.code_enabled_flag = 'Y'
+                   AND s.code_value_enabled_flag = 'Y') cert_status_desc,
+               h.delete_falg,
+               h.business_group,
+               h.attribute1,
+               h.attribute2,
+               h.attribute3,
+               h.attribute4,
+               h.attribute5,
+               h.attribute6,
+               h.attribute7,
+               h.attribute8,
+               h.attribute9,
+               h.attribute10,
+               h.attribute11,
+               h.attribute12,
+               h.attribute13,
+               h.attribute14,
+               h.attribute15,
+               h.attribute16,
+               h.attribute17,
+               h.attribute18,
+               h.attribute19,
+               h.attribute20,
+               h.created_by,
+               to_char(h.creation_date,'yyyy-mm-dd') create_date_desc,
+               h.last_updated_by,
+               h.last_update_date
+          FROM hn_cert_plan_head h ,
+          (SELECT distinct hu.unit_desc,hu.unit_id
+  FROM hrm_positions         hp,
+       hrm_units_vl          hu,
+       hrm_employee_user     heu,
+       hrm_employee_position hep
+ WHERE hu.unit_id = hp.unit_id
+   AND hp.position_id = hep.position_id
+   AND hep.employee_id = heu.employee_id
+   AND heu.primary_user_flag = 'Y'
+   AND hep.primary_position_flag = 'Y') un,
+   (select fc.company_code,fc.company_full_name from fnd_companies_vl fc where fc.enabled_flag='Y' and fc.supply_flag='Y') fcv,
+   (SELECT
+                        u.user_id,
+                        u.user_name user_code,
+                        u.user_desc user_name
+                    FROM
+                        sys_user_v u) su
+          where h.unit_id=un.unit_id
+          and h.vendor_code = fcv.company_code
+          and h.created_by=su.user_id
+</code></pre>
+
 <p>表增加字段</p>
 <pre><code>-- add/modify columns 
 alter table bid_clarifications add technology_comments varchar2(3000);
@@ -2273,84 +2410,84 @@ dbms_job.what（jobno，'sp_fact_charge_code;'）；  --修改某个job名
 <tr>
 	<th>列名</th>
 	<th align="center">数据类型</th>
-	<th align="right">解释</th>
+	<th align="center">解释</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 	<td>JOB</td>
 	<td align="center">NUMBER</td>
-	<td align="right">任务的唯一标示号</td>
+	<td align="center">任务的唯一标示号</td>
 </tr>
 <tr>
 	<td>LOG_USER</td>
 	<td align="center">VARCHAR2(30)</td>
-	<td align="right">提交任务的用户</td>
+	<td align="center">提交任务的用户</td>
 </tr>
 <tr>
 	<td>PRIV_USER</td>
 	<td align="center">VARCHAR2(30)</td>
-	<td align="right">赋予任务权限的用户</td>
+	<td align="center">赋予任务权限的用户</td>
 </tr>
 <tr>
 	<td>SCHEMA_USER</td>
 	<td align="center">VARCHAR2(30)</td>
-	<td align="right">对任务作语法分析的用户模式</td>
+	<td align="center">对任务作语法分析的用户模式</td>
 </tr>
 <tr>
 	<td>LAST_DATE</td>
 	<td align="center">DATE</td>
-	<td align="right">最后一次成功运行任务的时间</td>
+	<td align="center">最后一次成功运行任务的时间</td>
 </tr>
 <tr>
 	<td>LAST_SEC</td>
 	<td align="center">VARCHAR2(8)</td>
-	<td align="right">如HH24:MM:SS格式的last_date日期的小时，分钟和秒</td>
+	<td align="center">如HH24:MM:SS格式的last_date日期的小时，分钟和秒</td>
 </tr>
 <tr>
 	<td>THIS_DATE</td>
 	<td align="center">DATE</td>
-	<td align="right">正在运行任务的开始时间，如果没有运行任务则为null</td>
+	<td align="center">正在运行任务的开始时间，如果没有运行任务则为null</td>
 </tr>
 <tr>
 	<td>THIS_SEC</td>
 	<td align="center">VARCHAR2(8)</td>
-	<td align="right">如HH24:MM:SS格式的this_date日期的小时，分钟和秒</td>
+	<td align="center">如HH24:MM:SS格式的this_date日期的小时，分钟和秒</td>
 </tr>
 <tr>
 	<td>NEXT_DATE</td>
 	<td align="center">DATE</td>
-	<td align="right">下一次定时运行任务的时间</td>
+	<td align="center">下一次定时运行任务的时间</td>
 </tr>
 <tr>
 	<td>NEXT_SEC</td>
 	<td align="center">VARCHAR2(8)</td>
-	<td align="right">如HH24:MM:SS格式的next_date日期的小时，分钟和秒</td>
+	<td align="center">如HH24:MM:SS格式的next_date日期的小时，分钟和秒</td>
 </tr>
 <tr>
 	<td>TOTAL_TIME</td>
 	<td align="center">NUMBER</td>
-	<td align="right">该任务运行所需要的总时间，单位为秒</td>
+	<td align="center">该任务运行所需要的总时间，单位为秒</td>
 </tr>
 <tr>
 	<td>BROKEN</td>
 	<td align="center">VARCHAR2(1)</td>
-	<td align="right">标志参数，Y标示任务中断，以后不会运行</td>
+	<td align="center">标志参数，Y标示任务中断，以后不会运行</td>
 </tr>
 <tr>
 	<td>INTERVAL</td>
 	<td align="center">VARCHAR2(200)</td>
-	<td align="right">用于计算下一运行时间的表达式</td>
+	<td align="center">用于计算下一运行时间的表达式</td>
 </tr>
 <tr>
 	<td>FAILURES</td>
 	<td align="center">NUMBER</td>
-	<td align="right">任务运行连续没有成功的次数</td>
+	<td align="center">任务运行连续没有成功的次数</td>
 </tr>
 <tr>
 	<td>WHAT</td>
 	<td align="center">VARCHAR2(2000)</td>
-	<td align="right">执行任务的PL/SQL块</td>
+	<td align="center">执行任务的PL/SQL块</td>
 </tr>
 </tbody>
 </table>
@@ -2390,6 +2527,123 @@ dbms_job.what（jobno，'sp_fact_charge_code;'）；  --修改某个job名
     33. Interval =&gt;ADD_MONTHS(trunc(sysdate,'yyyy'),12)+1/24  --每年1月1日凌晨1点执行  
 </code></pre>
 
+<h1>Oracle预定义异常</h1>
+<table>
+<thead>
+<tr>
+	<th>错误号</th>
+	<th align="center">异常错误信息名称</th>
+	<th align="center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td>ORA-00001</td>
+	<td align="center">DUP_VAL_ON_INDEX</td>
+	<td align="center">试图破坏一个唯一性限制</td>
+</tr>
+<tr>
+	<td>ORA-00051</td>
+	<td align="center">TIMEOUT_ON_RESOURCE</td>
+	<td align="center">在等待资源时发生超时</td>
+</tr>
+<tr>
+	<td>ORA-01001</td>
+	<td align="center">INVALID_CURSOR</td>
+	<td align="center">试图使用一个无效的游标</td>
+</tr>
+<tr>
+	<td>ORA-01012</td>
+	<td align="center">NOT_LOGGED_ON</td>
+	<td align="center">没有连接到ORACLE</td>
+</tr>
+<tr>
+	<td>ORA-01017</td>
+	<td align="center">LOGIN_DENIED</td>
+	<td align="center">无效的用户名及口令</td>
+</tr>
+<tr>
+	<td>ORA-01403</td>
+	<td align="center">NO_DATA_FOUND</td>
+	<td align="center">SELECT INTO没有找到数据</td>
+</tr>
+<tr>
+	<td>ORA-01422</td>
+	<td align="center">TWO_MANY_ROWS</td>
+	<td align="center">SELECT INTO 返回多行</td>
+</tr>
+<tr>
+	<td>ORA-01410</td>
+	<td align="center">SYS_INVALID_ROWID</td>
+	<td align="center">从字符串向ROWID转换发生错误</td>
+</tr>
+<tr>
+	<td>ORA-01476</td>
+	<td align="center">ZERO_DIVIDE</td>
+	<td align="center">数字值除零时触发的异常</td>
+</tr>
+<tr>
+	<td>ORA-01722</td>
+	<td align="center">INVALID_NUMBER</td>
+	<td align="center">转换一个数字失败</td>
+</tr>
+<tr>
+	<td>ORA-06500</td>
+	<td align="center">STORAGE_ERROR</td>
+	<td align="center">内存不够引发的内部错误</td>
+</tr>
+<tr>
+	<td>ORA-06501</td>
+	<td align="center">PROGRAM_ERROR</td>
+	<td align="center">存在PL/SQL内部问题</td>
+</tr>
+<tr>
+	<td>ORA-06502</td>
+	<td align="center">VALUE_ERROR</td>
+	<td align="center">转换或截断错误</td>
+</tr>
+<tr>
+	<td>ORA-06504</td>
+	<td align="center">ROWTYPE_MISMATCH</td>
+	<td align="center">宿主游标变量与 PL/SQL 游标变量的返回类型不兼容</td>
+</tr>
+<tr>
+	<td>ORA-06511</td>
+	<td align="center">CURSOR_ALREADY_OPEN</td>
+	<td align="center">游标已经打开</td>
+</tr>
+<tr>
+	<td>ORA-06530</td>
+	<td align="center">ACCESS_INTO_NULL</td>
+	<td align="center">未定义对象</td>
+</tr>
+<tr>
+	<td>ORA-06531</td>
+	<td align="center">COLLECTION_IS_NULL</td>
+	<td align="center">集合元素未初始化</td>
+</tr>
+<tr>
+	<td>ORA-06532</td>
+	<td align="center">SUBSCRIPT_OUTSIDE_LIMIT</td>
+	<td align="center">使用嵌套表或 VARRAY 时，将下标指定为负数</td>
+</tr>
+<tr>
+	<td>ORA-06533</td>
+	<td align="center">SUBSCRIPT_BEYOND_COUNT</td>
+	<td align="center">元素下标超过嵌套表或 VARRAY 的最大值</td>
+</tr>
+<tr>
+	<td>ORA-06592</td>
+	<td align="center">CASE_NOT_FOUND</td>
+	<td align="center">CASE 中若未包含相应的 WHEN ，并且没有设置</td>
+</tr>
+<tr>
+	<td>ORA-30625</td>
+	<td align="center">SELF_IS_NULL</td>
+	<td align="center">使用对象类型时，在 null 对象上调用对象方法</td>
+</tr>
+</tbody>
+</table>
 <h2>搭建环境缓存网址：</h2>
 <pre><code>https://pms.going-link.com/w/aurora/no-cache-config
 </code></pre>
