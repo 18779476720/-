@@ -1100,6 +1100,21 @@
     
     }
 
+包内的邮箱校验
+
+	PROCEDURE check_email(p_email VARCHAR2) IS
+	    v_exist_count NUMBER;
+	  BEGIN
+	    SELECT COUNT(1)
+	      INTO v_exist_count
+	      FROM dual
+	     WHERE regexp_like(p_email, '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$');
+	  
+	    IF v_exist_count = 0 THEN
+	      dbms_output.put_line(p_email);
+	    END IF;
+	  END;
+
 
 # 正则表达式 #
 
@@ -1332,6 +1347,70 @@ bm文件：
 
 
 ----------
+
+tab页引用screen页面
+
+	<a:tab disabled="true" prompt="MTL2060.ITEM_PROPERTIES" ref="${/request/@context_path}/modules/mtl/MTL2061/mtl_system_item_attribute_values_maintain_query.screen" width="120"/>
+
+头表字段做成a标签链接
+
+	function hn_admin_vendor_survey() {
+	                debugger;
+	                var headRecord = $('hn_admi3012_admi_report_edit_head_ds').getAt(0);
+	                var hn_cert_vendor_survey = Ext.get('hn_cert_vendor_survey');
+	                var expReqNumA = Ext.get('Hn_cert3012_vendor_a_read');
+	                var expReqNum = headRecord.get('vendor_name');
+	                if (expReqNum && expReqNum != null) {
+	                    Ext.DomHelper.applyStyles(hn_cert_vendor_survey, {//将原来的隐藏标签
+	                        width: '0px',
+	                        display: 'none'
+	                    });
+	                    Ext.DomHelper.append(hn_cert_vendor_survey.parent(), '<a id="Hn_cert3012_vendor_a_read" style="display:block;width:147px;line-height:20px;height:24px;border:1px solid #CCC;background-color:#EEEEEE;padding-left:2px;border-radius:3px;"  href="javascript:hn_cert_vendor_survey_ref(' + headRecord.get('vendor_code') + ')">' + expReqNum + '</a>');
+	                }
+	            }
+
+
+
+
+			<a:dataSet id="hn_admi3012_admi_report_edit_head_ds" autoQuery="true" queryUrl="${/request/@context_path}/autocrud/cux.HN.admi.ADMI3010.hn_vendor_admi_report_head_query/query?head_id=${/parameter/@head_id}">
+                <a:events>
+                    <a:event name="load" handler="hn_admin_vendor_survey"/>
+                </a:events>
+            </a:dataSet>
+
+		<a:lov name="vendor_name" id="hn_cert_vendor_survey" bindTarget="hn_admi3012_admi_report_edit_head_ds" prompt="HN.VENDOR_NAME" readOnly="true"/>
+
+显示提示信息窗口
+
+	Aurora.showMessage('${l:PROMPT}', '${l:HN_CERT.HEAD_DATE_ERROR}');
+
+
+grid隐藏列
+
+			$('hn_admi3010_admi_report_detail_s_line_grid').hideColumn('score');
+            document.getElementById('hn_admi3010_final_score_div').style.display = "none";
+
+
+页面跳转
+
+	function hn_cert_vendor_survey_ref(supplier_company_id) {
+	                var datas = $('hn_pur5715_vendor_survey_id_ds').getAt(0);
+	                if (datas != null && datas != '' && typeof(datas) != 'undefined') {
+	                    var survey_header_id = datas.get('survey_header_id');
+	                    var url = $('hn_vendor_admi_query_link').getUrl();
+	                    new Aurora.Window({
+	                        id: 'pur7210_vendor_survey_detail_win',
+	                        url: url + '?survey_header_id=' + survey_header_id,
+	                        title: '${l:PUR_VENDOR_SURVEY.SURVEY_DETAIL}',
+	                        fullScreen: true
+	                    });
+	                } else {
+	                    Aurora.showMessage('${l:PROMPT}', '${l:HN_ADMI.VENDOR_NO_SERVEY}');
+	                    return;
+	                }
+	            
+	            
+	            }
 
 
 附件上传
@@ -1674,7 +1753,7 @@ lov bm文件：
 ----------
 
 
-更新事件：
+更新事件：（设置必输，设置只读）
 
 	function hn_fnd1010_vendor_source_create_head_update(ds, record, name, value, oldvalue) {
             
@@ -1760,7 +1839,7 @@ lov bm文件：
             }
 
 
-主页面行里面 链接函数 
+主页面行里面 链接函数 （跳转函数）
 
 	function hn_fnd1010_renderer(value, record, name) {
                 var head_id = record.get('head_id');
@@ -2326,3 +2405,5 @@ lov bm文件：
 	
 	
 	eclipse  git  提交： 备注写错了     reset - soft  再次commit 来解决
+
+2018/12/4 17:24:56 

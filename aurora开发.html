@@ -1363,6 +1363,21 @@ return true;
 }
 </code></pre>
 
+<p>包内的邮箱校验</p>
+<pre><code>PROCEDURE check_email(p_email VARCHAR2) IS
+    v_exist_count NUMBER;
+  BEGIN
+    SELECT COUNT(1)
+      INTO v_exist_count
+      FROM dual
+     WHERE regexp_like(p_email, '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$');
+
+    IF v_exist_count = 0 THEN
+      dbms_output.put_line(p_email);
+    END IF;
+  END;
+</code></pre>
+
 <h1>正则表达式</h1>
 <hr />
 <pre><code>一、校验数字的表达式
@@ -1582,6 +1597,68 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 
 <h1>页面开发</h1>
 <hr />
+<p>tab页引用screen页面</p>
+<pre><code>&lt;a:tab disabled=&quot;true&quot; prompt=&quot;MTL2060.ITEM_PROPERTIES&quot; ref=&quot;${/request/@context_path}/modules/mtl/MTL2061/mtl_system_item_attribute_values_maintain_query.screen&quot; width=&quot;120&quot;/&gt;
+</code></pre>
+
+<p>头表字段做成a标签链接</p>
+<pre><code>function hn_admin_vendor_survey() {
+                debugger;
+                var headRecord = $('hn_admi3012_admi_report_edit_head_ds').getAt(0);
+                var hn_cert_vendor_survey = Ext.get('hn_cert_vendor_survey');
+                var expReqNumA = Ext.get('Hn_cert3012_vendor_a_read');
+                var expReqNum = headRecord.get('vendor_name');
+                if (expReqNum &amp;&amp; expReqNum != null) {
+                    Ext.DomHelper.applyStyles(hn_cert_vendor_survey, {//将原来的隐藏标签
+                        width: '0px',
+                        display: 'none'
+                    });
+                    Ext.DomHelper.append(hn_cert_vendor_survey.parent(), '&lt;a id=&quot;Hn_cert3012_vendor_a_read&quot; style=&quot;display:block;width:147px;line-height:20px;height:24px;border:1px solid #CCC;background-color:#EEEEEE;padding-left:2px;border-radius:3px;&quot;  href=&quot;javascript:hn_cert_vendor_survey_ref(' + headRecord.get('vendor_code') + ')&quot;&gt;' + expReqNum + '&lt;/a&gt;');
+                }
+            }
+
+
+
+
+        &lt;a:dataSet id=&quot;hn_admi3012_admi_report_edit_head_ds&quot; autoQuery=&quot;true&quot; queryUrl=&quot;${/request/@context_path}/autocrud/cux.HN.admi.ADMI3010.hn_vendor_admi_report_head_query/query?head_id=${/parameter/@head_id}&quot;&gt;
+            &lt;a:events&gt;
+                &lt;a:event name=&quot;load&quot; handler=&quot;hn_admin_vendor_survey&quot;/&gt;
+            &lt;/a:events&gt;
+        &lt;/a:dataSet&gt;
+
+    &lt;a:lov name=&quot;vendor_name&quot; id=&quot;hn_cert_vendor_survey&quot; bindTarget=&quot;hn_admi3012_admi_report_edit_head_ds&quot; prompt=&quot;HN.VENDOR_NAME&quot; readOnly=&quot;true&quot;/&gt;
+</code></pre>
+
+<p>显示提示信息窗口</p>
+<pre><code>Aurora.showMessage('${l:PROMPT}', '${l:HN_CERT.HEAD_DATE_ERROR}');
+</code></pre>
+
+<p>grid隐藏列</p>
+<pre><code>        $('hn_admi3010_admi_report_detail_s_line_grid').hideColumn('score');
+        document.getElementById('hn_admi3010_final_score_div').style.display = &quot;none&quot;;
+</code></pre>
+
+<p>页面跳转</p>
+<pre><code>function hn_cert_vendor_survey_ref(supplier_company_id) {
+                var datas = $('hn_pur5715_vendor_survey_id_ds').getAt(0);
+                if (datas != null &amp;&amp; datas != '' &amp;&amp; typeof(datas) != 'undefined') {
+                    var survey_header_id = datas.get('survey_header_id');
+                    var url = $('hn_vendor_admi_query_link').getUrl();
+                    new Aurora.Window({
+                        id: 'pur7210_vendor_survey_detail_win',
+                        url: url + '?survey_header_id=' + survey_header_id,
+                        title: '${l:PUR_VENDOR_SURVEY.SURVEY_DETAIL}',
+                        fullScreen: true
+                    });
+                } else {
+                    Aurora.showMessage('${l:PROMPT}', '${l:HN_ADMI.VENDOR_NO_SERVEY}');
+                    return;
+                }
+
+
+            }
+</code></pre>
+
 <p>附件上传</p>
 <pre><code>var head_id = '${/parameter/@head_id}';
 
@@ -1913,7 +1990,7 @@ alter table student modify(id number(4),studentName varchar2(100));
 
 <h1>aurora js 函数</h1>
 <hr />
-<p>更新事件：</p>
+<p>更新事件：（设置必输，设置只读）</p>
 <pre><code>function hn_fnd1010_vendor_source_create_head_update(ds, record, name, value, oldvalue) {
 
             if (name == 'scheme_type_code') {
@@ -1998,7 +2075,7 @@ alter table student modify(id number(4),studentName varchar2(100));
         }
 </code></pre>
 
-<p>主页面行里面 链接函数 </p>
+<p>主页面行里面 链接函数 （跳转函数）</p>
 <pre><code>function hn_fnd1010_renderer(value, record, name) {
             var head_id = record.get('head_id');
             var scheme_number = record.get('scheme_number');
@@ -2712,6 +2789,7 @@ git checkout -b 分支名 ： 创建分支
 eclipse  git  提交： 备注写错了     reset - soft  再次commit 来解决
 </code></pre>
 
+<p>2018/12/4 17:24:56 </p>
 
 </body>
 </html>
