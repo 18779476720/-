@@ -1412,6 +1412,40 @@ grid隐藏列
 	            
 	            }
 
+确认提交窗口
+
+	Aurora.showConfirm('${l:PROMPT}', '${l:HN.COMFIRM}', function() {
+	//锁屏
+		Aurora.Masker.mask(Ext.get('hn_cert1010_scene_detail_win'), '${l:HN.EXECUTING}');
+
+	Aurora.request({
+                        url: $('hn_cert1010_scene_inspection_edit_opt_link').getUrl(),
+                        para: {
+                            'head_id': head_id,
+                            'opt_status': opt_status
+                        },
+                        success: function(args) {
+                            Aurora.Masker.unmask(Ext.get('hn_cert1010_scene_detail_win'));
+                            Aurora.showMessage('${l:PROMPT}', '${l:HN.EXECUTE_SUCCESS}');
+                            hn_cert1010_scene_inspection_edit_back();
+                        },
+                        failure: function() {
+                            Aurora.Masker.unmask(Ext.get('hn_cert1010_scene_detail_win'));
+                        },
+                        error: function() {
+                            Aurora.Masker.unmask(Ext.get('hn_cert1010_scene_detail_win'));
+                        },
+                        scope: this
+                    });
+                });
+	});
+
+
+必填校验/校验脏数据
+	var head_ds = $('hn_cert1010_plan_edit_head_ds');
+	head_ds.validate()；
+	head_ds.dirty；
+
 
 附件上传
 
@@ -1745,6 +1779,100 @@ lov bm文件：
         <bm:query-field name="unit_name" queryExpression="v.unit_name like &apos;%&apos;||${@unit_name}||&apos;%&apos;"/>
     </bm:query-fields>
     </bm:model>
+
+
+# 包package #
+
+操作
+
+	  PROCEDURE site_assess_report_opt(p_head_id    NUMBER,
+	                                   p_opt_status VARCHAR2,
+	                                   p_user_id    NUMBER) IS
+	  BEGIN
+	    IF p_opt_status = c_hn_report_approving_status THEN
+	      --提交操作
+	      site_assess_report_submit(p_head_id => p_head_id, p_user_id => p_user_id);
+	    ELSIF p_opt_status = c_hn_report_cancelled_status THEN
+	      --取消操作
+	      site_assess_report_cancel(p_head_id => p_head_id, p_user_id => p_user_id);
+	    ELSIF p_opt_status = 'DELETE' THEN
+	      --删除操作
+	      site_assess_report_head_delete(p_head_id => p_head_id, p_user_id => p_user_id);
+	    ELSIF p_opt_status = c_hn_report_score_status THEN
+	      --下发评分
+	      site_assess_report_score(p_head_id => p_head_id, p_user_id => p_user_id);
+	    END IF;
+	  END site_assess_report_opt;
+
+校验维护的人员数团队组长
+
+	PROCEDURE site_report_line_person_check(p_head_id NUMBER,
+	                                          p_user_id NUMBER) IS
+	    v_count            NUMBER;
+	    v_person_type_desc VARCHAR2(100);
+	    e_error EXCEPTION;
+	    v_message VARCHAR2(100);
+	  BEGIN
+	    FOR t_line_data IN (SELECT DISTINCT l.person_type_code
+	                          FROM hn_site_report_line_person l
+	                         WHERE l.head_id = p_head_id)
+	    LOOP
+	      SELECT s.code_value_name
+	        INTO v_person_type_desc
+	        FROM sys_code_values_v s
+	       WHERE s.code = c_hn_person_type_syscode
+	         AND s.code_value = t_line_data.person_type_code
+	         AND s.code_enabled_flag = 'Y'
+	         AND s.code_value_enabled_flag = 'Y';
+	      --校验是否维护重复人员
+	      SELECT COUNT(1)
+	        INTO v_count
+	        FROM (SELECT COUNT(1)
+	                FROM hn_site_report_line_person l
+	               WHERE l.head_id = p_head_id
+	                 AND l.person_type_code = t_line_data.person_type_code
+	               GROUP BY l.person_type_code,
+	                        l.person_desc
+	              HAVING COUNT(1) > 1) v;
+	      IF v_count > 0 THEN
+	        v_message := 'HN_SITE_REPORT_PERSON_UNIQUE_ERROR';
+	        RAISE e_error;
+	      END IF;
+	      --校验是否维护负责人
+	      SELECT COUNT(1)
+	        INTO v_count
+	        FROM hn_site_report_line_person l
+	       WHERE l.head_id = p_head_id
+	         AND nvl(l.principal_flag, 'N') = 'Y'
+	         AND l.person_type_code = t_line_data.person_type_code;
+	      IF v_count = 0 THEN
+	        v_message := 'HN_SITE_REPORT_PERSON_NO_LEADER_ERROR';
+	        RAISE e_error;
+	      END IF;
+	      --校验负责人个数
+	      IF v_count > 1 THEN
+	        v_message := 'HN_SITE_REPORT_PERSON_LEADER_EXISTED_ERROR';
+	        RAISE e_error;
+	      END IF;
+	    END LOOP;
+	  EXCEPTION
+	    WHEN e_error THEN
+	      sys_raise_app_error_pkg.raise_user_define_error(p_message_code            => v_message,
+	                                                      p_created_by              => p_user_id,
+	                                                      p_token_1                 => '#PERSON_TYPE_DESC',
+	                                                      p_token_value_1           => v_person_type_desc,
+	                                                      p_package_name            => c_hn_site_assess_report_pkg,
+	                                                      p_procedure_function_name => 'site_report_line_person_check');
+	      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+	    WHEN OTHERS THEN
+	      sys_raise_app_error_pkg.raise_sys_others_error(p_message                 => dbms_utility.format_error_backtrace || ' ' || SQLERRM,
+	                                                     p_created_by              => p_user_id,
+	                                                     p_package_name            => c_hn_site_assess_report_pkg,
+	                                                     p_procedure_function_name => 'site_report_line_person_check');
+	      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+	  END site_report_line_person_check;
+
+
 
 
 # aurora js 函数 #
