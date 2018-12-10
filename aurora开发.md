@@ -1442,9 +1442,10 @@ grid隐藏列
 
 
 必填校验/校验脏数据
+
 	var head_ds = $('hn_cert1010_plan_edit_head_ds');
-	head_ds.validate()；
-	head_ds.dirty；
+	head_ds.validate()；//必填
+	head_ds.dirty；//脏数据
 
 
 附件上传
@@ -1475,6 +1476,18 @@ grid隐藏列
     height: 400
     });
     }
+
+检验附件是否上传
+
+    SELECT COUNT(1)
+      INTO v_attcount
+      FROM fnd_atm_attachment_multi m
+     WHERE m.table_name = 'PUR_RFX_FEEDBACK_HEADER'
+           AND m.table_pk_value = p_feedback_header_id;
+    IF v_attcount = 0 THEN
+      RAISE e_no_att;
+    END IF;
+
 
 操作记录:
 

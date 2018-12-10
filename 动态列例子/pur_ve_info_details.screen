@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: tony  
+    $Date: 2013-9-5 下午3:29:51  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<a:screen xmlns:s="aurora.plugin.script" xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:init-procedure>
+        <s:server-script import="fnd_flex_dynamic_tools.js"/>
+        <s:server-script import="fnd_flex_dynamic_page_main.js"/>
+        <s:server-script import="fnd_flex_dynamic_grid_expanded.js"/>
+    </a:init-procedure>
+    <a:view>
+        <flex-segment dataset="pur_ve5030_detail_ds" grid="pur5030_detail_grid" headerIdPath="/parameter/@ve_templet_structure_id" headerTableName="PUR_VE_TEMPLET_STRUCTURE" pageType="edit" templateFieldName="flex_templet_id" type="grid_expanded"/>
+        <a:link id="pur_ve5030_problem_link" url="${/request/@context_path}/modules/pur_ve/PUR_VE5030/pur_ve_info_problems.screen"/>
+        <a:link id="pur_ve5030_detail_svc_link" url="${/request/@context_path}/modules/pur_ve/PUR_VE5030/pur_ve_info_details.svc"/>
+        <a:link id="pur_ve5030_detail_submit_link" model="pur_ve.PUR_VE5030.pur_ve_info_details" modelaction="execute"/>
+        <script><![CDATA[
+            function pur_ve5030_detail_ren(value, record, name) {
+                var info_detail_id = record.get('info_detail_id');
+                return '<a href="javascript:go_problem(' + info_detail_id + ')">' + '问题跟踪' + '</a>';
+            }
+            
+            function go_problem(info_detail_id) {
+                new Aurora.Window({
+                    id: 'problem_window',
+                    title: '问题跟踪',
+                    url: $('pur_ve5030_problem_link').getUrl() + '?info_detail_id=' + info_detail_id,
+                    fullScreen: true
+                });
+            }
+            
+            function pur5030_detail_return() {
+                $('detail_window').close();
+            }
+            
+            function pur5030_detail_save() {
+                var data = $('pur_ve5030_detail_ds').getJsonData();
+            
+                Aurora.request({
+                    url: $('pur_ve5030_detail_svc_link').getUrl(),
+                    para: data,
+                    success: function() {
+                        Aurora.Masker.unmask($('detail_window').wrap);
+                        $('pur_ve5030_detail_ds').query();
+                        Aurora.showMessage('提示', '保存成功!');
+                    },
+                    failure: function() {
+                        Aurora.Masker.unmask($('detail_window').wrap);
+                        return;
+                    },
+                    error: function() {
+                        Aurora.Masker.unmask($('detail_window').wrap);
+                        return;
+                    }
+                });
+            }
+            
+            function pur5030_detail_submit() {
+                var records = $('pur_ve5030_detail_ds').getAll();
+                for (var i = 0;i < records.length;i++) {
+                    if (records[i].dirty) {
+                        Aurora.showMessage('提示', '请先保存数据！');
+                        return;
+                    }
+                }
+            
+                var data = {};
+                data.info_structure_id = ${/parameter/@info_structure_id};
+                Aurora.showConfirm('提示', '确认提交？', function() {
+                    Aurora.request({
+                        url: $('pur_ve5030_detail_submit_link').getUrl(),
+                        para: data,
+                        success: function() {
+                            Aurora.Masker.unmask($('detail_window').wrap);
+                            $('pur_ve5030_header_ds').query();
+                            Aurora.showMessage('提示', '保存成功!');
+                            pur5030_detail_return();
+                            pur5030_line_return();
+                        },
+                        failure: function() {
+                            Aurora.Masker.unmask($('detail_window').wrap);
+                            return;
+                        },
+                        error: function() {
+                            Aurora.Masker.unmask($('detail_window').wrap);
+                            return;
+                        }
+                    });
+                }, function() {});
+            }
+            
+            
+            function pur_ve5030_detail_query() {
+                $('pur_ve5030_detail_ds').query();
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="pur_ve5030_detail_query_ds" autoCreate="true">
+                <a:fields>
+                    <a:field name="info_structure_id" defaultValue="${/parameter/@info_structure_id}"/>
+                    <a:field name="ve_templet_structure_id" defaultValue="${/parameter/@ve_templet_structure_id}"/>
+                    <a:field name="vendor_code" autoComplete="true" autoCompleteField="code_name" lovGridHeight="320" lovHeight="500" lovService="pur_ve.public.pur_vendors_lov?ve_templet_id=${/parameter/@ve_templet_id}" lovWidth="500" title="供应商">
+                        <a:mapping>
+                            <a:map from="vendor_id" to="vendor_id"/>
+                            <a:map from="vendor_code" to="vendor_code"/>
+                            <a:map from="vendor_name" to="vendor_desc"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="vendor_desc"/>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="pur_ve5031_line_ds" autoCount="true" autoPageSize="true" autoQuery="true" model="pur_ve.PUR_VE5030.pur_ve_templet_structure" queryUrl="${/request/@context_path}/autocrud/pur_ve.PUR_VE5030.pur_ve_templet_structure/query?info_structure_id=${/parameter/@info_structure_id} "/>
+            <a:dataSet id="pur_ve5030_detail_ds" autoCount="true" autoPageSize="true" autoQuery="true" model="pur_ve.PUR_VE5030.pur_ve_info_details" queryDataSet="pur_ve5030_detail_query_ds"/>
+        </a:dataSets>
+        <a:screenTopToolbar>
+            <a:screenTitle/>
+            <a:gridButton bind="pur5030_detail_grid" type="excel" width="100"/>
+            <a:toolbarButton click="pur5030_detail_save" text="保存" width="100"/>
+            <a:toolbarButton click="pur5030_detail_submit" text="整单提交" width="100"/>
+            <a:toolbarButton click="pur5030_detail_return" text="返回" width="100"/>
+        </a:screenTopToolbar>
+        <a:fieldSet column="3" labelWidth="120" marginWidth="40">
+            <a:label name="company_desc" bindTarget="pur_ve5031_header_ds" prompt="公司" readOnly="true"/>
+            <a:label name="ve_templet_desc" bindTarget="pur_ve5031_header_ds" prompt="考评体系" readOnly="true"/>
+            <a:label name="kpi_period_desc" bindTarget="pur_ve5031_header_ds" prompt="考评周期" readOnly="true"/>
+            <a:label name="year" bindTarget="pur_ve5031_header_ds" prompt="年" readOnly="true"/>
+            <a:label name="season" bindTarget="pur_ve5031_header_ds" prompt="季度" readOnly="true"/>
+            <a:label name="month" bindTarget="pur_ve5031_header_ds" prompt="月" readOnly="true"/>
+            <a:label name="criteria_code" bindTarget="pur_ve5031_line_ds" prompt="指标代码" readOnly="true"/>
+            <a:label name="structure_desc" bindTarget="pur_ve5031_line_ds" prompt="指标描述" readOnly="true"/>
+            <a:label/>
+            <a:label name="vendor_code" bindTarget="pur_ve5030_detail_query_ds" prompt="供应商代码"/>
+            <a:label name="vendor_desc" bindTarget="pur_ve5030_detail_query_ds" prompt="供应商描述" readOnly="true"/>
+            <a:button click="pur_ve5030_detail_query" text="查询"/>
+        </a:fieldSet>
+        <a:grid id="pur5030_detail_grid" bindTarget="pur_ve5030_detail_ds" marginHeight="200" marginWidth="40" navBar="true">
+            <a:columns>
+                <a:column align="center" renderer="pur_ve5030_detail_ren" width="60"/>
+                <a:column name="status_desc" align="center" prompt="打分状态" width="60"/>
+                <a:column name="object_code" align="center" prompt="供应商代码" width="80"/>
+                <a:column name="object_desc" align="left" prompt="供应商描述" width="120"/>
+            </a:columns>
+        </a:grid>
+    </a:view>
+</a:screen>
