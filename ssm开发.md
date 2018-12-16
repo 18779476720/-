@@ -238,6 +238,7 @@ bootstrap table
 
 	文档网址 http://bootstrap-table.wenzhixin.net.cn/zh-cn/documentation/
 			http://bootstrap-table.wenzhixin.net.cn/zh-cn/getting-started/
+	bootstrap 图标网址 https://getbootstrap.com/docs/3.3/components/
 
 	页面
 

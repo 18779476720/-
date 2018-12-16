@@ -1638,6 +1638,23 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
         document.getElementById('hn_admi3010_final_score_div').style.display = &quot;none&quot;;
 </code></pre>
 
+<p>div隐藏</p>
+<pre><code>record.getField('vendor_type_remark').setRequired(false);
+document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &quot;block&quot;;
+document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &quot;none&quot;;
+</code></pre>
+
+<p>获取头表数据</p>
+<pre><code>            var records = $('pur5730_survey_manufacturer_headers_ds');
+            var data = records.getCurrentRecord();
+            data.get('hn_survey_type')
+            data.getField('hn_survey_type_other_comment').setRequired(true);
+</code></pre>
+
+<p>数据转json
+				var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
+				var data = head_ds.getCurrentRecord().data;
+                data['purchase_line_datas'] = purchase_line_ds.getJsonData();</p>
 <p>页面跳转</p>
 <pre><code>function hn_cert_vendor_survey_ref(supplier_company_id) {
                 var datas = $('hn_pur5715_vendor_survey_id_ds').getAt(0);
@@ -1657,6 +1674,59 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 
 
             }
+</code></pre>
+
+<p>svc保存</p>
+<pre><code>单个grid （不需要判断参数）
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;a:service xmlns:a=&quot;http://www.aurora-framework.org/application&quot; xmlns:p=&quot;uncertain.proc&quot; checkSessionLock=&quot;true&quot; lockKey=&quot;${/session/@session_id}&quot; trace=&quot;true&quot;&gt;
+    &lt;a:init-procedure&gt;
+        &lt;a:batch-apply sourcepath=&quot;/parameter&quot;&gt;
+                &lt;p:switch test=&quot;@current_parameter/@_status&quot;&gt;
+                    &lt;p:case value=&quot;insert&quot;&gt;
+                        &lt;a:model-insert model=&quot;cux.HN.sysc.SYSC1010.hn_sysc1010_create_table_field_line_edit&quot;/&gt;
+                    &lt;/p:case&gt;
+                    &lt;p:case value=&quot;update&quot;&gt;
+                        &lt;a:model-update model=&quot;cux.HN.sysc.SYSC1010.hn_sysc1010_create_table_field_line_edit&quot;/&gt;
+                    &lt;/p:case&gt;
+                    &lt;p:case value=&quot;delete&quot;&gt;
+                        &lt;a:model-delete model=&quot;cux.HN.sysc.SYSC1010.hn_sysc1010_create_table_field_line_edit&quot;/&gt;
+                    &lt;/p:case&gt;
+                &lt;/p:switch&gt;
+        &lt;/a:batch-apply&gt;
+    &lt;/a:init-procedure&gt;
+    &lt;a:service-output output=&quot;/parameter&quot;/&gt;
+&lt;/a:service&gt;
+
+多个一起保存
+
+&lt;a:batch-apply sourcepath=&quot;/parameter/cert_plan_team_ds&quot;&gt; 或者
+&lt;a:batch-apply sourcepath=&quot;@current_parameter/cert_plan_team_ds&quot;&gt;
+</code></pre>
+
+<p>新单据保存创建返回头id</p>
+<pre><code>        Aurora.showConfirm('${l:PROMPT}', '${l:HN.COMFIRM_CREATE}', function() {
+                Aurora.Masker.mask(Ext.get('hn_sys1010_created_table_win'), '${l:HN.EXECUTING}');
+                Aurora.request({
+                    url: $('hn_cert1010_scene_inspection_create_save_link').getUrl(),
+                    para: data,
+                    success: function(args) {
+                        Aurora.Masker.unmask(Ext.get('hn_sys1010_created_table_win'));
+                        //跳转到维护页面
+                        var head_id = args.result.head_id;//获取返回头id
+                        hn_sysc1010_table_create_back();
+                        hn_cert1010_scene_inspection_edit(head_id, 'NEW');
+                    },
+                    failure: function() {
+                        Aurora.Masker.unmask(Ext.get('hn_sys1010_created_table_win'));
+                    },
+                    error: function() {
+                        Aurora.Masker.unmask(Ext.get('hn_sys1010_created_table_win'));
+                    },
+                    scope: this
+                });
+            });
+        }
 </code></pre>
 
 <p>确认提交窗口</p>
@@ -1687,10 +1757,12 @@ Aurora.request({
 });
 </code></pre>
 
-<p>必填校验/校验脏数据
-	var head_ds = $('hn_cert1010_plan_edit_head_ds');
-	head_ds.validate()；
-	head_ds.dirty；</p>
+<p>必填校验/校验脏数据</p>
+<pre><code>var head_ds = $('hn_cert1010_plan_edit_head_ds');
+head_ds.validate()；//必填
+head_ds.dirty；//脏数据
+</code></pre>
+
 <p>附件上传</p>
 <pre><code>var head_id = '${/parameter/@head_id}';
 
@@ -1718,6 +1790,17 @@ width: 500,
 height: 400
 });
 }
+</code></pre>
+
+<p>检验附件是否上传</p>
+<pre><code>SELECT COUNT(1)
+  INTO v_attcount
+  FROM fnd_atm_attachment_multi m
+ WHERE m.table_name = 'PUR_RFX_FEEDBACK_HEADER'
+       AND m.table_pk_value = p_feedback_header_id;
+IF v_attcount = 0 THEN
+  RAISE e_no_att;
+END IF;
 </code></pre>
 
 <p>操作记录:</p>
@@ -2843,6 +2926,13 @@ dbms_job.what（jobno，'sp_fact_charge_code;'）；  --修改某个job名
 </tr>
 </tbody>
 </table>
+<p>获取表字段</p>
+<pre><code>获取表信息
+select * from user_tab_comments where table_name='HN_CERT_PLAN_HEAD';
+获取表字段信息
+select * from all_tab_columns where Table_Name='HN_CERT_PLAN_HEAD';
+</code></pre>
+
 <h2>搭建环境缓存网址：</h2>
 <pre><code>https://pms.going-link.com/w/aurora/no-cache-config
 </code></pre>

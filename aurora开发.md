@@ -1390,6 +1390,23 @@ grid隐藏列
 			$('hn_admi3010_admi_report_detail_s_line_grid').hideColumn('score');
             document.getElementById('hn_admi3010_final_score_div').style.display = "none";
 
+div隐藏
+
+	record.getField('vendor_type_remark').setRequired(false);
+	document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "block";
+    document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "none";
+
+获取头表数据
+
+				var records = $('pur5730_survey_manufacturer_headers_ds');
+                var data = records.getCurrentRecord();
+				data.get('hn_survey_type')
+				data.getField('hn_survey_type_other_comment').setRequired(true);
+
+数据转json
+				var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
+				var data = head_ds.getCurrentRecord().data;
+                data['purchase_line_datas'] = purchase_line_ds.getJsonData();
 
 页面跳转
 
@@ -1411,6 +1428,60 @@ grid隐藏列
 	            
 	            
 	            }
+
+svc保存
+
+	单个grid （不需要判断参数）
+	<?xml version="1.0" encoding="UTF-8"?>
+	<a:service xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc" checkSessionLock="true" lockKey="${/session/@session_id}" trace="true">
+	    <a:init-procedure>
+	        <a:batch-apply sourcepath="/parameter">
+	                <p:switch test="@current_parameter/@_status">
+	                    <p:case value="insert">
+	                        <a:model-insert model="cux.HN.sysc.SYSC1010.hn_sysc1010_create_table_field_line_edit"/>
+	                    </p:case>
+	                    <p:case value="update">
+	                        <a:model-update model="cux.HN.sysc.SYSC1010.hn_sysc1010_create_table_field_line_edit"/>
+	                    </p:case>
+	                    <p:case value="delete">
+	                        <a:model-delete model="cux.HN.sysc.SYSC1010.hn_sysc1010_create_table_field_line_edit"/>
+	                    </p:case>
+	                </p:switch>
+	        </a:batch-apply>
+	    </a:init-procedure>
+	    <a:service-output output="/parameter"/>
+	</a:service>
+
+	多个一起保存
+
+	<a:batch-apply sourcepath="/parameter/cert_plan_team_ds"> 或者
+	<a:batch-apply sourcepath="@current_parameter/cert_plan_team_ds">
+
+
+新单据保存创建返回头id
+
+			Aurora.showConfirm('${l:PROMPT}', '${l:HN.COMFIRM_CREATE}', function() {
+                    Aurora.Masker.mask(Ext.get('hn_sys1010_created_table_win'), '${l:HN.EXECUTING}');
+                    Aurora.request({
+                        url: $('hn_cert1010_scene_inspection_create_save_link').getUrl(),
+                        para: data,
+                        success: function(args) {
+                            Aurora.Masker.unmask(Ext.get('hn_sys1010_created_table_win'));
+                            //跳转到维护页面
+                            var head_id = args.result.head_id;//获取返回头id
+                            hn_sysc1010_table_create_back();
+                            hn_cert1010_scene_inspection_edit(head_id, 'NEW');
+                        },
+                        failure: function() {
+                            Aurora.Masker.unmask(Ext.get('hn_sys1010_created_table_win'));
+                        },
+                        error: function() {
+                            Aurora.Masker.unmask(Ext.get('hn_sys1010_created_table_win'));
+                        },
+                        scope: this
+                    });
+                });
+            }
 
 确认提交窗口
 
@@ -2477,6 +2548,13 @@ lov bm文件：
 |ORA-06592|CASE_NOT_FOUND|CASE 中若未包含相应的 WHEN ，并且没有设置 
 |ORA-30625|SELF_IS_NULL|使用对象类型时，在 null 对象上调用对象方法 
 
+
+获取表字段
+
+	获取表信息
+	select * from user_tab_comments where table_name='HN_CERT_PLAN_HEAD';
+	获取表字段信息
+	select * from all_tab_columns where Table_Name='HN_CERT_PLAN_HEAD';
 
 ## 搭建环境缓存网址： ##
 
