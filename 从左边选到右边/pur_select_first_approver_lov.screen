@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: wanghaitao 
+    $Date: 2014-9-1  下午02:43:53 
+    $Revision: 1.12 
+    $Purpose: 集团子账户管理，入口页面
+-->
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure/>
+    <a:view>
+        <a:link id="bid5160_select_first_approver_svc_link" url="${/request/@context_path}/modules/bid/BID8020/pur_select_first_approver.svc "/>
+        <a:link id="bid5160_select_first_approver_delete_link" model="bid.BID6080.pur_select_first_approver" modelaction="delete"/>
+        <script><![CDATA[
+            function bid5160_selectFirstApprover() {
+                Aurora.showConfirm('${l:PROMPT}', '确定提交', function() {
+                    var record = $('bid5160_user_save_ds').getAll();
+                 $('bid5160_user_save_result_ds').removeAll();
+                for (var i = 0;i < record.length;i++) {
+                    $('bid5160_user_save_result_ds').add(record[i],i);
+                }
+                Aurora.request({
+                    url: $('bid5160_select_first_approver_delete_link').getUrl(),
+                    para: {
+                        entrustment_header_id: '${/parameter/@entrustment_header_id}'
+                    },
+                    success: function() {
+                        bid6080_confirmOpenPasswordFun();
+                    },
+                    failure: function() {
+                        return;
+                    },
+                    error: function() {
+                        return;
+                    }
+                });
+                });
+            }
+            
+            function bid5160_closeWindow() {
+                $('bid6080_send_message_window').close();
+            }
+            
+            function fnd9310_check_assigned_organization_exist(id) {
+                var select_records = $('bid5160_user_save_ds').getAll();
+                for (var i = 0;i < select_records.length;i++) {
+                    if (id && select_records[i].get('user_id') == id) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            
+            function addApproverFunciton(){
+               var select_ds = $('bid5160_user_save_ds');
+                var record_ds = $('bid5160_user_result_ds').getSelected();
+                for (var i = 0;i < record_ds.length;i++) {
+                    if (fnd9310_check_assigned_organization_exist(record_ds[i].get('user_id'))) {
+                        select_ds.create({
+                            'employees_assign_id': record_ds[i].get('employees_assign_id'),
+                            'employee_id': record_ds[i].get('employee_id'),
+                            'employee_code': record_ds[i].get('employee_code'),
+                            'name': record_ds[i].get('name'),
+                            'user_id': record_ds[i].get('user_id'),
+                            'unit_desc': record_ds[i].get('unit_desc'),
+                        });
+                    }
+                }
+            
+                if (i > 0) {
+            
+                   }
+            }
+            function init(){
+                   var record = $('bid5160_user_save_result_ds').getAll();
+                   var select_ds = $('bid5160_user_save_ds');
+              //  var record_result = $('bid5160_user_save_ds').removeAll();
+               /*  for (var i = 0;i < record.length;i++) {
+                     alert(record[i].get('user_id'));
+                    select_ds.create({
+                            'employees_assign_id': record[i].get('employees_assign_id'),
+                            'employee_id': record[i].get('employee_id'),
+                            'employee_code': record[i].get('employee_code'),
+                            'name': record[i].get('name'),
+                            'user_id': record[i].get('user_id'),
+                            'unit_desc': record[i].get('unit_desc'),
+                        });
+                } */
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="bid5160_user_query_ds"/>
+            <a:dataSet id="bid5160_user_result_ds" autoCount="true" autoQuery="true" fetchAll="false" model="bid.BID6080.pur_select_first_approver" modifiedCheck="false" queryDataSet="bid5160_user_query_ds" selectable="true"><![CDATA[
+            ]]></a:dataSet>
+            <a:dataSet id="bid5160_user_save_ds" modifiedCheck="false" selectable="true"><![CDATA[
+            ]]></a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:toolbarButton bind="bid5160_user_result_ds_grid" click="bid5160_selectFirstApprover" style="margin-left:20px;" text="提交" width="100"/>
+                <a:toolbarButton bind="bid5160_user_result_ds_grid" click="bid5160_closeWindow" style="margin-left:20px;" text="返回" width="100"/>
+            </a:screenTopToolbar>
+            <a:hBox>
+                <a:vBox>
+                    <a:queryForm bindTarget="bid5160_user_query_ds" defaultQueryField="name" defaultQueryHint="员工姓名" resultTarget="bid5160_user_result_ds" width="400">
+                        <a:formBody labelWidth="100">
+                            <a:textField name="name" bindTarget="bid5160_user_query_ds" prompt="员工姓名"><![CDATA[
+                    ]]></a:textField>
+                        </a:formBody>
+                    </a:queryForm>
+                    <a:grid id="bid5160_user_result_ds_grid" bindTarget="bid5160_user_result_ds" height="400" navBar="true" width="350">
+                        <a:columns>
+                            <a:column name="employee_code" align="center" prompt="员工代码" sortable="true" width="80"/>
+                            <a:column name="name" align="center" prompt="员工姓名" sortable="true" width="80"/>
+                            <a:column name="unit_desc" align="left" prompt="所属部门" sortable="true" width="150"/>
+                        </a:columns>
+                    </a:grid>
+                </a:vBox>
+                <a:vBox height="450" style="margin-left:10px;" width="50">
+                    <div style="vertical-align:middle">
+                        <a:gridButton id="addApprover" click="addApproverFunciton" text="添加" width="100"/>
+                        <br/>
+                        <a:gridButton bind="bid5160_user_save_ds_grid" type="clear" width="100"/>
+                    </div>
+                </a:vBox>
+                <a:vBox>
+                    <a:grid id="bid5160_user_save_ds_grid" bindTarget="bid5160_user_save_ds" height="400" navBar="false" width="520">
+                        <a:columns>
+                            <a:column name="employee_code" align="center" prompt="员工代码" sortable="true" width="80"/>
+                            <a:column name="name" align="center" prompt="员工姓名" sortable="true" width="80"/>
+                            <a:column name="unit_desc" align="left" prompt="所属部门" sortable="true" width="150"/>
+                        </a:columns>
+                    </a:grid>
+                </a:vBox>
+            </a:hBox>
+        </a:screenBody>
+        <script><![CDATA[
+           init();
+        ]]></script>
+    </a:view>
+</a:screen>

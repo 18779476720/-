@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:s="aurora.plugin.script" xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+               select * from (   select ep.employees_assign_id,
+                    ep.employee_id,
+                    ep.employee_code,
+                    ep.name,
+                    eu.user_id,
+                    hu.unit_desc from
+    HRM_EMPLOYEE_POSITION_V ep, 
+    hrm_positions_vl hp,
+    hrm_units_vl hu,
+    hrm_employee_user eu
+     where ep.position_id=hp.POSITION_ID 
+     and  hu.unit_id=hp.UNIT_ID 
+     and eu.employee_id = ep.employee_id
+     and hu.unit_code in('SJFX','JYCW') ) v #WHERE_CLAUSE# 
+                ]]></bm:query-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+            begin
+				insert into BID_SEND_LIST values(
+				BID_SEND_LIST_S.NEXTVAL,
+				${@entrustment_header_id},
+				${@user_id},
+				sysdate,
+				${/session/@user_id},
+				sysdate,
+				${/session/@user_id}
+				);
+				end;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="delete">
+            <bm:update-sql><![CDATA[
+            begin
+            delete BID_SEND_LIST l where l.entrustment_header_id = ${@entrustment_header_id};
+            EXCEPTION
+            WHEN OTHERS THEN
+      NULL;
+				end;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:query-fields>
+        <bm:query-field name="name" queryExpression="v.name like &apos;%&apos;||${@name}||&apos;%&apos; "/>
+    </bm:query-fields>
+</bm:model>

@@ -486,13 +486,13 @@ END;
 **************************************************/
 DECLARE
   v_table_name VARCHAR2(100) := 'LJ_PROJECT_BUDGET_HEAD';
-  v_titel  VARCHAR2(100) := 'LJ_PRJ';
-  v_start  VARCHAR2(1000);
+  v_titel   VARCHAR2(100) := 'LJ_PRJ';
+  v_start   VARCHAR2(1000);
   v_endVARCHAR2(1000);
-  v_str1   VARCHAR2(100) := 'sys_prompt_pkg.sys_prompts_load(''';
-  v_str2   VARCHAR2(100) := ''');';
-  v_zhsVARCHAR2(100) := ''',''ZHS'',''';
-  v_us VARCHAR2(100) := ''',''US'',''';
+  v_str1    VARCHAR2(100) := 'sys_prompt_pkg.sys_prompts_load(''';
+  v_str2    VARCHAR2(100) := ''');';
+  v_zhs     VARCHAR2(100) := ''',''ZHS'',''';
+  v_us      VARCHAR2(100) := ''',''US'',''';
 BEGIN
   v_start := 'WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
 WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
@@ -701,6 +701,10 @@ sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR', 'Error','请
  WHERE l.object_id = o.object_id
    AND l.session_id = s.sid
  ORDER BY sid, s.serial#;
+
+
+解锁语句
+alter system kill session '24,111'; (其中24,111分别是上面查询出的sid,serial#)
 </code></pre>
 
 <hr />
@@ -1651,10 +1655,12 @@ document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &qu
             data.getField('hn_survey_type_other_comment').setRequired(true);
 </code></pre>
 
-<p>数据转json
-				var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
-				var data = head_ds.getCurrentRecord().data;
-                data['purchase_line_datas'] = purchase_line_ds.getJsonData();</p>
+<p>数据转json</p>
+<pre><code>            var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
+            var data = head_ds.getCurrentRecord().data;
+            data['purchase_line_datas'] = purchase_line_ds.getJsonData();
+</code></pre>
+
 <p>页面跳转</p>
 <pre><code>function hn_cert_vendor_survey_ref(supplier_company_id) {
                 var datas = $('hn_pur5715_vendor_survey_id_ds').getAt(0);
@@ -1761,6 +1767,13 @@ Aurora.request({
 <pre><code>var head_ds = $('hn_cert1010_plan_edit_head_ds');
 head_ds.validate()；//必填
 head_ds.dirty；//脏数据
+
+    for (var j = 0;j &lt; cert_plan_records.length;j++) {
+                if (cert_plan_records[j].dirty) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:HN.LINE_DATA_NO_SAVE}');
+                    return;
+                }
+            }
 </code></pre>
 
 <p>附件上传</p>
@@ -2048,9 +2061,20 @@ alter table student modify(id number(4),studentName varchar2(100));
 </code></pre>
 
 <p>值集：</p>
-<pre><code>&lt;a:dataSet id=&quot;hn_fnd1010_scheme_type_ds&quot; lookupCode=&quot;HN_SCHEME_TYPE_SYSCODE&quot;/&gt;
+<pre><code>系统代码维护
+&lt;a:dataSet id=&quot;hn_fnd1010_scheme_type_ds&quot; lookupCode=&quot;HN_SCHEME_TYPE_SYSCODE&quot;/&gt;
 
 &lt;a:field name=&quot;scheme_type_desc&quot; displayField=&quot;code_value_name&quot; options=&quot;hn_fnd1010_scheme_type_ds&quot; returnField=&quot;scheme_type_code&quot; valueField=&quot;code_value&quot;/&gt;
+
+        第二种值集
+&lt;a:init-procedure&gt;
+    &lt;a:model-query defaultWhereClause=&quot;flex_value_set_code = &amp;apos;WENDER&amp;apos; and ((${/session/@business_group} is null and flex_value = &amp;apos;INVATE&amp;apos;) or (${/session/@business_group} is not null))&quot; fetchAll=&quot;true&quot; model=&quot;public.fnd_flex_value_sets_query&quot; rootPath=&quot;tc_pur5190_wender_data&quot;/&gt;
+&lt;/a:init-procedure&gt;
+        &lt;a:dataSet id=&quot;tc_pur5190_wender_ds&quot; fetchAll=&quot;true&quot; model=&quot;public.fnd_flex_value_sets_query&quot;&gt;
+            &lt;a:datas dataSource=&quot;/model/tc_pur5190_wender_data&quot;/&gt;
+        &lt;/a:dataSet&gt;
+
+        &lt;a:field name=&quot;wender_desc&quot; displayField=&quot;flex_desc&quot; options=&quot;tc_pur5190_wender_ds&quot; required=&quot;true&quot; returnField=&quot;wender&quot; valueField=&quot;flex_value&quot;/&gt;
 </code></pre>
 
 <p>勾选框：</p>
@@ -2277,6 +2301,24 @@ alter table student modify(id number(4),studentName varchar2(100));
             }
 
 
+        }
+</code></pre>
+
+<p>列加载函数</p>
+<pre><code>function hn_fnd2010_source_result_edit_line_load(ds) {
+            var line_records = ds.getAll();
+            for (var i = 0;i &lt; line_records.length;i++) {
+                var vendor_id = line_records[i].get('vendor_id');
+                if (vendor_id) {
+                    line_records[i].getField('supplier_survey_number').setRequired(true);
+                    line_records[i].getField('supplier_survey_number').setReadOnly(false);
+                    line_records[i].getField('supplier_survey_number').setLovPara('vendor_id', vendor_id);
+                } else {
+                    line_records[i].getField('supplier_survey_number').setRequired(false);
+                    line_records[i].getField('supplier_survey_number').setReadOnly(true);
+                    line_records[i].getField('supplier_survey_number').setLovPara('vendor_id', '');
+                }
+            }
         }
 </code></pre>
 
@@ -2935,6 +2977,10 @@ select * from all_tab_columns where Table_Name='HN_CERT_PLAN_HEAD';
 
 <h2>搭建环境缓存网址：</h2>
 <pre><code>https://pms.going-link.com/w/aurora/no-cache-config
+</code></pre>
+
+<p>aurora 资料网址</p>
+<pre><code>https://pms.going-link.com/w/train/2018/
 </code></pre>
 
 <h1>hap网址</h1>

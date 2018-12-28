@@ -196,13 +196,13 @@
     **************************************************/
     DECLARE
       v_table_name VARCHAR2(100) := 'LJ_PROJECT_BUDGET_HEAD';
-      v_titel  VARCHAR2(100) := 'LJ_PRJ';
-      v_start  VARCHAR2(1000);
+      v_titel   VARCHAR2(100) := 'LJ_PRJ';
+      v_start   VARCHAR2(1000);
       v_endVARCHAR2(1000);
-      v_str1   VARCHAR2(100) := 'sys_prompt_pkg.sys_prompts_load(''';
-      v_str2   VARCHAR2(100) := ''');';
-      v_zhsVARCHAR2(100) := ''',''ZHS'',''';
-      v_us VARCHAR2(100) := ''',''US'',''';
+      v_str1    VARCHAR2(100) := 'sys_prompt_pkg.sys_prompts_load(''';
+      v_str2    VARCHAR2(100) := ''');';
+      v_zhs 	VARCHAR2(100) := ''',''ZHS'',''';
+      v_us 		VARCHAR2(100) := ''',''US'',''';
     BEGIN
       v_start := 'WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
     WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
@@ -424,6 +424,10 @@
      WHERE l.object_id = o.object_id
        AND l.session_id = s.sid
      ORDER BY sid, s.serial#;
+
+
+	解锁语句
+	alter system kill session '24,111'; (其中24,111分别是上面查询出的sid,serial#)
 
 
 ----------
@@ -1403,7 +1407,9 @@ div隐藏
 				data.get('hn_survey_type')
 				data.getField('hn_survey_type_other_comment').setRequired(true);
 
+
 数据转json
+
 				var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
 				var data = head_ds.getCurrentRecord().data;
                 data['purchase_line_datas'] = purchase_line_ds.getJsonData();
@@ -1517,6 +1523,13 @@ svc保存
 	var head_ds = $('hn_cert1010_plan_edit_head_ds');
 	head_ds.validate()；//必填
 	head_ds.dirty；//脏数据
+
+		for (var j = 0;j < cert_plan_records.length;j++) {
+                    if (cert_plan_records[j].dirty) {
+                        Aurora.showMessage('${l:PROMPT}', '${l:HN.LINE_DATA_NO_SAVE}');
+                        return;
+                    }
+                }
 
 
 附件上传
@@ -1802,16 +1815,28 @@ svc保存
 
 表修改：
 
-    alter table 表名 modify （字段名1 类型,字段名2 类型,字段名3 类型.....）  
+    alter table 表名 modify （字段名1 类型,字段名2 类型,字段名3 类型.....）;
+	alter table tableName modify 字段 null;  
     alter table student modify(id number(4));---将student表中id字段改为number，长度4   
     alter table student modify(id number(4),studentName varchar2(100));
  
 
 值集：
 
+	系统代码维护
     <a:dataSet id="hn_fnd1010_scheme_type_ds" lookupCode="HN_SCHEME_TYPE_SYSCODE"/>
     
     <a:field name="scheme_type_desc" displayField="code_value_name" options="hn_fnd1010_scheme_type_ds" returnField="scheme_type_code" valueField="code_value"/>
+
+			第二种值集
+	<a:init-procedure>
+        <a:model-query defaultWhereClause="flex_value_set_code = &apos;WENDER&apos; and ((${/session/@business_group} is null and flex_value = &apos;INVATE&apos;) or (${/session/@business_group} is not null))" fetchAll="true" model="public.fnd_flex_value_sets_query" rootPath="tc_pur5190_wender_data"/>
+    </a:init-procedure>
+			<a:dataSet id="tc_pur5190_wender_ds" fetchAll="true" model="public.fnd_flex_value_sets_query">
+     		 	<a:datas dataSource="/model/tc_pur5190_wender_data"/>
+            </a:dataSet>
+
+			<a:field name="wender_desc" displayField="flex_desc" options="tc_pur5190_wender_ds" required="true" returnField="wender" valueField="flex_value"/>
 
 勾选框：
 
@@ -2048,6 +2073,24 @@ lov bm文件：
                 }
             
             
+            }
+
+列加载函数
+
+	function hn_fnd2010_source_result_edit_line_load(ds) {
+                var line_records = ds.getAll();
+                for (var i = 0;i < line_records.length;i++) {
+                    var vendor_id = line_records[i].get('vendor_id');
+                    if (vendor_id) {
+                        line_records[i].getField('supplier_survey_number').setRequired(true);
+                        line_records[i].getField('supplier_survey_number').setReadOnly(false);
+                        line_records[i].getField('supplier_survey_number').setLovPara('vendor_id', vendor_id);
+                    } else {
+                        line_records[i].getField('supplier_survey_number').setRequired(false);
+                        line_records[i].getField('supplier_survey_number').setReadOnly(true);
+                        line_records[i].getField('supplier_survey_number').setLovPara('vendor_id', '');
+                    }
+                }
             }
 
 
@@ -2560,6 +2603,10 @@ lov bm文件：
 
 
 	https://pms.going-link.com/w/aurora/no-cache-config
+
+aurora 资料网址
+
+	https://pms.going-link.com/w/train/2018/
 
 # hap网址 #
 
