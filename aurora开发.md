@@ -1,5 +1,10 @@
 # aurora开发 #
 
+
+----------
+
+  Author:chenglu
+
 ----------
 ## 快速开发脚本 ##
 
@@ -1352,6 +1357,10 @@ bm文件：
 
 ----------
 
+日期格式化
+
+		renderer="Aurora.formatDate"
+
 tab页引用screen页面
 
 	<a:tab disabled="true" prompt="MTL2060.ITEM_PROPERTIES" ref="${/request/@context_path}/modules/mtl/MTL2061/mtl_system_item_attribute_values_maintain_query.screen" width="120"/>
@@ -1399,6 +1408,11 @@ div隐藏
 	record.getField('vendor_type_remark').setRequired(false);
 	document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "block";
     document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "none";
+
+	按钮隐藏
+	if (record.get('status') != 'NEW') {
+                    $('free_cert_delete').disable();
+                }
 
 获取头表数据
 
@@ -2604,7 +2618,10 @@ lov bm文件：
 
 	https://pms.going-link.com/w/aurora/no-cache-config
 
-aurora 资料网址
+	缓存加载内存溢出导致宕机问题（删除没用的角色，以及对应的功能）
+	https://note.youdao.com/share/?id=1c2394c3618cb3b786780d1bf93fbecb&type=note#/
+
+aurora 资料网址，问题汇总
 
 	https://pms.going-link.com/w/train/2018/
 

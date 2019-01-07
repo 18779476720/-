@@ -293,6 +293,8 @@ img {
 <body>
 <h1>aurora开发</h1>
 <hr />
+<p>Author:chenglu</p>
+<hr />
 <h2>快速开发脚本</h2>
 <h3>1、根据表生成增删改查plsql</h3>
 <pre><code>/*************************************************
@@ -1601,6 +1603,10 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 
 <h1>页面开发</h1>
 <hr />
+<p>日期格式化</p>
+<pre><code>    renderer=&quot;Aurora.formatDate&quot;
+</code></pre>
+
 <p>tab页引用screen页面</p>
 <pre><code>&lt;a:tab disabled=&quot;true&quot; prompt=&quot;MTL2060.ITEM_PROPERTIES&quot; ref=&quot;${/request/@context_path}/modules/mtl/MTL2061/mtl_system_item_attribute_values_maintain_query.screen&quot; width=&quot;120&quot;/&gt;
 </code></pre>
@@ -1646,6 +1652,11 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 <pre><code>record.getField('vendor_type_remark').setRequired(false);
 document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &quot;block&quot;;
 document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = &quot;none&quot;;
+
+按钮隐藏
+if (record.get('status') != 'NEW') {
+                $('free_cert_delete').disable();
+            }
 </code></pre>
 
 <p>获取头表数据</p>
@@ -2055,7 +2066,8 @@ is 'xxx';
 </code></pre>
 
 <p>表修改：</p>
-<pre><code>alter table 表名 modify （字段名1 类型,字段名2 类型,字段名3 类型.....）  
+<pre><code>alter table 表名 modify （字段名1 类型,字段名2 类型,字段名3 类型.....）;
+alter table tableName modify 字段 null;  
 alter table student modify(id number(4));---将student表中id字段改为number，长度4   
 alter table student modify(id number(4),studentName varchar2(100));
 </code></pre>
@@ -2977,9 +2989,12 @@ select * from all_tab_columns where Table_Name='HN_CERT_PLAN_HEAD';
 
 <h2>搭建环境缓存网址：</h2>
 <pre><code>https://pms.going-link.com/w/aurora/no-cache-config
+
+缓存加载内存溢出导致宕机问题（删除没用的角色，以及对应的功能）
+https://note.youdao.com/share/?id=1c2394c3618cb3b786780d1bf93fbecb&amp;type=note#/
 </code></pre>
 
-<p>aurora 资料网址</p>
+<p>aurora 资料网址，问题汇总</p>
 <pre><code>https://pms.going-link.com/w/train/2018/
 </code></pre>
 
