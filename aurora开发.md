@@ -185,6 +185,57 @@
     raise_application_error(sys_raise_app_error_pkg.c_error_number,
     sys_raise_app_error_pkg.g_err_line_id);');
       dbms_output.put_line('end  delete_' || lower(l_table_name) || ';');
+	  dbms_output.put_line('');
+	  dbms_output.put_line('');
+	  --生成bm的增删该查
+	  dbms_output.put_line('');
+	  dbms_output.put_line('insert_' || lower(l_table_name) || '(');
+	  FOR rec IN (SELECT lower(column_name) column_name, data_type
+	FROM user_tab_columns
+	   WHERE table_name = l_table_name) LOOP
+	IF rec.column_name NOT IN ('creation_date',
+	   'last_update_date',
+	   'created_by',
+	   'last_updated_by') THEN
+	  dbms_output.put_line('		p_' || rec.column_name || '   => ${@' || rec.column_name ||'},');
+	END IF;
+	
+	  END LOOP;
+	  dbms_output.put_line('		p_user_id  => ${/session/@user_id});');
+	  
+	
+	  dbms_output.put_line('');
+	  dbms_output.put_line('');
+		--生成页面
+		  dbms_output.put_line('');
+		  FOR rec IN (SELECT lower(column_name) column_name, data_type
+		FROM user_tab_columns
+		   WHERE table_name = l_table_name) LOOP
+		IF rec.column_name NOT IN ('creation_date',
+		   'last_update_date',
+		   'created_by',
+		   'last_updated_by') THEN
+		  dbms_output.put_line('<a:column name="' || rec.column_name || '" align="center" prompt=""' || '/>');
+		END IF;
+		
+		  END LOOP;
+		  dbms_output.put_line('');
+		  dbms_output.put_line('');
+		  
+		  --生成dataset filed
+		  dbms_output.put_line('');
+		  FOR rec IN (SELECT lower(column_name) column_name, data_type
+		FROM user_tab_columns
+		   WHERE table_name = l_table_name) LOOP
+		IF rec.column_name NOT IN ('creation_date',
+		   'last_update_date',
+		   'created_by',
+		   'last_updated_by') THEN
+		  dbms_output.put_line('<a:field name="' || rec.column_name || '" />');
+		END IF;
+		
+		  END LOOP;
+		  
     EXCEPTION
       WHEN no_data_found THEN
     RAISE_APPLICATION_ERROR(-20001, '表不存在');
@@ -203,7 +254,7 @@
       v_table_name VARCHAR2(100) := 'LJ_PROJECT_BUDGET_HEAD';
       v_titel   VARCHAR2(100) := 'LJ_PRJ';
       v_start   VARCHAR2(1000);
-      v_endVARCHAR2(1000);
+      v_end		VARCHAR2(1000);
       v_str1    VARCHAR2(100) := 'sys_prompt_pkg.sys_prompts_load(''';
       v_str2    VARCHAR2(100) := ''');';
       v_zhs 	VARCHAR2(100) := ''',''ZHS'',''';
@@ -1397,9 +1448,15 @@ tab页引用screen页面
 
 	Aurora.showMessage('${l:PROMPT}', '${l:HN_CERT.HEAD_DATE_ERROR}');
 
+textfiled隐藏
+
+	$('cl_production_ehs_number_id').hide();
+	//下面的有bug，提示信息不能隐藏
+	Ext.get('cl_production_ehs_number_id').setStyle('display','none')
 
 grid隐藏列
 
+			grid.showColumn('testColumnName');//显示
 			$('hn_admi3010_admi_report_detail_s_line_grid').hideColumn('score');
             document.getElementById('hn_admi3010_final_score_div').style.display = "none";
 
@@ -1687,14 +1744,8 @@ svc保存
 		create table hn_cert_plan_head
 		(
 		  head_id                   number not null,
-		  cert_plan_no              varchar2(100),
-		  unit_id                   varchar2(100),
-		  vendor_code               varchar2(100),
-		  cert_start_date           date,
-		  cert_end_date             date,
-		  cert_target               varchar2(3000),
-		  cert_status               varchar2(100),
-		  delete_falg               varchar2(1),        
+		  line_id					number,
+		  line_num					number,
 		  business_group            varchar2(100),
 		  attribute1                varchar2(100),
 		  attribute2                varchar2(100),
@@ -1706,16 +1757,6 @@ svc保存
 		  attribute8                varchar2(100),
 		  attribute9                varchar2(100),
 		  attribute10               varchar2(100),
-		  attribute11               varchar2(100),
-		  attribute12               varchar2(100),
-		  attribute13               varchar2(100),
-		  attribute14               varchar2(100),
-		  attribute15               varchar2(100),
-		  attribute16               varchar2(100),
-		  attribute17               varchar2(100),
-		  attribute18               varchar2(100),
-		  attribute19               varchar2(100),
-		  attribute20               varchar2(100),
 		  created_by                number,
 		  creation_date             date,
 		  last_updated_by           number,
@@ -1729,20 +1770,6 @@ svc保存
 		  is '头ID';
 		comment on column hn_cert_plan_head.cert_plan_no
 		  is '计划单号';
-		comment on column hn_cert_plan_head.unit_id
-		  is '部门ID';
-		comment on column hn_cert_plan_head.vendor_code
-		  is '供应商编码';
-		comment on column hn_cert_plan_head.cert_start_date
-		  is '考察开始从';
-		comment on column hn_cert_plan_head.cert_end_date
-		  is '考察日期至';
-		comment on column hn_cert_plan_head.cert_target
-		  is '考察目标';
-		comment on column hn_cert_plan_head.cert_status
-		  is '考察状态';
-		comment on column hn_cert_plan_head.delete_falg
-		  is '删除标志';
 		-- create/recreate primary, unique and foreign key constraints 
 		alter table hn_cert_plan_head
 		  add constraint hn_cert_plan_head_pk primary key (head_id);
@@ -1905,6 +1932,33 @@ lov bm文件：
 
 
 # 包package #
+
+定义自动生成编码规则
+	c_auto_scheme_number：编码规则的编码
+	//生成编码
+	c_auto_scheme_number   CONSTANT VARCHAR2(100) := 'HN_CERT_INVESTIGATION_PLAN'; --自动生成编号代码（前台定义）
+	v_data.cert_plan_no := fnd_code_rule_pkg.get_rule_next_auto_num(c_auto_scheme_number, NULL, NULL, p_user_id);
+
+
+删除单据
+
+	    --删除操作记录
+	    DELETE FROM hn_operation_records r
+	     WHERE upper(r.operation_table) = 'HN_CERT_PLAN_HEAD'
+	       AND r.operation_table_id = p_head_id;
+	    --删除附件
+	    FOR t_atta_data IN (SELECT *
+	                          FROM fnd_atm_attachment_multi am
+	                         WHERE am.table_pk_value = p_head_id
+	                           AND am.table_name = 'HN_CERT_PLAN_HEAD')
+	    LOOP
+	      --删除附件文档和单据关联明细表fnd_atm_attachment_multi
+	      DELETE FROM fnd_atm_attachment_multi am
+	       WHERE am.record_id = t_atta_data.record_id;
+	      --删除附件文档表  fnd_atm_attachment
+	      DELETE FROM fnd_atm_attachment aa
+	       WHERE aa.source_pk_value = t_atta_data.record_id;
+	    END LOOP;
 
 操作
 
