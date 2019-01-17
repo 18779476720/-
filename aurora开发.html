@@ -1717,6 +1717,17 @@ if (record.get('status') != 'NEW') {
             }
 </code></pre>
 
+<p>tab页显示与隐藏</p>
+<pre><code>                var ui = document.getElementById('cl_second_thrid_id');
+                if (!Aurora.isEmpty(ui)) {
+                    ui.style.display = &quot;none&quot;;
+                }
+</code></pre>
+
+<p>元素隐藏</p>
+<pre><code>Ext.get('vendor_survey_manufacturer_base_info_tab_id').setDisplayed(false);
+</code></pre>
+
 <p>获取头表数据</p>
 <pre><code>            var records = $('pur5730_survey_manufacturer_headers_ds');
             var data = records.getCurrentRecord();

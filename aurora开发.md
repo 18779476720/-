@@ -1471,6 +1471,17 @@ div隐藏
                     $('free_cert_delete').disable();
                 }
 
+tab页显示与隐藏
+
+					var ui = document.getElementById('cl_second_thrid_id');
+                    if (!Aurora.isEmpty(ui)) {
+                        ui.style.display = "none";
+                    }
+
+元素隐藏
+
+	Ext.get('vendor_survey_manufacturer_base_info_tab_id').setDisplayed(false);
+
 获取头表数据
 
 				var records = $('pur5730_survey_manufacturer_headers_ds');
