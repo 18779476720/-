@@ -1403,6 +1403,32 @@ bm文件：
     </bm:features>
 
 
+
+	多统计查询
+
+
+		with  result_v(表名) as ()
+
+		SELECT COUNT(CASE
+               WHEN comfirm_standard = 'N' THEN
+                1
+             END) vendor_total_number,
+       COUNT(CASE
+               WHEN comfirm_standard = 'N' AND threshold_importance_type = 'IMPORTANCE' THEN
+                1
+             END) vendor_importance_number,
+       COUNT(CASE
+               WHEN comfirm_standard = 'N' AND threshold_importance_type = 'NORMAL' THEN
+                1
+             END) vendor_normal_number,
+       COUNT(CASE
+               WHEN comfirm_standard = 'N' AND threshold_importance_type = 'WARNING' THEN
+                1
+             END) vendor_warning_number
+  	FROM result_v
+
+
+
 # 页面开发 #
 
 
@@ -1419,7 +1445,6 @@ tab页引用screen页面
 头表字段做成a标签链接
 
 	function hn_admin_vendor_survey() {
-	                debugger;
 	                var headRecord = $('hn_admi3012_admi_report_edit_head_ds').getAt(0);
 	                var hn_cert_vendor_survey = Ext.get('hn_cert_vendor_survey');
 	                var expReqNumA = Ext.get('Hn_cert3012_vendor_a_read');
@@ -1447,6 +1472,10 @@ tab页引用screen页面
 显示提示信息窗口
 
 	Aurora.showMessage('${l:PROMPT}', '${l:HN_CERT.HEAD_DATE_ERROR}');
+
+comboBox 改变可选值集
+
+	record.getField('default_open_rule_desc').setOptions('FND9000_rfx_open_rule_ds');
 
 textfiled隐藏
 
@@ -1876,6 +1905,10 @@ svc保存
 值集：
 
 	系统代码维护
+	设置comboBox绑定的dataset
+
+	record.getField('default_open_rule_desc').setOptions('FND9000_rfx_open_rule_ds');
+
     <a:dataSet id="hn_fnd1010_scheme_type_ds" lookupCode="HN_SCHEME_TYPE_SYSCODE"/>
     
     <a:field name="scheme_type_desc" displayField="code_value_name" options="hn_fnd1010_scheme_type_ds" returnField="scheme_type_code" valueField="code_value"/>
@@ -1889,6 +1922,20 @@ svc保存
             </a:dataSet>
 
 			<a:field name="wender_desc" displayField="flex_desc" options="tc_pur5190_wender_ds" required="true" returnField="wender" valueField="flex_value"/>
+	
+	值集查询
+
+						SELECT
+                            v.code_value_name
+                        FROM
+                            sys_code_values_v v
+                        WHERE
+                            v.code = 'HN_CL_MANGER_UNIT_'
+                            || hp.sumbit_unit AND
+                            v.code_value              = hp.manger_unit AND
+                            v.code_enabled_flag       = 'Y' AND
+                            v.code_value_enabled_flag = 'Y'
+                        ) manger_unit_desc,	
 
 勾选框：
 
@@ -1944,7 +1991,8 @@ lov bm文件：
 
 # 包package #
 
-定义自动生成编码规则
+
+	定义自动生成编码规则
 	c_auto_scheme_number：编码规则的编码
 	//生成编码
 	c_auto_scheme_number   CONSTANT VARCHAR2(100) := 'HN_CERT_INVESTIGATION_PLAN'; --自动生成编号代码（前台定义）
@@ -2070,6 +2118,8 @@ lov bm文件：
 
 
 更新事件：（设置必输，设置只读）
+
+	$('hn_vendor_survey_enterprise_info_line_ds').getCurrentRecord().getField('domestic_internet_cover').setRequired(true);
 
 	function hn_fnd1010_vendor_source_create_head_update(ds, record, name, value, oldvalue) {
             
@@ -2222,6 +2272,10 @@ lov bm文件：
                     <a:event name="add" handler="create_line_num_add"/>
                 </a:events>
 
+## BUG ##
+
+		Uncaught RangeError: Maximum call stack size exceeded
+		因为 head的dataset  下面绑定了很多 对象，使 head 变成大对象了
 
 ## 部门权限管理 ##
 

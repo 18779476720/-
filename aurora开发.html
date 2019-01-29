@@ -1650,6 +1650,31 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this, $ctx.getData(), &quot;fnd_dynamic_authority.js&quot;);
 ]]&gt;&lt;/s:bm-script&gt;
 &lt;/bm:features&gt;
+
+
+
+多统计查询
+
+
+    with  result_v(表名) as ()
+
+    SELECT COUNT(CASE
+           WHEN comfirm_standard = 'N' THEN
+            1
+         END) vendor_total_number,
+   COUNT(CASE
+           WHEN comfirm_standard = 'N' AND threshold_importance_type = 'IMPORTANCE' THEN
+            1
+         END) vendor_importance_number,
+   COUNT(CASE
+           WHEN comfirm_standard = 'N' AND threshold_importance_type = 'NORMAL' THEN
+            1
+         END) vendor_normal_number,
+   COUNT(CASE
+           WHEN comfirm_standard = 'N' AND threshold_importance_type = 'WARNING' THEN
+            1
+         END) vendor_warning_number
+FROM result_v
 </code></pre>
 
 <h1>页面开发</h1>
@@ -1664,7 +1689,6 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 
 <p>头表字段做成a标签链接</p>
 <pre><code>function hn_admin_vendor_survey() {
-                debugger;
                 var headRecord = $('hn_admi3012_admi_report_edit_head_ds').getAt(0);
                 var hn_cert_vendor_survey = Ext.get('hn_cert_vendor_survey');
                 var expReqNumA = Ext.get('Hn_cert3012_vendor_a_read');
@@ -1692,6 +1716,10 @@ Packages.aurora.plugin.script.engine.ScriptImportor.defineExternScript(cx, this,
 
 <p>显示提示信息窗口</p>
 <pre><code>Aurora.showMessage('${l:PROMPT}', '${l:HN_CERT.HEAD_DATE_ERROR}');
+</code></pre>
+
+<p>comboBox 改变可选值集</p>
+<pre><code>record.getField('default_open_rule_desc').setOptions('FND9000_rfx_open_rule_ds');
 </code></pre>
 
 <p>textfiled隐藏</p>
@@ -2113,6 +2141,10 @@ alter table student modify(id number(4),studentName varchar2(100));
 
 <p>值集：</p>
 <pre><code>系统代码维护
+设置comboBox绑定的dataset
+
+record.getField('default_open_rule_desc').setOptions('FND9000_rfx_open_rule_ds');
+
 &lt;a:dataSet id=&quot;hn_fnd1010_scheme_type_ds&quot; lookupCode=&quot;HN_SCHEME_TYPE_SYSCODE&quot;/&gt;
 
 &lt;a:field name=&quot;scheme_type_desc&quot; displayField=&quot;code_value_name&quot; options=&quot;hn_fnd1010_scheme_type_ds&quot; returnField=&quot;scheme_type_code&quot; valueField=&quot;code_value&quot;/&gt;
@@ -2126,6 +2158,20 @@ alter table student modify(id number(4),studentName varchar2(100));
         &lt;/a:dataSet&gt;
 
         &lt;a:field name=&quot;wender_desc&quot; displayField=&quot;flex_desc&quot; options=&quot;tc_pur5190_wender_ds&quot; required=&quot;true&quot; returnField=&quot;wender&quot; valueField=&quot;flex_value&quot;/&gt;
+
+值集查询
+
+                    SELECT
+                        v.code_value_name
+                    FROM
+                        sys_code_values_v v
+                    WHERE
+                        v.code = 'HN_CL_MANGER_UNIT_'
+                        || hp.sumbit_unit AND
+                        v.code_value              = hp.manger_unit AND
+                        v.code_enabled_flag       = 'Y' AND
+                        v.code_value_enabled_flag = 'Y'
+                    ) manger_unit_desc, 
 </code></pre>
 
 <p>勾选框：</p>
@@ -2179,11 +2225,13 @@ alter table student modify(id number(4),studentName varchar2(100));
 </code></pre>
 
 <h1>包package</h1>
-<p>定义自动生成编码规则
-	c_auto_scheme_number：编码规则的编码
-	//生成编码
-	c_auto_scheme_number   CONSTANT VARCHAR2(100) := 'HN_CERT_INVESTIGATION_PLAN'; --自动生成编号代码（前台定义）
-	v_data.cert_plan_no := fnd_code_rule_pkg.get_rule_next_auto_num(c_auto_scheme_number, NULL, NULL, p_user_id);</p>
+<pre><code>定义自动生成编码规则
+c_auto_scheme_number：编码规则的编码
+//生成编码
+c_auto_scheme_number   CONSTANT VARCHAR2(100) := 'HN_CERT_INVESTIGATION_PLAN'; --自动生成编号代码（前台定义）
+v_data.cert_plan_no := fnd_code_rule_pkg.get_rule_next_auto_num(c_auto_scheme_number, NULL, NULL, p_user_id);
+</code></pre>
+
 <p>删除单据</p>
 <pre><code>    --删除操作记录
     DELETE FROM hn_operation_records r
@@ -2296,7 +2344,9 @@ alter table student modify(id number(4),studentName varchar2(100));
 <h1>aurora js 函数</h1>
 <hr />
 <p>更新事件：（设置必输，设置只读）</p>
-<pre><code>function hn_fnd1010_vendor_source_create_head_update(ds, record, name, value, oldvalue) {
+<pre><code>$('hn_vendor_survey_enterprise_info_line_ds').getCurrentRecord().getField('domestic_internet_cover').setRequired(true);
+
+function hn_fnd1010_vendor_source_create_head_update(ds, record, name, value, oldvalue) {
 
             if (name == 'scheme_type_code') {
                 if (value == 'EQUIPMENT') {
@@ -2445,6 +2495,11 @@ dataset 事件加入：
             &lt;a:events&gt;
                 &lt;a:event name=&quot;add&quot; handler=&quot;create_line_num_add&quot;/&gt;
             &lt;/a:events&gt;
+</code></pre>
+
+<h2>BUG</h2>
+<pre><code>    Uncaught RangeError: Maximum call stack size exceeded
+    因为 head的dataset  下面绑定了很多 对象，使 head 变成大对象了
 </code></pre>
 
 <h2>部门权限管理</h2>
