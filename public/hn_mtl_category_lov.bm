@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        d.category_udf_id category_id,
+                        d.category_code,
+                        d.category_name
+                    FROM
+                        mtl_categories_user_defined_vl d
+                    WHERE
+                        d.business_group=${/session/@business_group} AND
+                        d.enabled_flag  ='Y'
+                    ORDER BY
+                        d.category_code
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="category_id"/>
+        <bm:field name="category_code" displayWidth="150" forDisplay="true" forQuery="true" prompt="HN.CATEGORY_CODE"/>
+        <bm:field name="category_name" displayWidth="200" forDisplay="true" forQuery="true" prompt="HN.CATEGORY_NAME"/>
+    </bm:fields>
+    <bm:query-fields>
+        <bm:query-field name="category_code" queryExpression="v.category_code like &apos;%&apos;||${@category_code}||&apos;%&apos;"/>
+        <bm:query-field name="category_name" queryExpression="v.category_name like &apos;%&apos;||${@category_name}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

@@ -667,6 +667,57 @@
     <a:service-output output="/parameter"/>
     </a:service>
 
+tab页
+
+			<a:tabPanel marginHeight="90" marginWidth="30">
+                <a:tabs>
+                    <a:tab prompt="ACP_NON_CSGN" width="130">
+                        <a:screen-include screen="modules/acp/ACP5260/acp_bill_headers.screen"/>
+                    </a:tab>
+                    <a:tab prompt="ACP_CSGN" width="130">
+                        <a:screen-include screen="modules/acp/ACP5260/acp_consign_bill_query.screen"/>
+                    </a:tab>
+                </a:tabs>
+            </a:tabPanel>
+
+批量操作
+
+		function sd_close_cut_payment() {
+                var records = $('SD_CL_result_ds').getSelected();
+                if (records.length == 0) {
+                    Aurora.showMessage('提示', '请选择一条数据！');
+                    return;
+                }
+                var datas = [];
+                for (var i = 0;i < records.length;i++) {
+                    datas.push(records[i].data);
+                }
+                Aurora.showConfirm('提示', '确认关闭！', function() {
+                    Aurora.Masker.mask(Ext.getBody());
+                    Aurora.request({
+                        url: $('sd_cut_payment_closed_link').getUrl(),
+                        para: datas,
+                        success: function(res) {
+                            Aurora.Masker.unmask(Ext.getBody());
+                            $('SD_CL_result_ds').removeAll();
+                            $('SD_CL_result_ds').query();
+                        },
+                        failure: function() {
+                            Aurora.Masker.unmask(Ext.getBody());
+                            $('SD_CL_result_ds').query();
+                        },
+                        error: function() {
+                            Aurora.Masker.unmask(Ext.getBody());
+                            $('SD_CL_result_ds').query();
+                        },
+                        scope: this,
+                        sync: true
+                    });
+                });
+            
+            
+            }
+
 
 ###1、js文件###
 
@@ -2124,6 +2175,12 @@ lov bm文件：
         <bm:query-field name="unit_name" queryExpression="v.unit_name like &apos;%&apos;||${@unit_name}||&apos;%&apos;"/>
     </bm:query-fields>
     </bm:model>
+
+列名变颜色
+
+	.grid-hc[dataindex=display_po_number] {
+      background: #FFFF33 !important;
+  	 }
 
 
 # 包package #

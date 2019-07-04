@@ -1,0 +1,2 @@
+1、配置编码规则：HN_FND_SOURCE_SCHEME_NUMBER
+2、配置审批定义：FND_VENDOR_SOURCE_APPROVE  供应商寻源创建审批 供应商模块 启用标记Y 页面：modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_detail_query.screen?head_id

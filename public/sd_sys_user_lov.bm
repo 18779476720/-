@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                    	su.mobile_phone,
+                        u.user_id,
+                        u.user_name user_code,
+                        u.user_desc user_name,
+                        u.email,
+                        hu.unit_id,
+                        hu.unit_code,
+                        hu.unit_desc,
+                        fd.description_text
+                    FROM
+                        sys_user_v u,
+                        sys_user su,
+                        hrm_positions hp,
+                        hrm_units_vl hu,
+                        hrm_employee_user heu,
+                        hrm_employee_position hep,
+                        fnd_descriptions fd
+                    WHERE
+                    	u.user_id                = su.user_id AND
+                        hu.unit_id                = hp.unit_id AND
+                        hp.position_id            = hep.position_id AND
+                        hep.employee_id           = heu.employee_id AND
+                        heu.primary_user_flag     = 'Y' AND
+                        hep.primary_position_flag = 'Y' AND
+                        heu.user_id               = u.user_id AND
+                        fd.description_id         = hp.description_id AND
+                        fd.language               = 'ZHS' AND
+                        u.business_group          =${/session/@business_group}
+                    ORDER BY
+                        u.user_name
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="unit_id"/>
+        <bm:field name="unit_code"/>
+        <bm:field name="user_id"/>
+        <bm:field name="user_code" displayWidth="120" forDisplay="true" forQuery="true" prompt="HN_FND.USER_CODE"/>
+        <bm:field name="user_name" displayWidth="120" forDisplay="true" forQuery="true" prompt="HN_FND.USER_NAME"/>
+        <bm:field name="unit_desc" displayWidth="150" forDisplay="true" forQuery="false" prompt="HN.UNIT_NAME"/>
+        <bm:field name="description_text" displayWidth="150" forDisplay="true" forQuery="false" prompt="EXP_EMPLOYEE_ASSIGNS.PRIMARY_POSITION_FLAG"/>
+        <bm:field name="email"/>
+    </bm:fields>
+    <bm:query-fields>
+        <bm:query-field name="user_code" queryExpression="v.user_code like &apos;%&apos;||${@user_code}||&apos;%&apos;"/>
+        <bm:query-field name="user_name" queryExpression="v.user_name like &apos;%&apos;||${@user_name}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

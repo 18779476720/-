@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    u.description create_by_desc,
+                    TO_CHAR(sysdate, 'yyyy-mm-dd') create_date_desc,
+                    hu.unit_id,
+                    hu.unit_code,
+                    hu.unit_desc
+                FROM
+                    sys_user u,
+                    hrm_positions hp,
+                    hrm_units_vl hu,
+                    hrm_employee_user heu,
+                    hrm_employee_position hep
+                WHERE
+                    hu.unit_id                = hp.unit_id AND
+                    hp.position_id            = hep.position_id AND
+                    hep.employee_id           = heu.employee_id AND
+                    heu.primary_user_flag     = 'Y' AND
+                    hep.primary_position_flag = 'Y' AND
+                    heu.user_id               = u.user_id AND
+                    u.user_id                 = ${/session/@user_id}
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

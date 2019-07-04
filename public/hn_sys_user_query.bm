@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        u.user_id,
+                        u.user_name user_code,
+                        u.user_desc user_name,
+                        hu.unit_id,
+                        hu.unit_code,
+                        hu.unit_desc,
+                        fd.description_text
+                    FROM
+                        sys_user_v u,
+                        hrm_positions hp,
+                        hrm_units_vl hu,
+                        hrm_employee_user heu,
+                        hrm_employee_position hep,
+                        fnd_descriptions fd
+                    WHERE
+                        hu.unit_id                = hp.unit_id AND
+                        hp.position_id            = hep.position_id AND
+                        hep.employee_id           = heu.employee_id AND
+                        heu.primary_user_flag     = 'Y' AND
+                        hep.primary_position_flag = 'Y' AND
+                        heu.user_id               = u.user_id AND
+                        fd.description_id         = hp.description_id AND
+                        fd.language               = 'ZHS' AND
+                        u.business_group          =${/session/@business_group}
+                    ORDER BY
+                        u.user_name
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+              BEGIN
+				  hn_exemplar_test_report_pkg.hn_exemplar_report_update( p_exemplar_test_id 			=> ${@exemplar_test_id},
+							                                             p_technical_appraiser          => ${@technical_appraiser},
+							                                             p_quality_appraiser          	=> ${@quality_appraiser},
+                         												 p_user_id 					    => ${/session/@user_id});
+		    END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="execute">
+            <bm:update-sql><![CDATA[
+               BEGIN
+				  hn_small_batch_test_pkg.hn_small_batch_report_update( p_small_batch_test_id 			=> ${@small_batch_test_id},
+				  														 p_technical_appraiser          => ${@technical_appraiser},	
+							                                             p_quality_appraiser          	=> ${@quality_appraiser},
+                         												 p_user_id 					    => ${/session/@user_id});
+		    END;
+
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:query-fields>
+        <bm:query-field name="user_code" queryExpression="v.user_code like &apos;%&apos;||${@user_code}||&apos;%&apos;"/>
+        <bm:query-field name="user_name" queryExpression="v.user_name like &apos;%&apos;||${@user_name}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>
