@@ -1713,6 +1713,10 @@ tab页显示与隐藏
 				var data = head_ds.getCurrentRecord().data;
                 data['purchase_line_datas'] = purchase_line_ds.getJsonData();
 
+必填信息提示
+
+		<a:field name="invoice_amount" required="true" requiredMessage="${l:ACP_WEB_INVOICE.INVOICE_AMOUNT_NOT_NULL}"/>
+
 页面跳转
 
 	function hn_cert_vendor_survey_ref(supplier_company_id) {
@@ -2937,6 +2941,10 @@ lov bm文件：
 aurora 资料网址，问题汇总
 
 	https://pms.going-link.com/w/train/2018/
+
+aurora 安全
+
+	https://pms.going-link.com/w/security-holes/aurora%E5%AE%89%E5%85%A8%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88/
 
 # hap网址 #
 

@@ -936,6 +936,57 @@ exportToPdf();
 &lt;/a:service&gt;
 </code></pre>
 
+<p>tab页</p>
+<pre><code>        &lt;a:tabPanel marginHeight=&quot;90&quot; marginWidth=&quot;30&quot;&gt;
+            &lt;a:tabs&gt;
+                &lt;a:tab prompt=&quot;ACP_NON_CSGN&quot; width=&quot;130&quot;&gt;
+                    &lt;a:screen-include screen=&quot;modules/acp/ACP5260/acp_bill_headers.screen&quot;/&gt;
+                &lt;/a:tab&gt;
+                &lt;a:tab prompt=&quot;ACP_CSGN&quot; width=&quot;130&quot;&gt;
+                    &lt;a:screen-include screen=&quot;modules/acp/ACP5260/acp_consign_bill_query.screen&quot;/&gt;
+                &lt;/a:tab&gt;
+            &lt;/a:tabs&gt;
+        &lt;/a:tabPanel&gt;
+</code></pre>
+
+<p>批量操作</p>
+<pre><code>    function sd_close_cut_payment() {
+            var records = $('SD_CL_result_ds').getSelected();
+            if (records.length == 0) {
+                Aurora.showMessage('提示', '请选择一条数据！');
+                return;
+            }
+            var datas = [];
+            for (var i = 0;i &lt; records.length;i++) {
+                datas.push(records[i].data);
+            }
+            Aurora.showConfirm('提示', '确认关闭！', function() {
+                Aurora.Masker.mask(Ext.getBody());
+                Aurora.request({
+                    url: $('sd_cut_payment_closed_link').getUrl(),
+                    para: datas,
+                    success: function(res) {
+                        Aurora.Masker.unmask(Ext.getBody());
+                        $('SD_CL_result_ds').removeAll();
+                        $('SD_CL_result_ds').query();
+                    },
+                    failure: function() {
+                        Aurora.Masker.unmask(Ext.getBody());
+                        $('SD_CL_result_ds').query();
+                    },
+                    error: function() {
+                        Aurora.Masker.unmask(Ext.getBody());
+                        $('SD_CL_result_ds').query();
+                    },
+                    scope: this,
+                    sync: true
+                });
+            });
+
+
+        }
+</code></pre>
+
 <h3>1、js文件</h3>
 <pre><code>    importClass(java.io.FileOutputStream);
 importClass(java.io.File);
@@ -1905,6 +1956,10 @@ if (record.get('status') != 'NEW') {
             data['purchase_line_datas'] = purchase_line_ds.getJsonData();
 </code></pre>
 
+<p>必填信息提示</p>
+<pre><code>    &lt;a:field name=&quot;invoice_amount&quot; required=&quot;true&quot; requiredMessage=&quot;${l:ACP_WEB_INVOICE.INVOICE_AMOUNT_NOT_NULL}&quot;/&gt;
+</code></pre>
+
 <p>页面跳转</p>
 <pre><code>function hn_cert_vendor_survey_ref(supplier_company_id) {
                 var datas = $('hn_pur5715_vendor_survey_id_ds').getAt(0);
@@ -2358,6 +2413,12 @@ record.getField('default_open_rule_desc').setOptions('FND9000_rfx_open_rule_ds')
     &lt;bm:query-field name=&quot;unit_name&quot; queryExpression=&quot;v.unit_name like &amp;apos;%&amp;apos;||${@unit_name}||&amp;apos;%&amp;apos;&quot;/&gt;
 &lt;/bm:query-fields&gt;
 &lt;/bm:model&gt;
+</code></pre>
+
+<p>列名变颜色</p>
+<pre><code>.grid-hc[dataindex=display_po_number] {
+  background: #FFFF33 !important;
+ }
 </code></pre>
 
 <h1>包package</h1>
@@ -3251,6 +3312,10 @@ https://note.youdao.com/share/?id=1c2394c3618cb3b786780d1bf93fbecb&amp;type=note
 
 <p>aurora 资料网址，问题汇总</p>
 <pre><code>https://pms.going-link.com/w/train/2018/
+</code></pre>
+
+<p>aurora 安全</p>
+<pre><code>https://pms.going-link.com/w/security-holes/aurora%E5%AE%89%E5%85%A8%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88/
 </code></pre>
 
 <h1>hap网址</h1>
