@@ -619,8 +619,38 @@
      ORDER BY sid, s.serial#;
 
 
-	解锁语句
-	alter system kill session '24,111'; (其中24,111分别是上面查询出的sid,serial#)
+	--解锁语句
+	--alter system kill session '24,111'; (其中24,111分别是上面查询出的sid,serial#)
+
+查询登陆次数
+
+	----内部用户登录的SQL
+	select trunc(s.creation_date) login_date, count(1) login_times
+  	from sys_user_logins s
+ 	where s.creation_date between
+       to_date('2017-12-01 00:00:00', 'yyyy-mm-dd hh24:mi:ss') and
+       to_date('2017-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss')
+   	and exists (select 1
+          from sys_user su
+         where su.user_id = s.user_id
+           and su.business_group = 'BG00000101')
+ 	group by trunc(s.creation_date)
+ 	order by trunc(s.creation_date);
+ 
+ 
+ 	-----外部用户登录
+ 
+ 	select trunc(s.creation_date) login_date, count(1) login_times
+  	from sys_user_logins s
+ 	where s.creation_date between
+       to_date('2017-12-01 00:00:00', 'yyyy-mm-dd hh24:mi:ss') and
+       to_date('2017-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss')
+   	and exists (select 1
+          from sys_user su
+         where su.user_id = s.user_id
+           and su.business_group <> 'BG00000101')
+ 	group by trunc(s.creation_date)
+ 	order by trunc(s.creation_date)
 
 
 ----------
@@ -644,6 +674,19 @@
     }
     });
     }
+
+默认查询
+
+	<a:init-procedure>
+		<a:model-query fetchAll="true" model="cux.SHEDE.pur.CON1010.con1010_check_user_query" rootPath="con1010_create_by_desc"/>
+	</a:init-procedure>
+		<a:field name="pur_buyer" autoComplete="true" autoCompleteField="buyer_code_desc" defaultValue="${/model/con1010_create_by_desc/record/@description}" lovHeight="480" lovService="pur.PUR5130.pur_buyers_lov" lovWidth="510" title="分配人">
+                        <a:mapping>
+                            <a:map from="buyer_id" to="buyer_id"/>
+                            <a:map from="buyer_code" to="buyer_code"/>
+                            <a:map from="buyer_desc" to="pur_buyer"/>
+                        </a:mapping>
+        </a:field>
 
 ###1、svc文件###
 
@@ -1348,6 +1391,51 @@ tab页
     
     }
 
+列变成红色
+
+		function acp5310_gridRenderer(value, record, name) {
+                var webInvoiceHeaderId = record.get('invoice_header_id');
+                if(name == 'invoice_num'){
+	                if (record.get('invoice_header_id')) {
+	                    if(record.get('price_defference_flag') == 'Y'){
+		                    return '<div style="background:#FF0000;"><a style="color:#FFFFFF;" href="javascript:openacp5310_gridRenderer(' + webInvoiceHeaderId + ')">' + value + '</a><div>';
+	                    }else if(record.get('price_defference_flag') == 'N'){
+		                    return '<a href="javascript:openacp5310_gridRenderer(' + webInvoiceHeaderId + ')">' + value + '</a>';
+	                    }
+	                }
+                }
+
+                if(name == 'operation_record'){
+	                if (record.get('invoice_header_id')) {
+	                    return '<a href="javascript:open_acp5310_header_operationRecord(' + webInvoiceHeaderId + ')">${l:ACP_BILL.OPERATION_RECORD}</a>';
+	                }
+                }
+                
+                if(name == 'tax_total_amount' || name == 'invoice_amount'){
+                    if (value == '***') {
+                        return value;
+                    } else {
+	                    // if(record.get('tax_total_amount') != record.get('invoice_amount')){
+	                        // return '<div style="color:#FF0000;font-weight:bold;">' + Aurora.formatNumber(value) + '<div>';
+	                    // }
+                    	return Aurora.formatNumber(value);
+                	}
+                }
+                
+                if(name == 'tax_amount' || name == 'invoice_tax_amount'){
+                    if (value == '***') {
+                        return value;
+                    } else {
+	                    if(record.get('tax_amount') != record.get('invoice_tax_amount')){
+	                        return '<div style="color:#FF0000;font-weight:bold;">' + Aurora.formatNumber(value) + '<div>';
+	                    }
+                    	return Aurora.formatNumber(value);
+                	}
+                }
+            }
+            
+
+
 包内的邮箱校验
 
 	PROCEDURE check_email(p_email VARCHAR2) IS
@@ -1791,6 +1879,8 @@ svc保存
                     });
                 });
             }
+
+	//Aurora.Masker.mask(Ext.getBody(), '${l:LOADING}'); 锁住主页面（没有id的页面）
 
 确认提交窗口
 
