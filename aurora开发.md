@@ -447,7 +447,9 @@
     set "JRE_HOME=本机jdk安装路径下jre目录路径"
     3.检查应用 webRoot\WEB-INF\uncertain.local.xml中路径是否正确
     4.检查应用 webRoot\WEB-INF\aurora.database\datasource.config中数据库连接是否正确
-    
+    优化tomcat启动 
+	我们把tomcat root 下的项目也加个 <absolute-ordering></absolute-ordering> 或 </absolute-ordering>
+
     --JSON
     {"parameter":[
        {"is_login_required":0,"is_entry_page":0,"service_name":"aboutUs.screen","service_id":1323851,"is_access_checked":0,"title":"ABOUTUS.SCREEN.TITLE","language_title":"关于我们","is_system_access":0,"_id":1003,"_status":"update"},
@@ -552,6 +554,18 @@
       sys_message_pkg.insert_message('TEST0829_EMPLOYEE_NAME_IS_NULL_ERROR','错误','员工姓名不能为空！','ZHS');
     end;
 
+	--创建同义词
+	create or replace synonym pur_vendor_survey_models_syn
+    for srm.pur_vendor_survey_models;
+
+	--动态执行sql
+	 v_sql_text := 'select count(1) from ' || p_interface_table ||
+                  ' where business_group = :1 and external_system_code =:2  and finished_flag =''N''';
+  
+    EXECUTE IMMEDIATE v_sql_text
+      INTO o_count
+      USING p_business_group, p_external_system_code;
+
 
 ----------
 
@@ -651,6 +665,79 @@
            and su.business_group <> 'BG00000101')
  	group by trunc(s.creation_date)
  	order by trunc(s.creation_date)
+
+
+行转列
+
+	SELECT documnet_id,
+       pkey,
+       pvalues
+  	FROM (SELECT h.entrustment_header_id documnet_id,
+               h.entrustment_header_number header_number,
+               (SELECT s.description
+                  FROM sys_user s
+                 WHERE s.user_id = h.tender_agent_id) creation_by,
+               to_char(SYSDATE, 'yyyy-mm-dd') submitted_date,
+               (SELECT fc.company_full_name
+                  FROM fnd_companies_vl fc
+                 WHERE fc.company_id = h.using_company_id) using_company_desc,
+               h.title,
+               (SELECT scv.code_value_name
+                  FROM sys_code_values_v scv
+                 WHERE scv.code = 'PUR_REQ_PURCHASE_TYPE'
+                   AND scv.code_enabled_flag = 'Y'
+                   AND scv.code_value_enabled_flag = 'Y'
+                   AND scv.code_value = h.purchase_type) AS purchase_type,
+               (SELECT u.flex_desc
+                  FROM fnd_flex_values_v u
+                 WHERE u.flex_value_id = h.second_entrustment_type) second_entrustment_type,
+               h.pur_reason,
+               to_char(h.service_life) service_life,
+               h.duration_or_service,
+               h.contract_method,
+               'BID' pur_method,
+               to_char(h.annual_budget) annual_budget,
+               to_char(h.bid_entrust_amount) bid_entrust_amount,
+               to_char(h.vendor_count_num) vendor_count_num,
+               to_char(h.creation_date, 'yyyy-mm-dd') creation_date,
+               h.unit_name,
+               to_char(h.demand_date, 'yyyy-mm-dd') demand_date,
+               h.purchase_reasons,
+               h.purchase_range,
+               h.technical_requirement,
+               (SELECT scv.code_value_name
+                  FROM sys_code_values_v scv
+                 WHERE scv.code = 'BID_ENTRUSTMENT_SCORE_METHODS'
+                   AND scv.code_enabled_flag = 'Y'
+                   AND scv.code_value_enabled_flag = 'Y'
+                   AND scv.code_value = h.score_method) AS score_method,
+               h.payment_terms,
+               to_char(h.bid_section) bid_section
+          FROM bid_entrustment_headers h) t unpivot(pvalues FOR pkey IN(header_number,
+                                                                        creation_by,
+                                                                        submitted_date,
+                                                                        using_company_desc,
+                                                                        title,
+                                                                        purchase_type,
+                                                                        second_entrustment_type,
+                                                                        pur_reason,
+                                                                        service_life,
+                                                                        pur_method,
+                                                                        duration_or_service,
+                                                                        contract_method,
+                                                                        annual_budget,
+                                                                        bid_entrust_amount,
+                                                                        vendor_count_num,
+                                                                        creation_date,
+                                                                        unit_name,
+                                                                        demand_date,
+                                                                        purchase_reasons,
+                                                                        purchase_range,
+                                                                        technical_requirement,
+                                                                        score_method,
+                                                                        payment_terms,
+                                                                        bid_section))
+ 	WHERE documnet_id =
 
 
 ----------
@@ -2060,6 +2147,52 @@ svc保存
       add primary key (record_id);
     --sequence
     create sequence hn_operation_records_s;
+
+操作记录过程
+  
+	operation_record(p_operation_table => 'hn_cert_plan_head', p_operation_table_id => o_head_id, p_status => c_hn_scheme_new_status, p_status_desc => v_scheme_status_desc, p_user_id => p_user_id);
+	
+
+	/*************************************************
+	  -- author  : 
+	  -- created :  
+	  -- ver     : 1.1
+	  -- purpose : 操作记录
+	 **************************************************/
+		PROCEDURE operation_record(p_operation_table    VARCHAR2,
+	                             p_operation_table_id NUMBER,
+	                             p_status             VARCHAR2,
+	                             p_status_desc        VARCHAR2,
+	                             p_user_id            NUMBER) IS
+	    t_record_data hn_operation_records%ROWTYPE;
+	    v_user_name   VARCHAR2(100);
+	  BEGIN
+	    SELECT u.description
+	      INTO v_user_name
+	      FROM sys_user u
+	     WHERE u.user_id = p_user_id;
+	    t_record_data.record_id          := hn_operation_records_s.nextval;
+	    t_record_data.user_id            := p_user_id;
+	    t_record_data.user_name          := v_user_name;
+	    t_record_data.status             := p_status;
+	    t_record_data.status_desc        := p_status_desc;
+	    t_record_data.operation_desc     := '';
+	    t_record_data.operation_table    := p_operation_table;
+	    t_record_data.operation_table_id := p_operation_table_id;
+	    t_record_data.created_by         := p_user_id;
+	    t_record_data.creation_date      := SYSDATE;
+	    t_record_data.last_updated_by    := p_user_id;
+	    t_record_data.last_update_date   := SYSDATE;
+	    INSERT INTO hn_operation_records
+	    VALUES t_record_data;
+	  EXCEPTION
+	    WHEN OTHERS THEN
+	      sys_raise_app_error_pkg.raise_sys_others_error(p_message                 => dbms_utility.format_error_backtrace || ' ' || SQLERRM,
+	                                                     p_created_by              => p_user_id,
+	                                                     p_package_name            => c_hn_vendor_source_pkg,
+	                                                     p_procedure_function_name => 'operation_record');
+	      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+	  END operation_record;
 创建表
 
 		-- create table
@@ -2560,6 +2693,91 @@ lov bm文件：
                     <a:event name="add" handler="create_line_num_add"/>
                 </a:events>
 
+
+## 页面循环 ##
+
+	 <a:placeHolder id="dynamicScoreDataSets"/>
+	 <a:placeHolder id="dynamicFieldSets"/>
+
+	放在</a:view> 下
+	<a:view-config>
+        <c:create-config targetId="dynamicScoreDataSets">
+            <p:loop source="/model/pur1020_ds_deatil_query_line">
+                <c:process-config>
+                    <a:dataSet id="pur_deatli_${@rfx_number}_ds" autoCount="true" autoQuery="true" fetchAll="true" model="cux.SHEDE.pur.PUR1010.pur_rfx_requert_ds_all" queryUrl="${/request/@context_path}/autocrud/cux.SHEDE.pur.PUR1010.pur_rfx_requert_ds_all/query?rfx_number=${@rfx_number}">
+                        <a:fields>
+                            <a:field name="tax_included_flag" checkedValue="Y" uncheckedValue="N"/>
+                            <a:field name="abandoned_flag" checkedValue="Y" readOnly="true" uncheckedValue="N"/>
+                            <a:field name="suggested_flag" checkedValue="Y" readOnly="true" uncheckedValue="N"/>
+                            <a:field name="trans_cost_flag" checkedValue="Y" readOnly="true" uncheckedValue="N"/>
+                            <a:field name="traffic_type" readOnly="true"/>
+                            <a:field name="need_time" readOnly="true"/>
+                        </a:fields>
+                        <!-- <a:events>
+                            <a:event name="update" handler="pur5730_vendor_survey_score_update"/>
+                        </a:events> -->
+                    </a:dataSet>
+                    <a:dataSet id="pur_deatli_${@rfx_number}_heads" autoCount="true" autoQuery="true" fetchAll="true" model="cux.SHEDE.pur.PUR1010.pur_rfx_requert_ds_headsall" queryUrl="${/request/@context_path}/autocrud/cux.SHEDE.pur.PUR1010.pur_rfx_requert_ds_headsall/query?rfx_number=${@rfx_number}"/>
+                </c:process-config>
+            </p:loop>
+        </c:create-config>
+        <c:create-config targetId="dynamicFieldSets">
+            <p:loop source="/model/pur1020_ds_deatil_query_line">
+                <c:process-config>
+                    <a:grid bindTarget="pur_deatli_${@rfx_number}_heads" marginHeight="500" marginWidth="65" width="1000">
+                        <a:columns>
+                            <a:column name="vendor_desc" prompt="供应商名称" width="100"/>
+                            <a:column name="rfx_number" align="left" prompt="竞价排名" width="120"/>
+                            <a:column name="amount_price" prompt="报价总额" width="70"/>
+                            <a:column name="amount_valid" prompt="成交价总额" width="70"/>
+                            <a:column name="amount_total" prompt="总价合计" width="70"/>
+                            <a:column name="payment_method_desc" prompt="付款方式" width="70"/>
+                            <a:column name="assurance_period" prompt="质保期" width="100"/>
+                            <a:column name="place_of_delivery" prompt="交货地点" width="60"/>
+                            <a:column name="tax_bill_desc" prompt="税票类型" width="60"/>
+                            <a:column name="traffic_type" prompt="运输方式" width="60"/>
+                            <a:column name="promised_date" prompt="承诺交货期" width="70"/>
+                            <a:column name="tax_flag" prompt="领导意见" width="200"/>
+                        </a:columns>
+                    </a:grid>
+                    <a:grid bindTarget="pur_deatli_${@rfx_number}_ds" marginHeight="450" marginWidth="65" width="1000">
+                        <a:columns>
+                            <a:column name="rfx_number" align="left" prompt="PUR_RFX_HEADERS.RFX_NUMBER" width="120"/>
+                            <a:column name="vendor_desc" prompt="供应商名称" width="100"/>
+                            <a:column name="item_desc" prompt="物品名称" width="70"/>
+                            <a:column name="item_category_desc" prompt="物品分类" width="70"/>
+                            <a:column name="pur_specifications" prompt="规格型号" width="70"/>
+                            <!-- <a:column name="requirements_quality" prompt="质量要求" width="70"/> -->
+                            <!-- <a:column name="userful_by" prompt="用途" width="100"/> -->
+                            <a:column name="PUR_CRT_NUMBER" prompt="表单号" width="60"/>
+                            <a:column name="pur_brand" prompt="品牌" width="60"/>
+                            <a:column name="last_valid_fb_retail_price" prompt="报价" width="60"/>
+                            <a:column name="valid_fb_retail_price" prompt="成交价" width="70"/>
+                            <a:column name="suggested_flag" prompt="是否中标"/>
+                            <a:column name="tax_included_flag" prompt="含税" width="60"/>
+                            <a:column name="tax_type_rate" prompt="税率" width="60"/>
+                            <a:column name="quantity" prompt="需求数量" width="60"/>
+                            <a:column name="uom_desc" prompt="单位" width="60"/>
+                            <a:column name="allotted_quantity" prompt="中标数量" width="60"/>
+                            <a:column name="total_amount" prompt="合价" width="70"/>
+                            <a:column name="current_promised_date" prompt="承诺交付期" width="60"/>
+                            <a:column name="attribute1" prompt="质保期" width="60"/>
+                            <a:column name="traffic_type" prompt="运输方式" width="60"/>
+                            <a:column name="attribute2_desc" prompt="税票类型" width="60"/>
+                            <a:column name="price_category_desc" prompt="价格类型" width="60"/>
+                            <a:column name="place_of_delivery" prompt="交货地点" width="60"/>
+                            <a:column name="payment_method_desc" prompt="付款方式" width="80"/>
+                            <a:column name="comments" prompt="备注" width="100"/>
+                        </a:columns>
+                    </a:grid>
+                    <br/>
+                    <br/>
+                    <br/>
+                </c:process-config>
+            </p:loop>
+        </c:create-config>
+    </a:view-config>
+
 ## BUG ##
 
 		Uncaught RangeError: Maximum call stack size exceeded
@@ -2800,6 +3018,15 @@ lov bm文件：
 	--发送邮件事件
     evt_event_core_pkg.fire_event(p_event_name => 'HN_ADMI_REPORT_ISSUE', p_event_param => p_head_id, p_created_by => p_user_id);
 
+
+	第二种：
+	 --触发事件
+    exp_evt_pkg.fire_workflow_event(p_event_name       => 'PUR_PO_RELEASE',
+                                    p_document_id      => p_pur_header_id,
+                                    p_document_line_id => NULL,
+                                    p_source_module    => 'PUR_PO_RELEASE',
+                                    p_event_type       => 'PUR_PO_RELEASE',
+                                    p_user_id          => p_user_id);
 # bm文件 #
 
 ### 查询所有下级 ###
@@ -2832,7 +3059,11 @@ lov bm文件：
   			sys_message_pkg.insert_message('HN_FND_SOURCE_RESULT_UNIQUE_ERROR', 'Error','<#VENDOR_NAME>供应商维护重复！','US');
 
       
-             
+# PL/SQL 更改（设置） 语言环境 #
+
+	ALTER SESSION SET NLS_LANGUAGE='SIMPLIFIED CHINESE'; --ZHS 
+	ALTER SESSION SET NLS_LANGUAGE='AMERICAN';			 --US
+	select userenv('lang') from dual;            
 
 
 #eclipse 导出脚本设置 #
@@ -2931,23 +3162,26 @@ lov bm文件：
 
 9、存job信息的表user_jobs主要字段说明
 
-| 列名        | 数据类型           | 解释  |
+| 列名 			| 数据类型   	| 解释  	|
 | ------------- |:-------------:|:-----:|
-|JOB	|NUMBER	|任务的唯一标示号
-|LOG_USER	|VARCHAR2(30)	|提交任务的用户
-|PRIV_USER	|VARCHAR2(30)	|赋予任务权限的用户
+|JOB			|NUMBER			|任务的唯一标示号
+|LOG_USER		|VARCHAR2(30)	|提交任务的用户
+|PRIV_USER		|VARCHAR2(30)	|赋予任务权限的用户
 |SCHEMA_USER	|VARCHAR2(30)	|对任务作语法分析的用户模式
-|LAST_DATE	|DATE	|最后一次成功运行任务的时间
-|LAST_SEC	 |VARCHAR2(8)	|如HH24:MM:SS格式的last_date日期的小时，分钟和秒
-|THIS_DATE	|DATE 	|正在运行任务的开始时间，如果没有运行任务则为null
-|THIS_SEC	|VARCHAR2(8) 	|如HH24:MM:SS格式的this_date日期的小时，分钟和秒
-|NEXT_DATE	|DATE	|下一次定时运行任务的时间
-|NEXT_SEC	|VARCHAR2(8)	|如HH24:MM:SS格式的next_date日期的小时，分钟和秒
-|TOTAL_TIME	|NUMBER	|该任务运行所需要的总时间，单位为秒
-|BROKEN	|VARCHAR2(1)	|标志参数，Y标示任务中断，以后不会运行
-|INTERVAL	|VARCHAR2(200)	|用于计算下一运行时间的表达式
-|FAILURES	|NUMBER	|任务运行连续没有成功的次数
-|WHAT	 |VARCHAR2(2000)	|执行任务的PL/SQL块
+|LAST_DATE		|DATE			|最后一次成功运行任务的时间
+|LAST_SEC	 	|VARCHAR2(8)	|如HH24:MM:SS格式的last_date日期的小时，分钟和秒
+|THIS_DATE		|DATE 			|正在运行任务的开始时间，如果没有运行任务则为null
+|THIS_SEC		|VARCHAR2(8) 	|如HH24:MM:SS格式的this_date日期的小时，分钟和秒
+|NEXT_DATE		|DATE			|下一次定时运行任务的时间
+|NEXT_SEC		|VARCHAR2(8)	|如HH24:MM:SS格式的next_date日期的小时，分钟和秒
+|TOTAL_TIME		|NUMBER			|该任务运行所需要的总时间，单位为秒
+|BROKEN			|VARCHAR2(1)	|标志参数，Y标示任务中断，以后不会运行
+|INTERVAL		|VARCHAR2(200)	|用于计算下一运行时间的表达式
+|FAILURES		|NUMBER			|任务运行连续没有成功的次数
+|WHAT	 		|VARCHAR2(2000)	|执行任务的PL/SQL块
+
+
+
 
 10.INTERVAL参数常用值示例
 
@@ -3035,6 +3269,68 @@ aurora 资料网址，问题汇总
 aurora 安全
 
 	https://pms.going-link.com/w/security-holes/aurora%E5%AE%89%E5%85%A8%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88/
+
+# jenkins #
+
+### jenkins 日程表 ###
+
+	第一个是代表分钟 H 表示随机 （0-59）
+	第二个是代表小时 9-15/4 9点到下午三点期间的每隔4个小时（0-23）
+	第三个是代表天 * 任意一天（1-31）
+	第四个是代表月份 1-11 表示1到11月份
+	第五个是代表星期 1-5 表示工作日（0-7，0和7都是星期天）
+	
+	没有用到 H 随机的话，不要加括号
+	H(9-18) 9点到18点 中随机的一个点
+	eg：
+	* * * * * 表示任何一个时间段，同一个时间都可能会触发执行。不建议使用
+	H/30 * * * * 表示每天每隔 30分钟构建一次
+	H 4-19/3 * * * 表示，一天的凌晨点到下午7点，每隔3个小时构建一次
+	* * 3-5 * * 表示，每个月的3号，4号，5号 都会被构建，具体时间未知
+	* * * * 1-5 表示，工作日时会构建，具体时间未知
+	H/30 8-19/3 1-28 1-11 1-5 表示 在1月到11月中的1号-28号，每个工作日，早晨的8点到下午7点每隔3.5个小时会触发
+
+### xxl cron 表达式 ###
+
+	秒（0~59） 
+	分钟（0~59） 
+	小时（0~23） 
+	天（月）（0~31，但是你需要考虑你月的天数）
+	月（0~11） 
+	天（星期）（1~7 1=SUN 或 SUN，MON，TUE，WED，THU，FRI，SAT） 
+	7.年份（1970－2099） 
+
+	特殊字符 意义 
+	* 表示所有值； 
+	? 表示未说明的值，即不关心它为何值； 
+	- 表示一个指定的范围； 
+	, 表示附加一个可能值； 
+	/ 符号前表示开始时间，符号后表示每次递增的值； 
+	L("last") ("last") "L" 用在day-of-month字段意思是 "这个月最后一天"；用在 day-of-week字段, 它简单意思是 "7" or "SAT"。 如果在day-of-week字段里和数字联合使用，它的意思就是 "这个月的最后一个星期几" – 例如： "6L" means "这个月的最后一个星期五". 当我们用“L”时，不指明一个列表值或者范围是很重要的，不然的话，我们会得到一些意想不到的结果。 
+	W("weekday") 只能用在day-of-month字段。用来描叙最接近指定天的工作日（周一到周五）。例如：在day-of-month字段用“15W”指“最接近这个 月第15天的工作日”，即如果这个月第15天是周六，那么触发器将会在这个月第14天即周五触发；如果这个月第15天是周日，那么触发器将会在这个月第 16天即周一触发；如果这个月第15天是周二，那么就在触发器这天触发。注意一点：这个用法只会在当前月计算值，不会越过当前月。“W”字符仅能在 day-of-month指明一天，不能是一个范围或列表。也可以用“LW”来指定这个月的最后一个工作日。 
+	# 只能用在day-of-week字段。用来指定这个月的第几个周几。例：在day-of-week字段用"6#3"指这个月第3个周五（6指周五，3指第3个）。如果指定的日期不存在，触发器就不会触发。 
+	C 指和calendar联系后计算过的值。例：在day-of-month 字段用“5C”指在这个月第5天或之后包括calendar的第一天；在day-of-week字段用“1C”指在这周日或之后包括calendar的第一天。
+	
+	例子：
+	0 0 12 * * ？	每天的中午12点触发
+	0 15 10 ？ * *	每天的10：15触发
+	0 15 10 * *  ？	每天的10：15触发
+	0 15 10 * * ？ *	每天的10：15触发
+	0 15 10 * * ？ 2005	2005年每天的10：15触发
+	0 * 14 * * ？	每天的14：00到14：59的每个整分钟触发
+	0 0/5 14 * * ？	每天的14：00到14：55中每5分钟触发一次
+	0 0/5 14，18 * * ？	每天的14：00到14：55中每5分钟触发一次，18：00到18：55中每5分钟触发一次
+	0 0-5 14 * * ？	每天的14：00到14：05中每分钟触发一次
+	0 10，44 14 ？ 3 WED	3月份的每个周三，在下午的14：10和14：44触发
+	0 15 10 ？ * MON-FRI	每个周一、周二、周三、周四、周五的上午10：15触发
+	0 15 10 15 * ？	每个月的第15天的10：15触发
+	0 15 10 L * ?	每个月最后一天的10：15触发
+	0 15 10 L-2 * ？	每个月的倒数第三天的10：15触发
+	0 15 10 ？ * 6L	每个月的最后一个周五的10：15触发
+	0 15 10 ？ * 6L 2002-2005	在2002、2003、2004、2005年的每个月的最后一个周五的上午10：15触发
+	0 15 10 ？ * 6#3	每个月的第3个周五的上午10：15触发
+	0 0 12 1/5 * ？	在每个月的第一天开始，每隔5天的中午12点触发
+	0 11 11 11 11 ？	每年的11月11号的上午11：11触发	
 
 # hap网址 #
 

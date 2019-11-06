@@ -1,0 +1,56 @@
+测试环境xxl信息：
+ip  10.1.8.76
+
+mysql数据库
+user     root
+passwd   SA112aM3
+
+
+xxl-job-core
+path   /u01/xxl-job-core
+
+xxl-job-admin
+path   /u01/xxl-job-admin
+SERVER_PORT: 8090
+http://10.1.8.76:8090/xxl-job-admin
+默认账号密码：admin / 123456
+
+excutor-springboot-master-mall
+path    /u01/excutor-springboot/excutor-springboot-master-mall
+SERVER_PORT: 8091
+XXL_JOB_EXCUTOR_PORT=9998
+XXL_JOB_EXCUTOR_APPNAME=mall-test-executor
+
+excutor-springboot-master-srm
+path    /u01/excutor-springboot/excutor-springboot-master-srm
+SERVER_PORT: 8092
+XXL_JOB_EXCUTOR_PORT=9999
+XXL_JOB_EXCUTOR_APPNAME=srm-test-executor
+
+
+正式环境xxl信息：
+ip  10.1.20.23
+
+mysql数据库
+user       root
+passwd     SA112aM3
+
+
+xxl-job-admin
+path   /u01/xxl-job-admin
+SERVER_PORT: 8090
+http://10.1.20.23:8090/xxl-job-admin
+默认账号密码：admin / 123456
+
+excutor-springboot-master-mall
+path    /u01/excutor-springboot/excutor-springboot-master-mall
+SERVER_PORT: 8091
+XXL_JOB_EXCUTOR_PORT=9998
+XXL_JOB_EXCUTOR_APPNAME=mall-executor
+
+excutor-springboot-master-srm
+path    /u01/excutor-springboot/excutor-springboot-master-srm
+SERVER_PORT: 8092
+XXL_JOB_EXCUTOR_PORT=9999
+XXL_JOB_EXCUTOR_APPNAME=srm-executor
+

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: KG  
+    $Date:   
+    $Revision: 1.0  
+    $Purpose: 外箱条码打印
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    rownum AS unique_num,
+                    (NVL(v.item_code, '          ')
+                    || '*'
+                    || NVL(v.wbs, '            ')
+                    || '*'
+                    || v.po_num
+                    || '*'
+                    || v.line_num
+                    || '*'
+                    || NVL(TO_CHAR(v.latest_date, 'yyyymmdd'),'            ')
+                    || '*'
+                    || NVL(v.product_number,'            ')) print_text,
+                    v.*
+                FROM
+                    (SELECT
+                        (SELECT
+                            pvv.full_name
+                        FROM
+                            pur_vendors_v pvv
+                        WHERE
+                            pvv.vendor_id = qh.vendor_id
+                        ) vendor_name,
+                        ql.po_num,
+                        ql.line_num,
+                        ql.project_code AS wbs,
+                        ql.item_code,
+                        ql.item_name,
+                        SUBSTR(ql.item_name,1,37)or_item_name,
+                        ql.delivery_text,
+                        SUBSTR(ql.delivery_text,1,125) or_delivery_text,
+                        ql.ship_quantity,
+                        decode(qh.associate_material_flag,'Y','合格','') AS ins_status,
+                        ql.latest_date,
+                        TO_CHAR(ql.latest_date,'yyyy-mm-dd')delivery_date,
+                        NULL AS product_number
+                    FROM
+                        quality_inspect_apply_lines ql,
+                        quality_inspect_apply_header qh
+                    WHERE
+                        ql.qia_header_id = qh.qia_header_id AND
+                        (
+                            (
+                                (SELECT
+                                        NVL(msi.product_code_flag,'N')
+                                    FROM
+                                        mtl_system_items msi
+                                    WHERE
+                                        msi.display_item_code=ql.item_code
+                                )
+                                ='N'
+                            )
+                            OR
+                            (
+                                ql.item_code IS NULL
+                            )
+                        )
+                        AND
+                        qh.qia_header_id = ${/parameter/@qia_header_id}
+                    UNION ALL
+                    SELECT
+                        (SELECT
+                            pvv.full_name
+                        FROM
+                            pur_vendors_v pvv
+                        WHERE
+                            pvv.vendor_id = qh.vendor_id
+                        ) vendor_name,
+                        ql.po_num,
+                        ql.line_num,
+                        ql.project_code AS wbs,
+                        ql.item_code,
+                        ql.item_name,
+                        SUBSTR(ql.item_name,1,37)or_item_name,
+                        ql.delivery_text,
+                        SUBSTR(ql.delivery_text,1,125) or_delivery_text,
+                        1 as ship_quantity,
+                        decode(qh.associate_material_flag,'Y','合格','') AS ins_status,
+                        ql.latest_date,
+                        TO_CHAR(ql.latest_date,'yyyy-mm-dd')delivery_date,
+                        qd.product_code AS product_number
+                    FROM
+                        quality_inspect_apply_details qd,
+                        quality_inspect_apply_lines ql,
+                        quality_inspect_apply_header qh
+                    WHERE
+                        qd.qia_line_id   =ql.qia_line_id AND
+                        ql.qia_header_id = qh.qia_header_id AND
+                        (SELECT
+                                NVL(msi.product_code_flag,'N')
+                            FROM
+                                mtl_system_items msi
+                            WHERE
+                                msi.display_item_code=ql.item_code
+                        )
+                                         ='Y' AND
+                        qh.qia_header_id = ${/parameter/@qia_header_id}
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure><![CDATA[
+    ]]></a:init-procedure>
+    <a:view chartTheme="default" template="empty.tplt">
+        <script><![CDATA[
+            function ds_load(ds){
+            debugger;
+            var a;
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="ds" autoQuery="true" model="cux.HN.Test.sys_login_times_query">
+                <a:fields>
+                    <a:field name="login_times" prompt="内部登录次数"/>
+                    <a:field name="v_login_times" prompt="外部登录次数"/>
+                    <a:field name="total_times" prompt="总次数"/>
+                </a:fields>
+                <a:events>
+                    <a:event name="load" handler="ds_load"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="ds_opt">
+                <a:datas>
+                    <a:record value="login_times"/>
+                    <a:record value="v_login_times"/>
+                    <!-- <a:record value="total_times"/> -->
+                </a:datas>
+            </a:dataSet>
+        </a:dataSets>
+        <a:chart bindTarget="ds">
+            <a:title text="登陆SRM系统次数"/>
+            <a:xAxis>
+                <a:xAxi name="login_date">
+                    <a:title text="时间"/>
+                </a:xAxi>
+            </a:xAxis>
+            <a:yAxis>
+                <a:yAxi name="value" bindTarget="ds_opt"/>
+            </a:yAxis>
+        </a:chart>
+    </a:view>
+</a:screen>

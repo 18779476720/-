@@ -1,0 +1,8 @@
+        <script src="${/request/@context_path}/javascripts/jquery-1.6.4.min.js"/>
+        <script src="${/request/@context_path}/javascripts/jquery.qrcode.min.js"/>
+        <script src="${/request/@context_path}/javascripts/jquery-barcode-2.0.3.js"/>
+        <script src="/resources/wap/js/jquery.min.js"/>
+
+
+
+È«¾ÖËÑË÷£º<script src="${/request/@context_path}/javascripts/jquery.qrcode.min.js"/>

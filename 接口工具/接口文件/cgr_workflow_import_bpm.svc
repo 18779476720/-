@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:service xmlns:p="uncertain.proc" xmlns:a="http://www.aurora-framework.org/application" xmlns:s="aurora.plugin.script" trace="true">
+    <a:init-procedure>
+        <a:model-query model="cux.CGR.public.public_get_bpm_request_info" rootPath="api_reuqest"/>
+        <p:echo/>
+        <s:server-script import="cgr_esb_request.js"><![CDATA[
+            importPackage(Packages.cgr.io.Reader); 
+     
+            var logger = $logger('server-script');
+            
+            function log(msg) {
+                logger.info(msg);
+            }
+            
+            
+            
+            var datas;
+            var records = $ctx.model.getChild('api_reuqest').getChildren();
+            log('--------------records---------------' + records);
+            for (var i = 0;i < records.length;i++) {
+                log('--------------wsdl_url---------------' + records[i].wsdl_url);
+                var url = records[i].wsdl_url;
+                if (url) {
+                    var request_data = records[i].request_data;
+                    var request_data_str = Packages.cgr.io.Reader.ClobToString.getCloToString(request_data);
+                    log('--------------request_data_str---------------' + request_data_str);
+                    // 发送请求
+                    request({
+                        url: url,
+                        clientID: records[i].clientid,
+                        operationcode: records[i].operationcode,
+                        para: request_data_str,
+                        request_header: records[i].request_data,
+                        success: function(args) {
+                            log('--------------接口调用成功---------------' + args);
+                            //因为nc反馈的报文是一个string字符串包起来的报文，不是标准的xml格式，所以该处将反馈报文（ret）传入该方法后，截取第二个参数和第三个参数之间的数据（包含第二第三参数）。
+                            var response_xml = Packages.com.hand.webservice.StringFormat.formatString(args, "<StartWorkflowNewResult>", "</StartWorkflowNewResult>");
+                            var response_json = getXML(response_xml, 'StartWorkflowNewResult');
+                            if (response_json== 'null'){
+                                response_json = args;
+                            }
+                            log('--------------response_json---------------' + response_json);
+            
+                            //获取NC反馈状态
+                            // var status = getXML(response_xml, 'resultcode');
+                            //相应信息写到调用记录表且处理接口
+                            //文件流太大，不存文件流
+                            var rec = {
+                                'history_id': records[i].history_id,
+                                'url': records[i].api_url,
+                                'config_id': records[i].config_id,
+                                'parent_id': records[i].parent_id,
+                                'api_id': records[i].api_id,
+                                'api_code': records[i].api_code,
+                                'user_id': records[i].user_id,
+                                'request_data': request_data_str,
+                                'response_data': response_json
+                            };
+                            //回写过程
+                            $bm("cux.CGR.public.public_cgr_bpm_api_exec_process").insert(rec);
+                        },
+                        failure: function(args) {
+                            var rec = {
+                                'history_id': records[i].history_id,
+                                'url': records[i].api_url,
+                                'config_id': records[i].config_id,
+                                'parent_id': records[i].parent_id,
+                                'api_id': records[i].api_id,
+                                'api_code': records[i].api_code,
+                                'user_id': records[i].user_id,
+                                'request_data': request_data_str,
+                                'response_data': args.error.message
+                                //回写过程
+                            };
+            
+                            log('-------------调用接口系统异常---------------' + args.error.message);
+            
+                            raise_app_error(args.error.message);
+                            //回写过程
+                            $bm("cux.CGR.public.public_cgr_bpm_api_exec_process").insert(rec);
+                        }
+                    });
+                }
+            }
+        ]]></s:server-script>
+        <!-- <p:echo/> -->
+    </a:init-procedure>
+    <a:service-output/>
+</a:service>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Author: cheng-lu  
+    $Date: 2019年9月16日 下午3:28:19  
+    $Revision: 1.0  
+    $Purpose: 
+-->
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    cgr_nc_itf_api_history_s.nextval history_id,
+                    cgr_bpm_api_procedure_pkg.get_request_url(a.api_code) wsdl_url,
+                    ${/parameter/@header_id} parent_id,
+                    a.cgr_bpm_interface_config_id api_id,
+                    a.api_code,
+                    a.config_id,
+                    cgr_bpm_api_procedure_pkg.get_request_clientid clientid,
+                    cgr_bpm_api_procedure_pkg.get_request_operationcode operationcode,
+                    cgr_bpm_api_procedure_pkg.get_request_data(a.api_code, ${/session/@user_id},      ${/parameter/@header_id}) request_data,
+                    '' user_name,
+                    '' password
+                FROM
+                    cgr_bpm_wfl_interface a
+                WHERE
+                    a.api_code =      ${/parameter/@api_code}
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:field name="history_id" databaseType="NUMBER" datatype="java.lang.Long"/>
+    <bm:field name="parent_id" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="api_id" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="config_id" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="wsdl_url" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <!-- <bm:field name="api_method" databaseType="VARCHAR2" datatype="java.lang.String"/> -->
+    <bm:field name="api_code" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="clientid" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="operationcode" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="request_data" databaseType="CLOB" datatype="java.sql.Clob"/>
+    <bm:field name="user_name" databaseType="VARCHAR2" datatype="java.lang.String"/>
+    <bm:field name="password" databaseType="VARCHAR2" datatype="java.lang.String"/>
+</bm:model>

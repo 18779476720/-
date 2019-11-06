@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    a.login_date,
+                    a.login_times,
+                    NVL(b.login_times,0) AS v_login_times,
+                    (a.login_times+NVL(b.login_times,0)) total_times
+                FROM
+                    (SELECT
+                        TO_CHAR(TRUNC(s.creation_date), 'mm-dd') login_date,
+                        COUNT(1) login_times
+                    FROM
+                        sys_user_logins s
+                    WHERE
+                        s.creation_date BETWEEN SYSDATE - 6 AND SYSDATE AND
+                        EXISTS
+                        (SELECT
+                            1
+                        FROM
+                            sys_user su
+                        WHERE
+                            su.user_id        = s.user_id AND
+                            su.business_group = 'BG00000101'
+                        )
+                    GROUP BY
+                        TRUNC(s.creation_date)
+                    ORDER BY
+                        TRUNC(s.creation_date)
+                    ) a,
+                    (SELECT
+                        TO_CHAR(TRUNC(s.creation_date), 'mm-dd') login_date,
+                        COUNT(1) login_times
+                    FROM
+                        sys_user_logins s
+                    WHERE
+                        s.creation_date BETWEEN SYSDATE - 6 AND SYSDATE AND
+                        EXISTS
+                        (SELECT
+                            1
+                        FROM
+                            sys_user su
+                        WHERE
+                            su.user_id         = s.user_id AND
+                            su.business_group <> 'BG00000101'
+                        )
+                    GROUP BY
+                        TRUNC(s.creation_date)
+                    ORDER BY
+                        TRUNC(s.creation_date)
+                    ) b
+                WHERE
+                    a.login_date = b.login_date(+)
+                ORDER BY
+                    a.login_date #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>
