@@ -2193,6 +2193,37 @@ svc保存
 	                                                     p_procedure_function_name => 'operation_record');
 	      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
 	  END operation_record;
+
+状态
+
+		--状态
+	  c_status_syscode   CONSTANT VARCHAR2(100) := 'HN_SCHEME_STATUS_SYSCODE'; --syscode
+	  c_new_status       CONSTANT VARCHAR2(100) := 'NEW'; --新建
+	  c_approving_status CONSTANT VARCHAR2(100) := 'APPROVING'; --审批中
+	  c_cancelled_status CONSTANT VARCHAR2(100) := 'CANCELLED'; --已取消
+	  c_approved_status  CONSTANT VARCHAR2(100) := 'APPROVED'; --审批通过
+	  c_rejected_status  CONSTANT VARCHAR2(100) := 'REJECTED'; --审批拒绝
+
+整单删除
+
+		 --删除操作记录
+	    DELETE FROM hn_operation_records r
+	     WHERE upper(r.operation_table) = 'HN_CERT_PLAN_HEAD'
+	       AND r.operation_table_id = p_head_id;
+	    --删除附件
+	    FOR t_atta_data IN (SELECT *
+	                          FROM fnd_atm_attachment_multi am
+	                         WHERE am.table_pk_value = p_head_id
+	                           AND am.table_name = 'HN_CERT_PLAN_HEAD')
+	    LOOP
+	      --删除附件文档和单据关联明细表fnd_atm_attachment_multi
+	      DELETE FROM fnd_atm_attachment_multi am
+	       WHERE am.record_id = t_atta_data.record_id;
+	      --删除附件文档表  fnd_atm_attachment
+	      DELETE FROM fnd_atm_attachment aa
+	       WHERE aa.source_pk_value = t_atta_data.record_id;
+	    END LOOP;
+
 创建表
 
 		-- create table
