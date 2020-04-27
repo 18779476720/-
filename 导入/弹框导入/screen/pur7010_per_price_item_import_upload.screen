@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+            function pur7010_per_itemPriceUpload() {
+                if (document.getElementById('cgr_pur7010_per_importFile').value) {
+                    var fileName = document.getElementById('cgr_pur7010_per_importFile').value;
+                    var fileType = fileName.substr(fileName.lastIndexOf("."));
+                    if (fileType != '.xls' && fileType != '.xlsx') {
+                        Aurora.showMessage('${l:PROMPT}', '${l:PROMPT.PLEASE_IMPORT_THE_RIGHT_FILE}');
+                    } else {
+                        document.getElementById('pur2620_importForm').submit();
+                    }
+                } else {
+                    Aurora.showMessage('${l:PROMPT}', '${l:PROMPT.PLEASE_SELECT_UPLOAD_FILE}');
+                    return;
+                }
+            }
+            
+            function GetRequest() {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0;i < strs.length;i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                return theRequest;
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="label_ds" autoCreate="true">
+                <a:fields>
+                    <a:field name="label2" defaultValue="${l:PROMPT.EXCEL_IMPORT_LABEL_2}"/>
+                    <a:field name="label3" defaultValue="${l:PROMPT.EXCEL_IMPORT_LABEL_3}"/>
+                    <a:field name="label4" defaultValue="${l:PROMPT.EXCEL_IMPORT_LABEL_4}"/>
+                    <a:field name="label5" defaultValue="${l:PROMPT.EXCEL_IMPORT_LABEL_5}"/>
+                    <a:field name="label6" defaultValue="${l:PROMPT.EXCEL_IMPORT_LABEL_6}"/>
+                </a:fields>
+            </a:dataSet>
+        </a:dataSets>
+        <a:fieldSet style="margin-left:10px;margin-top:10px;" title="PROMPT.EXCEL_IMPORT_LABEL_1" width="400">
+            <a:label name="label2" bindTarget="label_ds" style="margin-left:10px;" width="380"/>
+            <a:label name="label3" bindTarget="label_ds" style="margin-left:10px;" width="380"/>
+            <a:label name="label4" bindTarget="label_ds" style="margin-left:10px;" width="380"/>
+            <a:label name="label5" bindTarget="label_ds" style="color:#055A78;font-weight:bold;margin-left:10px;" width="380"/>
+            <a:label name="label6" bindTarget="label_ds" style="color:#055A78;font-weight:bold;margin-left:10px;" width="380"/>
+        </a:fieldSet>
+        <a:fieldSet style="margin-left:10px;margin-top:10px;" title="PROMPT.EXCEL_IMPORT_FILE" width="400">
+            <form name="upload" id="pur2620_importForm" action="pur7010_per_price_item_import_trans_upload.screen?head_id=${/parameter/@head_id}" enctype="multipart/form-data" method="post">
+                <!-- <input id = "head_id" name="head_id" value='${/session/@user_id}'/> -->
+                <label style="margin-left:10px;margin-top:10px;"><![CDATA[${l:PROMPT.PLEASE_SELECT_FILES}]]></label>
+                <input name="CONTENT" id="cgr_pur7010_per_importFile" style="margin-bottom:4px;width:160px;height:22px;" type="file"/>
+                <input onclick="pur7010_per_itemPriceUpload();" style="margin-left:50px;margin-top:10px;width:60px;" type="button" value="${l:PROMPT.IMPORT}"/>
+            </form>
+        </a:fieldSet>
+        <script><![CDATA[
+
+        ]]></script>
+    </a:view>
+</a:screen>

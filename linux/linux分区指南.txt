@@ -1,0 +1,13 @@
+https://www.cnblogs.com/larry2016/p/6529681.html
+https://www.cnblogs.com/silentdoer/p/11419865.html
+
+500G硬盘：
+/boot  		5G
+/	   		80G  
+/root  		100G  		需要运行 .wine
+/usr   		80G 		用户信息
+/temp  		15G 		临时文件  
+/var/log 	15G 		日志文件  
+swap   		8G 			交换空间
+
+/home  		200G 		以上  剩余的空间

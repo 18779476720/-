@@ -1,0 +1,45 @@
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+spool INITIALIZE_PROMPT.log
+set feedback off
+set define off
+begin
+sys_prompt_pkg.sys_prompts_load('HN_FND.CHECKBOX_ID','ZHS','主鍵');
+sys_prompt_pkg.sys_prompts_load('HN_FND.CHECKBOX_ID','US','checkbox_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_NUMBER','ZHS','寻源方案编号');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_NUMBER','US','scheme_number');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_LOCALIZATION_FLAG','ZHS','国产化');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_LOCALIZATION_FLAG','US','reason_localization_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_DEBUNKER_FLAG','ZHS','去瓶颈');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_DEBUNKER_FLAG','US','reason_debunker_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_CAPACITY_EXP_FLAG','ZHS','扩产能');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_CAPACITY_EXP_FLAG','US','reason_capacity_exp_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_LOWER_COST_FLAG','ZHS','降成本');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_LOWER_COST_FLAG','US','reason_lower_cost_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_PROJECT_REQUIRE_FLAG','ZHS','项目需求');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_PROJECT_REQUIRE_FLAG','US','reason_project_require_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_SUPPLIER_LIBRARY_FLAG','ZHS','供应商库优化');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_SUPPLIER_LIBRARY_FLAG','US','reason_supplier_library_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_IMPROVE_QUALITY_FLAG','ZHS','改进质量/服务');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_IMPROVE_QUALITY_FLAG','US','reason_improve_quality_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_STRATEGIC_DEV_FLAG','ZHS','战略发展因素');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_STRATEGIC_DEV_FLAG','US','reason_strategic_dev_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_INSUFF_SUPPLY_FLAG','ZHS','供应资源不足');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_INSUFF_SUPPLY_FLAG','US','reason_insuff_supply_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_OTHERS_FLAG','ZHS','其他(请注明)');
+sys_prompt_pkg.sys_prompts_load('HN_FND.REASON_OTHERS_FLAG','US','reason_others_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_INTERNET_QUERY_FLAG','ZHS','互联网查询');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_INTERNET_QUERY_FLAG','US','method_internet_query_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_EXHIBITION_FLAG','ZHS','参加展会/展会资料');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_EXHIBITION_FLAG','US','method_exhibition_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_DEPT_RECOMMEND_FLAG','ZHS','其他部门推荐');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_DEPT_RECOMMEND_FLAG','US','method_dept_recommend_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_OTHERS_FLAG','ZHS','其他(请注明)');
+sys_prompt_pkg.sys_prompts_load('HN_FND.METHOD_OTHERS_FLAG','US','method_others_flag');
+end;
+/
+commit;
+set feedback on
+set define on
+spool off
+exit

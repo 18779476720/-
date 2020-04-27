@@ -1,0 +1,73 @@
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+spool INITIALIZE_PROMPT.log
+set feedback off
+set define off
+begin
+sys_prompt_pkg.sys_prompts_load('HN_FND.HEAD_ID','ZHS','头ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.HEAD_ID','US','head_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_NUMBER','ZHS','方案编号');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_NUMBER','US','scheme_number');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_STATUS','ZHS','方案状态');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_STATUS','US','scheme_status');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_TITLE','ZHS','方案标题');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_TITLE','US','scheme_title');
+sys_prompt_pkg.sys_prompts_load('HN_FND.COMPANY_ID','ZHS','公司ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.COMPANY_ID','US','company_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.UNIT_ID','ZHS','部门ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.UNIT_ID','US','unit_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_TYPE_CODE','ZHS','方案类型');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SCHEME_TYPE_CODE','US','scheme_type_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.PRODUCTION_LINE','ZHS','生产线');
+sys_prompt_pkg.sys_prompts_load('HN_FND.PRODUCTION_LINE','US','production_line');
+sys_prompt_pkg.sys_prompts_load('HN_FND.CATEGORY_ID','ZHS','物料品类ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.CATEGORY_ID','US','category_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.CATEGORY_DESC','ZHS','物料品类');
+sys_prompt_pkg.sys_prompts_load('HN_FND.CATEGORY_DESC','US','category_desc');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_ID','ZHS','物料ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_ID','US','item_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_CODE','ZHS','物料编码');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_CODE','US','item_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_NAME','ZHS','物料名称');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_NAME','US','item_name');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_TYPE_CODE','ZHS','物料类型');
+sys_prompt_pkg.sys_prompts_load('HN_FND.ITEM_TYPE_CODE','US','item_type_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_REASON_CODE','ZHS','寻源原因');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_REASON_CODE','US','source_reason_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_REASON_REMARK','ZHS','寻源原因说明');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_REASON_REMARK','US','vendor_reason_remark');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_BACKGROUND_INFO','ZHS','寻源背景说明');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_BACKGROUND_INFO','US','source_background_info');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_QUANTITY','ZHS','寻源数量');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_QUANTITY','US','source_quantity');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_TYPE_CODE','ZHS','供应商类型');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_TYPE_CODE','US','vendor_type_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_TYPE_REMARK','ZHS','供应商类型说明');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_TYPE_REMARK','US','vendor_type_remark');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_QUANTITY','ZHS','潜在供应商数量');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_QUANTITY','US','potential_vendor_quantity');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_LIST','ZHS','潜在供应商列表');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_LIST','US','potential_vendor_list');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_SOURCE','ZHS','潜在供应商来源');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_SOURCE','US','potential_vendor_source');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_METHOD','ZHS','潜在供应商寻找方式');
+sys_prompt_pkg.sys_prompts_load('HN_FND.POTENTIAL_VENDOR_METHOD','US','potential_vendor_method');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_METHOD_REMARK','ZHS','寻找方式说明');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_METHOD_REMARK','US','vendor_method_remark');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_SOURCE_CREATE','ZHS','寻源方案创建');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_SOURCE_CREATE','US','vendor_source_create');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_SOURCE_EDIT','ZHS','寻源方案维护');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_SOURCE_EDIT','US','vendor_source_edit');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_SOURCE_DETAIL','ZHS','寻源方案明细');
+sys_prompt_pkg.sys_prompts_load('HN_FND.VENDOR_SOURCE_DETAIL','US','vendor_source_detail');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_SCHEME','ZHS','寻源方案');
+sys_prompt_pkg.sys_prompts_load('HN_FND.SOURCE_SCHEME','US','source_scheme');
+sys_prompt_pkg.sys_prompts_load('HN_FND.NO_LINE_DATA','ZHS','行上<团队成员信息>不完整！不允许提交');
+sys_prompt_pkg.sys_prompts_load('HN_FND.NO_LINE_DATA','US','no_line_data');
+end;
+/
+commit;
+set feedback on
+set define on
+spool off
+exit

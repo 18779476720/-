@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    cgr_per_price_line_import_error i
+                WHERE
+                    i.session_id     = ${/session/@session_id} AND
+                    i.business_group = ${/session/@business_group}
+                ORDER BY
+                    i.line_num
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

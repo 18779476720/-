@@ -1,0 +1,39 @@
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+
+spool INITIALIZE_MESSAGE_CON_CONTRACT_CA_PKG.log
+
+set feedback off
+set define off
+begin
+  sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR', '错误','请至少选择一种<潜在供应商寻找方式>','ZHS');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_METHOD_ERROR', 'Error','请至少选择一种<潜在供应商寻找方式>','US');
+  
+  sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_REASOM_ERROR');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_REASOM_ERROR', '错误','请至少选择一种<寻源原因>','ZHS');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_REASOM_ERROR', 'Error','请至少选择一种<寻源原因>','US');
+
+  sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_STATUS_ERROR');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_STATUS_ERROR', '错误','只有<#STATUS_DESC>状态下才能执行当前操作！','ZHS');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_STATUS_ERROR', 'Error','只有<#STATUS_DESC>状态下才能执行当前操作！','US');
+
+  sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_MEMBER_UNIQUE_ERROR');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_MEMBER_UNIQUE_ERROR', '错误','<#MEMBER_TYPE_DESC>成员维护重复！','ZHS');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_MEMBER_UNIQUE_ERROR', 'Error','<#MEMBER_TYPE_DESC>成员维护重复！','US');
+
+  sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_NO_LEADER_ERROR');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_NO_LEADER_ERROR', '错误','<#MEMBER_TYPE_DESC>未维护<团队组长>！','ZHS');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_NO_LEADER_ERROR', 'Error','<#MEMBER_TYPE_DESC>未维护<团队组长>！','US');
+
+  sys_message_pkg.delete_message('HN_FND_VENDOR_SOURCE_LEADER_EXISTED_ERROR');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_LEADER_EXISTED_ERROR', '错误','<#MEMBER_TYPE_DESC>重复维护<团队组长>！','ZHS');
+  sys_message_pkg.insert_message('HN_FND_VENDOR_SOURCE_LEADER_EXISTED_ERROR', 'Error','<#MEMBER_TYPE_DESC>重复维护<团队组长>！','US');
+  
+end;
+/
+commit;
+set feedback on
+set define on
+spool off
+exit

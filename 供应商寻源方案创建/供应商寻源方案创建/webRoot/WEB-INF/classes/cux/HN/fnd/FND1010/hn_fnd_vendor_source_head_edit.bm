@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="insert">
+            <bm:parameters>
+                <bm:parameter name="head_id" output="true" outputPath="/parameter/@head_id"/>
+            </bm:parameters>
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hn_fnd_vendor_source_pkg.source_scheme_head_inert(   o_head_id                      =>${@head_id},
+									                                     p_scheme_title                 =>${@scheme_title},
+									                                     p_company_id                   =>${@company_id},
+									                                     p_unit_id                      =>${@unit_id},
+									                                     p_scheme_type_code             =>${@scheme_type_code},
+									                                     p_production_line              =>${@production_line},
+									                                     p_category_id                  =>${@category_id},
+									                                     p_item_id                      =>${@item_id},
+									                                     p_item_type_code               =>${@item_type_code},
+									                                     p_source_reason_code           =>${@source_reason_code},
+									                                     p_vendor_reason_remark         =>${@vendor_reason_remark},
+									                                     p_source_background_info       =>${@source_background_info},
+									                                     p_source_quantity              =>${@source_quantity},
+									                                     p_vendor_type_code             =>${@vendor_type_code},
+									                                     p_vendor_type_remark           =>${@vendor_type_remark},
+									                                     p_potential_vendor_quantity    =>${@potential_vendor_quantity},
+									                                     p_potential_vendor_list        =>${@potential_vendor_list},
+									                                     p_potential_vendor_source      =>${@potential_vendor_source},
+									                                     p_potential_vendor_method      =>${@potential_vendor_method},
+									                                     p_vendor_method_remark         =>${@vendor_method_remark},
+									                                     p_reason_localization_flag     =>${@reason_localization_flag},
+									                                     p_reason_debunker_flag         =>${@reason_debunker_flag},
+									                                     p_reason_capacity_exp_flag     =>${@reason_capacity_exp_flag},
+									                                     p_reason_lower_cost_flag       =>${@reason_lower_cost_flag},
+									                                     p_reason_project_require_flag  =>${@reason_project_require_flag},
+									                                     p_reason_supplier_library_flag =>${@reason_supplier_library_flag},
+									                                     p_reason_improve_quality_flag  =>${@reason_improve_quality_flag},
+									                                     p_reason_strategic_dev_flag    =>${@reason_strategic_dev_flag},
+									                                     p_reason_insuff_supply_flag    =>${@reason_insuff_supply_flag},
+									                                     p_reason_others_flag           =>${@reason_others_flag},
+									                                     p_method_internet_query_flag   =>${@method_internet_query_flag},
+									                                     p_method_exhibition_flag       =>${@method_exhibition_flag},
+									                                     p_method_dept_recommend_flag   =>${@method_dept_recommend_flag},
+									                                     p_method_others_flag           =>${@method_others_flag},
+										                                 p_business_group               =>${/session/@business_group},
+										                                 p_user_id                      =>${/session/@user_id}
+										                                );
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="update">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hn_fnd_vendor_source_pkg.source_scheme_head_update(  p_head_id                      =>${@head_id},
+									                                     p_scheme_number                =>${@scheme_number},
+									                                     p_scheme_title                 =>${@scheme_title},
+									                                     p_company_id                   =>${@company_id},
+									                                     p_unit_id                      =>${@unit_id},
+									                                     p_scheme_type_code             =>${@scheme_type_code},
+									                                     p_production_line              =>${@production_line},
+									                                     p_category_id                  =>${@category_id},
+									                                     p_item_id                      =>${@item_id},
+									                                     p_item_type_code               =>${@item_type_code},
+									                                     p_source_reason_code           =>${@source_reason_code},
+									                                     p_vendor_reason_remark         =>${@vendor_reason_remark},
+									                                     p_source_background_info       =>${@source_background_info},
+									                                     p_source_quantity              =>${@source_quantity},
+									                                     p_vendor_type_code             =>${@vendor_type_code},
+									                                     p_vendor_type_remark           =>${@vendor_type_remark},
+									                                     p_potential_vendor_quantity    =>${@potential_vendor_quantity},
+									                                     p_potential_vendor_list        =>${@potential_vendor_list},
+									                                     p_potential_vendor_source      =>${@potential_vendor_source},
+									                                     p_potential_vendor_method      =>${@potential_vendor_method},
+									                                     p_vendor_method_remark         =>${@vendor_method_remark},
+									                                     p_reason_localization_flag     =>${@reason_localization_flag},
+									                                     p_reason_debunker_flag         =>${@reason_debunker_flag},
+									                                     p_reason_capacity_exp_flag     =>${@reason_capacity_exp_flag},
+									                                     p_reason_lower_cost_flag       =>${@reason_lower_cost_flag},
+									                                     p_reason_project_require_flag  =>${@reason_project_require_flag},
+									                                     p_reason_supplier_library_flag =>${@reason_supplier_library_flag},
+									                                     p_reason_improve_quality_flag  =>${@reason_improve_quality_flag},
+									                                     p_reason_strategic_dev_flag    =>${@reason_strategic_dev_flag},
+									                                     p_reason_insuff_supply_flag    =>${@reason_insuff_supply_flag},
+									                                     p_reason_others_flag           =>${@reason_others_flag},
+									                                     p_method_internet_query_flag   =>${@method_internet_query_flag},
+									                                     p_method_exhibition_flag       =>${@method_exhibition_flag},
+									                                     p_method_dept_recommend_flag   =>${@method_dept_recommend_flag},
+									                                     p_method_others_flag           =>${@method_others_flag},
+										                                 p_user_id                      =>${/session/@user_id}
+										                                );
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+        <bm:operation name="execute">
+            <bm:update-sql><![CDATA[
+                BEGIN
+                    hn_fnd_vendor_source_pkg.source_scheme_opt( p_head_id    =>${@head_id}, 
+											                    p_opt_status =>${@opt_status},
+											                    p_user_id    =>${/session/@user_id} 
+											                   );
+                END;
+            ]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

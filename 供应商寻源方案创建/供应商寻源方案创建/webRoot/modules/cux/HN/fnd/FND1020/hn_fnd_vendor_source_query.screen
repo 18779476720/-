@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <a:link id="hn_fnd1020_option_record_query" url="${/request/@context_path}/modules/cux/HN/public/hn_operation_record.screen"/>
+        <a:link id="hn_fnd1020_vendor_source_query_link" url="${/request/@context_path}/modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_detail_query.screen"/>
+        <script><![CDATA[
+            function hn_fnd1020_renderer(value, record, name) {
+                var head_id = record.get('head_id');
+                var scheme_number = record.get('scheme_number');
+                var scheme_status = record.get('scheme_status');
+                if (name == 'scheme_number') {
+                    return '<a href="javascript:hn_fnd1020_vendor_source_detail(' + head_id + ',' + '\'' + scheme_status + '\'' + ')">' + value + '</a>';
+                } else if (name == 'option_record') {
+                    return '<a href="javascript:hn_fnd1020_option_record(' + head_id + ')">${l:HN.OPTION_RECORD}</a>';
+                }
+            }
+            
+            function hn_fnd1020_vendor_source_detail(head_id, scheme_status) {
+                var url = $('hn_fnd1020_vendor_source_query_link').getUrl();
+                var titel = '${l:HN_FND.VENDOR_SOURCE_DETAIL}';
+                new Aurora.Window({
+                    id: 'hn_vendor_source_detail_win',
+                    url: url + '?head_id=' + head_id + '&scheme_status=' + scheme_status + '&show_back_flag=Y',
+                    title: titel,
+                    fullScreen: true
+                });
+            }
+            
+            function hn_fnd1020_option_record(head_id) {
+                new Aurora.Window({
+                    id: 'operation_record_win',
+                    url: $('hn_fnd1020_option_record_query').getUrl() + '?operation_table_id=' + head_id + '&operation_table=hn_source_scheme_head',
+                    title: '${l:LJ.OPTION_RECORD}',
+                    height: 450,
+                    width: 600
+                });
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="hn_fnd1020_scheme_status_ds" lookupCode="HN_SCHEME_STATUS_SYSCODE"/>
+            <a:dataSet id="hn_fnd1020_scheme_type_ds" lookupCode="HN_SCHEME_TYPE_SYSCODE"/>
+            <a:dataSet id="hn_fnd1020_vendor_source_query_ds">
+                <a:fields>
+                    <a:field name="scheme_status_desc" displayField="code_value_name" options="hn_fnd1020_scheme_status_ds" returnField="scheme_status" valueField="code_value"/>
+                    <a:field name="scheme_type_desc" displayField="code_value_name" options="hn_fnd1020_scheme_type_ds" returnField="scheme_type_code" valueField="code_value"/>
+                    <a:field name="item_code" lovHeight="510" lovService="cux.HN.public.hn_mtl_item_lov" lovWidth="600" title="HN_FND.ITEM_NAME">
+                        <a:mapping>
+                            <a:map from="item_id" to="item_id"/>
+                            <a:map from="item_code" to="item_code"/>
+                            <a:map from="item_name" to="item_name"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+            </a:dataSet>
+            <a:dataSet id="hn_fnd1020_vendor_source_result_ds" autoCount="true" autoPageSize="true" autoQuery="true" model="cux.HN.fnd.FND1020.hn_fnd_vendor_source_query" queryDataSet="hn_fnd1020_vendor_source_query_ds" selectable="true"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:gridButton bind="hn_fnd1020_vendor_source_result_grid" type="excel"/>
+            </a:screenTopToolbar>
+            <a:queryForm bindTarget="hn_fnd1020_vendor_source_query_ds" resultTarget="hn_fnd1020_vendor_source_result_ds" style="width:100%;border:none">
+                <a:formToolBar>
+                    <a:hBox labelWidth="120">
+                        <a:textField name="scheme_number" prompt="HN_FND.SCHEME_NUMBER"/>
+                        <a:textField name="scheme_title" prompt="HN_FND.SCHEME_TITLE"/>
+                        <a:comboBox name="scheme_status_desc" prompt="HN_FND.SCHEME_STATUS"/>
+                        <a:comboBox name="scheme_type_desc" prompt="HN_FND.SCHEME_TYPE_CODE"/>
+                    </a:hBox>
+                </a:formToolBar>
+                <a:formBody>
+                    <a:hBox labelWidth="120">
+                        <a:lov name="item_code" prompt="HN_FND.ITEM_CODE"/>
+                        <a:datePicker name="create_date_from" prompt="HN.CREATE_DATE_DESC_FROM"/>
+                        <a:datePicker name="create_date_to" prompt="HN.CREATE_DATE_DESC_TO"/>
+                    </a:hBox>
+                </a:formBody>
+            </a:queryForm>
+            <a:grid id="hn_fnd1020_vendor_source_result_grid" autoAppend="false" bindTarget="hn_fnd1020_vendor_source_result_ds" marginHeight="180" marginWidth="65" navBar="true">
+                <a:columns>
+                    <a:column name="scheme_number" align="center" prompt="HN_FND.SCHEME_NUMBER" renderer="hn_fnd1020_renderer" width="80"/>
+                    <a:column name="scheme_status_desc" align="center" prompt="HN_FND.SCHEME_STATUS" width="60"/>
+                    <a:column name="scheme_title" align="center" prompt="HN_FND.SCHEME_TITLE" width="120"/>
+                    <a:column name="scheme_type_desc" align="center" prompt="HN_FND.SCHEME_TYPE_CODE" width="80"/>
+                    <a:column name="item_code" align="center" prompt="HN_FND.ITEM_CODE" width="60"/>
+                    <a:column name="item_name" align="center" prompt="HN_FND.ITEM_NAME" width="100"/>
+                    <a:column name="create_by_desc" align="center" prompt="HN.CREATE_BY_DESC" width="60"/>
+                    <a:column name="create_date_desc" align="center" prompt="HN.CREATE_DATE_DESC" width="60"/>
+                    <a:column name="option_record" align="center" prompt="HN.OPTION_RECORD" renderer="hn_fnd1020_renderer" width="60"/>
+                </a:columns>
+            </a:grid>
+        </a:screenBody>
+    </a:view>
+</a:screen>

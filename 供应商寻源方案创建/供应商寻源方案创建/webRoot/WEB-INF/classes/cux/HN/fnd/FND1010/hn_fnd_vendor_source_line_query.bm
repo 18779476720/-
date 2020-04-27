@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    l.line_id,
+                    l.head_id,
+                    l.line_num,
+                    l.member_type_code,
+                    (SELECT
+                        s.code_value_name
+                    FROM
+                        sys_code_values_v s
+                    WHERE
+                        s.code                    = 'HN_MEMBER_TYPE_SYSCODE' AND
+                        s.code_value              = l.member_type_code AND
+                        s.code_enabled_flag       = 'Y' AND
+                        s.code_value_enabled_flag = 'Y'
+                    ) member_type_desc ,
+                    l.member_user_id,
+                    u.user_name member_user_code,
+                    u.description member_user_name,
+                    NVL(l.team_leader_flag, 'N') team_leader_flag,
+                    l.attribute1,
+                    l.attribute2,
+                    l.attribute3,
+                    l.attribute4,
+                    l.attribute5,
+                    l.attribute6,
+                    l.attribute7,
+                    l.attribute8,
+                    l.attribute9,
+                    l.attribute10
+                FROM
+                    hn_source_scheme_line l,
+                    sys_user u
+                WHERE
+                    l.member_user_id  = u.user_id AND
+                    l.head_id         =${@head_id} AND
+                    l.member_type_code=${@member_type_code}
+                ORDER BY
+                    l.line_num
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

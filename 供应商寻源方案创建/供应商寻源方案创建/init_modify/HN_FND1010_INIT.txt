@@ -1,0 +1,51 @@
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+
+spool INSTALL_PUR5180.log
+
+set feedback off
+set define off
+begin
+
+  --页面注册
+    sys_data_load_pkg.load_sys_service('modules/cux/HN/public/hn_operation_record.screen','操作记录',0,0,0);
+    sys_data_load_pkg.load_sys_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','供应商寻源主页面',1,1,0);
+    sys_data_load_pkg.load_sys_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_create.screen','供应商寻源创建',1,1,0);
+    sys_data_load_pkg.load_sys_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_edit.screen','供应商寻源维护',1,1,0);
+    sys_data_load_pkg.load_sys_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_detail_query.screen','供应商寻源明细查询',1,1,0);
+    sys_data_load_pkg.load_sys_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_save_opt.svc','供应商寻源保存SVC',1,1,0);
+
+  --目录注册
+  sys_data_load_pkg.load_sys_function('HN_VENDOR_SOURCE','供应商寻源','供应商寻源','','G','GROUP','VENDOR','','1010','','ZHS');
+
+  --功能注册
+  sys_data_load_pkg.load_sys_function('HN_FND1010','我的寻源方案','我的寻源方案','HN_VENDOR_SOURCE','F','GROUP','STANDARD','modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','1010','','ZHS');
+
+  --分配页面
+
+  sys_data_load_pkg.load_function_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen');
+  sys_data_load_pkg.load_function_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_create.screen');
+  sys_data_load_pkg.load_function_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_edit.screen');
+  sys_data_load_pkg.load_function_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_detail_query.screen');
+  sys_data_load_pkg.load_function_service('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_save_opt.svc');
+
+ --bm分配脚本
+
+  sys_data_load_pkg.load_function_bm('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','cux.HN.fnd.FND1010.hn_fnd_vendor_source_main');
+  sys_data_load_pkg.load_function_bm('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','cux.HN.fnd.FND1010.hn_fnd_vendor_source_head_query');
+  sys_data_load_pkg.load_function_bm('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','cux.HN.fnd.FND1010.hn_fnd_vendor_source_head_edit');
+  sys_data_load_pkg.load_function_bm('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit');
+  sys_data_load_pkg.load_function_bm('modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_main.screen','cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_query');
+
+
+end;
+
+/
+
+commit;
+
+set feedback on
+set define on
+spool off
+
+exit

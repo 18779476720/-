@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" defaultOrderBy="l.asn_line_num asc">
+    <bm:operations>
+        <bm:operation name="execute">
+            <bm:parameters>
+                <bm:parameter name="error_flag" output="true" outputPath="/parameter/@error_flag"/>
+            </bm:parameters>
+            <bm:update-sql><![CDATA[BEGIN
+  							cgr_per_price_pkg.vendor_check_and_submit_lines(
+													 p_head_id 			=> ${@head_id},
+													 p_session_id     	=> ${/session/@session_id},
+													 o_error_flag		=> ${@error_flag},
+                                                     p_business_group 	=> ${/session/@business_group},
+                                                     p_user_id        	=> ${/session/@user_id});
+END;
+]]></bm:update-sql>
+        </bm:operation>
+    </bm:operations>
+</bm:model>

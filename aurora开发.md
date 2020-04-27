@@ -18,228 +18,262 @@
       -- Purpose   : 根据表名快速生成表插入和修改过程脚本   
       -- Parameters: 表名  
     **************************************************/
-    DECLARE   
-      l_table_name   VARCHAR2(2000) := '&table_name';   
-      v_package_name VARCHAR2(100) := '&package_name';
-      v_pk   VARCHAR2(60);
-    BEGIN  
-      dbms_output.enable(300000);    
-      l_table_name := UPPER(l_table_name);    
-      IF v_package_name IS NULL THEN
-    v_package_name := 'c_package_name,';
-      ELSE
-    v_package_name := '''' || v_package_name || ''',';
-      END IF;
-      SELECT lower(cu.COLUMN_NAME)
-    INTO v_pk
-    FROM user_cons_columns cu, user_constraints au
-       WHERE cu.constraint_name = au.constraint_name
-     AND au.constraint_type = 'P'
-     AND au.table_name = l_table_name;
-      --查询过程
-      dbms_output.put_line('/*select t.* from (select ');
-      FOR rec IN (SELECT lower(column_name) column_name
-    FROM user_tab_columns
-       WHERE table_name = l_table_name) LOOP
-    IF rec.column_name <> v_pk THEN
-      dbms_output.put_line(rec.column_name || ',');
-    END IF;
-      END LOOP;
-      dbms_output.put_line(v_pk);
-      dbms_output.put_line('from ' || l_table_name || ')t where t.' || v_pk ||
-       '=${@' || v_pk || '};*/');
-      dbms_output.put_line('');
-      dbms_output.put_line('');
-      --插入过程
-      dbms_output.put_line('--==========================================================
-    --procedure name  : insert_' || lower(l_table_name) || '
-    --discription : 
-    --note:
-    --parameter   :
-    --==========================================================');
-      dbms_output.put_line(' procedure insert_' || lower(l_table_name) || '(');
-      FOR rec IN (SELECT lower(column_name) column_name, data_type
-    FROM user_tab_columns
-       WHERE table_name = l_table_name) LOOP
-    IF rec.column_name NOT IN ('creation_date',
-       'last_update_date',
-       'created_by',
-       'last_updated_by') THEN
-      dbms_output.put_line('p_' || rec.column_name || '  ' ||
-       rec.data_type || ',');
-    END IF;
-      
-      END LOOP;
-      dbms_output.put_line('p_user_id NUMBER');
-      dbms_output.put_line(') is  v_data ' || lower(l_table_name) ||
-       '%ROWTYPE;   begin');
-    
-      FOR rec IN (SELECT lower(column_name) column_name
-    FROM user_tab_columns
-       WHERE table_name = l_table_name) LOOP
-    IF rec.column_name IN ('creation_date', 'last_update_date') THEN
-      dbms_output.put_line('v_data.' || rec.column_name || ' := sysdate;');
-    ELSIF rec.column_name IN ('created_by', 'last_updated_by') THEN
-      dbms_output.put_line('v_data.' || rec.column_name ||
-       ' := p_user_id;');
-    ELSE
-      dbms_output.put_line('v_data.' || rec.column_name || ' :=  ' || 'p_' ||
-       rec.column_name || ';');
-    END IF;
-      END LOOP;
-    
-      dbms_output.put_line('insert into ' || lower(l_table_name) ||
-       ' values  v_data ;');
-      dbms_output.put_line('EXCEPTION
-      WHEN OTHERS THEN
-    sys_raise_app_error_pkg.raise_sys_others_error(p_message => dbms_utility.format_error_backtrace || '' '' ||
-    SQLERRM,
-       p_created_by  => p_user_id,
-       p_package_name=> ' ||
-       v_package_name || '
-       p_procedure_function_name => ''insert_' ||
-       lower(l_table_name) ||
-       ''');
-    raise_application_error(sys_raise_app_error_pkg.c_error_number,
-    sys_raise_app_error_pkg.g_err_line_id);');
-      dbms_output.put_line('end  insert_' || lower(l_table_name) || ';');
-      dbms_output.put_line('');
-      dbms_output.put_line('');
-      --修改过程
-      dbms_output.put_line('--==========================================================
-    --procedure name  : update_' || lower(l_table_name) || '
-    --discription : 
-    --note:
-    --parameter   :
-    --==========================================================');
-      dbms_output.put_line(' procedure update_' || lower(l_table_name) || '(');
-      FOR rec IN (SELECT lower(column_name) column_name, data_type
-    FROM user_tab_columns
-       WHERE table_name = l_table_name) LOOP
-    IF rec.column_name NOT IN ('creation_date',
-       'last_update_date',
-       'created_by',
-       'last_updated_by') THEN
-      dbms_output.put_line('p_' || rec.column_name || '  ' ||
-       rec.data_type || ',');
-    END IF;
-      END LOOP;
-    
-      dbms_output.put_line('p_user_id NUMBER');
-      dbms_output.put_line(') is  v_data ' || lower(l_table_name) ||
-       '%ROWTYPE;   begin');
-      dbms_output.put_line('update ' || lower(l_table_name) || ' t  set ');
-      FOR rec IN (SELECT lower(column_name) column_name
-    FROM user_tab_columns
-       WHERE table_name = l_table_name) LOOP
-    IF rec.column_name IN ('creation_date',
-       'last_update_date',
-       'created_by',
-       'last_updated_by') THEN
-      NULL;
-    ELSE
-      dbms_output.put_line('t.' || rec.column_name || ' =  ' || 'p_' ||
-       rec.column_name || ',');
-    END IF;
-      END LOOP;
-      dbms_output.put_line('t.last_update_date = sysdate,');
-      dbms_output.put_line('t.last_updated_by = p_user_id');
-      dbms_output.put_line('where t.' || v_pk || '=p_' || v_pk || ';');
-      dbms_output.put_line('EXCEPTION
-      WHEN OTHERS THEN
-    sys_raise_app_error_pkg.raise_sys_others_error(p_message => dbms_utility.format_error_backtrace || '' '' ||
-    SQLERRM,
-       p_created_by  => p_user_id,
-       p_package_name=> ' ||
-       v_package_name || '
-       p_procedure_function_name => ''update_' ||
-       lower(l_table_name) ||
-       ''');
-    raise_application_error(sys_raise_app_error_pkg.c_error_number,
-    sys_raise_app_error_pkg.g_err_line_id);');
-      dbms_output.put_line('end  update_' || lower(l_table_name) || ';');
-      dbms_output.put_line('');
-      dbms_output.put_line('');
-      --删除过程
-      dbms_output.put_line('--==========================================================
-    --procedure name  : delete_' || lower(l_table_name) || '
-    --discription : 
-    --note:
-    --parameter   :
-    --==========================================================');
-      dbms_output.put_line(' procedure delete_' || lower(l_table_name) || '(');
-      dbms_output.put_line('p_' || v_pk || ' NUMBER,');
-      dbms_output.put_line('p_user_id NUMBER)IS');
-      dbms_output.put_line('begin DELETE FROM ' || lower(l_table_name) || ' t');
-      dbms_output.put_line('where t.' || v_pk || '=p_' || v_pk || ';');
-      dbms_output.put_line('EXCEPTION
-      WHEN OTHERS THEN
-    sys_raise_app_error_pkg.raise_sys_others_error(p_message => dbms_utility.format_error_backtrace || '' '' ||
-    SQLERRM,
-       p_created_by  => p_user_id,
-       p_package_name=> ' ||
-       v_package_name || '
-       p_procedure_function_name => ''delete_' ||
-       lower(l_table_name) ||
-       ''');
-    raise_application_error(sys_raise_app_error_pkg.c_error_number,
-    sys_raise_app_error_pkg.g_err_line_id);');
-      dbms_output.put_line('end  delete_' || lower(l_table_name) || ';');
-	  dbms_output.put_line('');
-	  dbms_output.put_line('');
-	  --生成bm的增删该查
-	  dbms_output.put_line('');
-	  dbms_output.put_line('insert_' || lower(l_table_name) || '(');
-	  FOR rec IN (SELECT lower(column_name) column_name, data_type
-	FROM user_tab_columns
-	   WHERE table_name = l_table_name) LOOP
-	IF rec.column_name NOT IN ('creation_date',
-	   'last_update_date',
-	   'created_by',
-	   'last_updated_by') THEN
-	  dbms_output.put_line('		p_' || rec.column_name || '   => ${@' || rec.column_name ||'},');
-	END IF;
-	
-	  END LOOP;
-	  dbms_output.put_line('		p_user_id  => ${/session/@user_id});');
-	  
-	
-	  dbms_output.put_line('');
-	  dbms_output.put_line('');
-		--生成页面
+    DECLARE
+		  l_table_name   VARCHAR2(2000) := '&table_name';   
+  		  v_package_name VARCHAR2(100) := '&package_name';
+		  v_pk           VARCHAR2(60);
+		BEGIN
+		  dbms_output.enable(300000);
+		  l_table_name := upper(l_table_name);
+		  IF v_package_name IS NULL THEN
+		    v_package_name := 'c_package_name,';
+		  ELSE
+		    v_package_name := '''' || v_package_name || ''',';
+		  END IF;
+		  SELECT lower(cu.column_name)
+		    INTO v_pk
+		    FROM user_cons_columns cu,
+		         user_constraints  au
+		   WHERE cu.constraint_name = au.constraint_name
+		     AND au.constraint_type = 'P'
+		     AND au.table_name = l_table_name;
+		  --查询过程
+		  dbms_output.put_line('/*select t.* from (select ');
+		  FOR rec IN (SELECT lower(column_name) column_name
+		                FROM user_tab_columns
+		               WHERE table_name = l_table_name
+		               ORDER BY column_id ASC)
+		  LOOP
+		    IF rec.column_name <> v_pk THEN
+		      dbms_output.put_line('hhh.' || rec.column_name || ',');
+		    END IF;
+		  END LOOP;
+		  dbms_output.put_line(v_pk);
+		  dbms_output.put_line('from ' || l_table_name || ' hhh)t where t.' || v_pk || '=${@' || v_pk || '};*/');
 		  dbms_output.put_line('');
-		  FOR rec IN (SELECT lower(column_name) column_name, data_type
-		FROM user_tab_columns
-		   WHERE table_name = l_table_name) LOOP
-		IF rec.column_name NOT IN ('creation_date',
-		   'last_update_date',
-		   'created_by',
-		   'last_updated_by') THEN
-		  dbms_output.put_line('<a:column name="' || rec.column_name || '" align="center" prompt=""' || '/>');
-		END IF;
+		  dbms_output.put_line('');
+		  --插入过程
+		  dbms_output.put_line('--==========================================================
+		--procedure name  : insert_' || lower(l_table_name) || '
+		--discription : 
+		--note:
+		--parameter   :
+		--==========================================================');
+		  dbms_output.put_line(' procedure insert_' || lower(l_table_name) || '(');
+		  FOR rec IN (SELECT lower(b.column_name) column_name,
+		                     data_type,
+		                     comments
+		                FROM all_tab_columns   b,
+		                     user_col_comments a
+		               WHERE b.table_name = a.table_name
+		                 AND b.table_name = l_table_name
+		                 AND b.column_name = a.column_name
+		               ORDER BY b.column_id ASC)
+		  LOOP
+		    IF rec.column_name NOT IN ('creation_date', 'last_update_date', 'created_by', 'last_updated_by') THEN
+		      dbms_output.put_line('p_' || rec.column_name || '  ' || rec.data_type || ',--'||rec.comments);
+		    END IF;
+		  
+		  END LOOP;
+		  dbms_output.put_line('p_user_id NUMBER');
+		  dbms_output.put_line(') is  v_data ' || lower(l_table_name) || '%ROWTYPE;');
+		  dbms_output.put_line('v_error_message     VARCHAR2(3000);');
+		  dbms_output.put_line('begin ');
 		
+		  FOR rec IN (SELECT lower(b.column_name) column_name,
+		                     data_type,
+		                     comments
+		                FROM all_tab_columns   b,
+		                     user_col_comments a
+		               WHERE b.table_name = a.table_name
+		                 AND b.table_name = l_table_name
+		                 AND b.column_name = a.column_name
+		               ORDER BY b.column_id ASC)
+		  LOOP
+		    IF rec.column_name IN ('creation_date', 'last_update_date') THEN
+		      dbms_output.put_line('v_data.' || rec.column_name || ' := sysdate;');
+		    ELSIF rec.column_name IN ('created_by', 'last_updated_by') THEN
+		      dbms_output.put_line('v_data.' || rec.column_name || ' := p_user_id;');
+		    ELSE
+		      dbms_output.put_line('v_data.' || rec.column_name || ' :=  ' || 'p_' || rec.column_name || ';');
+		    END IF;
+		  END LOOP;
+		
+		  dbms_output.put_line('insert into ' || lower(l_table_name) || ' values  v_data ;');
+		  dbms_output.put_line('EXCEPTION
+		   WHEN dup_val_on_index THEN
+		      v_error_message := '''';
+		      sys_raise_app_error_pkg.raise_user_define_error(p_message_code            => ''DUP_VAL_ON_INDEX_ERROR'',
+		                                                      p_created_by              => p_user_id,
+		                                                      p_token_1                 => ''#TOKEN_1'',
+		                                                      p_token_value_1           => v_error_message,
+		                                                      p_package_name=> ' || v_package_name || '
+		                                                      p_procedure_function_name => ''update_' || lower(l_table_name) || ''');
+		      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+		  WHEN OTHERS THEN
+		sys_raise_app_error_pkg.raise_sys_others_error(p_message => dbms_utility.format_error_backtrace || '' '' ||
+		SQLERRM,
+		   p_created_by  => p_user_id,
+		   p_package_name=> ' || v_package_name || '
+		   p_procedure_function_name => ''insert_' || lower(l_table_name) || ''');
+		raise_application_error(sys_raise_app_error_pkg.c_error_number,
+		sys_raise_app_error_pkg.g_err_line_id);');
+		  dbms_output.put_line('end  insert_' || lower(l_table_name) || ';');
+		  dbms_output.put_line('');
+		  dbms_output.put_line('');
+		  --修改过程
+		  dbms_output.put_line('--==========================================================
+		--procedure name  : update_' || lower(l_table_name) || '
+		--discription : 
+		--note:
+		--parameter   :
+		--==========================================================');
+		  dbms_output.put_line(' procedure update_' || lower(l_table_name) || '(');
+		  FOR rec IN (SELECT lower(b.column_name) column_name,
+		                     data_type,
+		                     comments
+		                FROM all_tab_columns   b,
+		                     user_col_comments a
+		               WHERE b.table_name = a.table_name
+		                 AND b.table_name = l_table_name
+		                 AND b.column_name = a.column_name
+		               ORDER BY b.column_id ASC )
+		  LOOP
+		    IF rec.column_name NOT IN ('creation_date', 'last_update_date', 'created_by', 'last_updated_by') THEN
+		      dbms_output.put_line('p_' || rec.column_name || '  ' || rec.data_type || ', --'||rec.comments);
+		    END IF;
+		  END LOOP;
+		
+		  dbms_output.put_line('p_user_id NUMBER');
+		  dbms_output.put_line(') is  v_data ' || lower(l_table_name) || '%ROWTYPE;');
+		  dbms_output.put_line('v_error_message     VARCHAR2(3000);');
+		  dbms_output.put_line('begin ');
+		  dbms_output.put_line('update ' || lower(l_table_name) || ' t  set ');
+		  FOR rec IN (SELECT lower(b.column_name) column_name,
+		                     data_type,
+		                     comments
+		                FROM all_tab_columns   b,
+		                     user_col_comments a
+		               WHERE b.table_name = a.table_name
+		                 AND b.table_name = l_table_name
+		                 AND b.column_name = a.column_name
+		               ORDER BY b.column_id ASC)
+		  LOOP
+		    IF rec.column_name IN ('creation_date', 'last_update_date', 'created_by', 'last_updated_by') THEN
+		      NULL;
+		    ELSE
+		      dbms_output.put_line('t.' || rec.column_name || ' =  ' || 'p_' || rec.column_name || ',');
+		    END IF;
+		  END LOOP;
+		  dbms_output.put_line('t.last_update_date = sysdate,');
+		  dbms_output.put_line('t.last_updated_by = p_user_id');
+		  dbms_output.put_line('where t.' || v_pk || '=p_' || v_pk || ';');
+		  dbms_output.put_line('EXCEPTION
+		  WHEN dup_val_on_index THEN
+		      v_error_message := '''';
+		      sys_raise_app_error_pkg.raise_user_define_error(p_message_code            => ''DUP_VAL_ON_INDEX_ERROR'',
+		                                                      p_created_by              => p_user_id,
+		                                                      p_token_1                 => ''#TOKEN_1'',
+		                                                      p_token_value_1           => v_error_message,
+		                                                      p_package_name=> ' || v_package_name || '
+		                                                      p_procedure_function_name => ''update_' || lower(l_table_name) || ''');
+		      raise_application_error(sys_raise_app_error_pkg.c_error_number, sys_raise_app_error_pkg.g_err_line_id);
+		  WHEN OTHERS THEN
+		sys_raise_app_error_pkg.raise_sys_others_error(p_message => dbms_utility.format_error_backtrace || '' '' ||
+		SQLERRM,
+		   p_created_by  => p_user_id,
+		   p_package_name=> ' || v_package_name || '
+		   p_procedure_function_name => ''update_' || lower(l_table_name) || ''');
+		raise_application_error(sys_raise_app_error_pkg.c_error_number,
+		sys_raise_app_error_pkg.g_err_line_id);');
+		  dbms_output.put_line('end  update_' || lower(l_table_name) || ';');
+		  dbms_output.put_line('');
+		  dbms_output.put_line('');
+		  --删除过程
+		  dbms_output.put_line('--==========================================================
+		--procedure name  : delete_' || lower(l_table_name) || '
+		--discription : 
+		--note:
+		--parameter   :
+		--==========================================================');
+		  dbms_output.put_line(' procedure delete_' || lower(l_table_name) || '(');
+		  dbms_output.put_line('p_' || v_pk || ' NUMBER,');
+		  dbms_output.put_line('p_user_id NUMBER)IS');
+		  dbms_output.put_line('begin DELETE FROM ' || lower(l_table_name) || ' t');
+		  dbms_output.put_line('where t.' || v_pk || '=p_' || v_pk || ';');
+		  dbms_output.put_line('EXCEPTION
+		  WHEN OTHERS THEN
+		sys_raise_app_error_pkg.raise_sys_others_error(p_message => dbms_utility.format_error_backtrace || '' '' ||
+		SQLERRM,
+		   p_created_by  => p_user_id,
+		   p_package_name=> ' || v_package_name || '
+		   p_procedure_function_name => ''delete_' || lower(l_table_name) || ''');
+		raise_application_error(sys_raise_app_error_pkg.c_error_number,
+		sys_raise_app_error_pkg.g_err_line_id);');
+		  dbms_output.put_line('end  delete_' || lower(l_table_name) || ';');
+		  dbms_output.put_line('');
+		  dbms_output.put_line('');
+		  --生成bm的增删该查
+		  dbms_output.put_line('');
+		  dbms_output.put_line('insert_' || lower(l_table_name) || '(');
+		  FOR rec IN (SELECT lower(column_name) column_name,
+		                     data_type
+		                FROM user_tab_columns
+		               WHERE table_name = l_table_name
+		               ORDER BY column_id ASC)
+		  LOOP
+		    IF rec.column_name NOT IN ('creation_date', 'last_update_date', 'created_by', 'last_updated_by') THEN
+		      dbms_output.put_line('        p_' || rec.column_name || '   => ${@' || rec.column_name || '},');
+		    END IF;
+		  
+		  END LOOP;
+		  dbms_output.put_line('        p_user_id  => ${/session/@user_id});');
+		
+		  dbms_output.put_line('');
+		  dbms_output.put_line('');
+		  --生成页面
+		  dbms_output.put_line('');
+		  FOR rec IN (SELECT lower(b.column_name) column_name,
+		                     data_type,
+		                     comments
+		                FROM all_tab_columns   b,
+		                     user_col_comments a
+		               WHERE b.table_name = a.table_name
+		                 AND b.table_name = l_table_name
+		                 AND b.column_name = a.column_name
+		               ORDER BY b.column_id ASC)
+		  LOOP
+		    IF rec.column_name NOT IN ('creation_date', 'last_update_date', 'created_by', 'last_updated_by') THEN
+		      dbms_output.put_line('<a:column name="' || rec.column_name || '" align="center" prompt="'||rec.comments||'"' || '/>');
+		    END IF;
+		  
 		  END LOOP;
 		  dbms_output.put_line('');
 		  dbms_output.put_line('');
-		  
+		
 		  --生成dataset filed
 		  dbms_output.put_line('');
-		  FOR rec IN (SELECT lower(column_name) column_name, data_type
-		FROM user_tab_columns
-		   WHERE table_name = l_table_name) LOOP
-		IF rec.column_name NOT IN ('creation_date',
-		   'last_update_date',
-		   'created_by',
-		   'last_updated_by') THEN
-		  dbms_output.put_line('<a:field name="' || rec.column_name || '" />');
-		END IF;
-		
-		  END LOOP;
+		  FOR rec IN (SELECT lower(b.column_name) column_name,
+		                     data_type,
+		                     comments
+		                FROM all_tab_columns   b,
+		                     user_col_comments a
+		               WHERE b.table_name = a.table_name
+		                 AND b.table_name = l_table_name
+		                 AND b.column_name = a.column_name
+		               ORDER BY b.column_id ASC)
+		  LOOP
+		    IF rec.column_name NOT IN ('creation_date', 'last_update_date', 'created_by', 'last_updated_by') THEN
+		      dbms_output.put_line('<a:field name="' || rec.column_name || '" prompt="' || rec.comments || '" />');
+		    END IF;
 		  
-    EXCEPTION
-      WHEN no_data_found THEN
-    RAISE_APPLICATION_ERROR(-20001, '表不存在');
-    END;
+		  END LOOP;
+		
+		EXCEPTION
+		  WHEN no_data_found THEN
+		    raise_application_error(-20001, '表不存在');
+		END;
+
    
 ###2、根据表内注释生成双语提示###
 
@@ -287,6 +321,61 @@
     
 
 ----------
+
+## oracle 转MySQL ##
+
+		DECLARE
+	  l_table_name   VARCHAR2(2000) := 'CGR_PER_PRICE_HEAD';
+	  v_package_name VARCHAR2(100) := 'A';
+	  v_pk           VARCHAR2(60);
+	  v_null_sql     VARCHAR2(1000);
+	BEGIN
+	  dbms_output.enable(300000);
+	  l_table_name := upper(l_table_name);
+	  SELECT lower(cu.column_name)
+	    INTO v_pk
+	    FROM user_cons_columns cu,
+	         user_constraints  au
+	   WHERE cu.constraint_name = au.constraint_name
+	     AND au.constraint_type = 'P'
+	     AND au.table_name = 'CGR_PER_PRICE_HEAD';
+	  dbms_output.put_line('create table `' || lower(l_table_name) || '`(');
+	  FOR rec IN (SELECT lower(b.column_name) column_name,
+	                     data_type,
+	                     comments,
+	                     data_length,
+	                     nullable
+	                FROM all_tab_columns   b,
+	                     user_col_comments a
+	               WHERE b.table_name = a.table_name
+	                 AND b.table_name = l_table_name
+	                 AND b.column_name = a.column_name
+	               ORDER BY b.column_id ASC)
+	  LOOP
+	    IF rec.nullable = 'Y' THEN
+	      v_null_sql := ' DEFAULT NULL ';
+	    ELSIF rec.nullable = 'N' THEN
+	      v_null_sql := ' NOT NULL ';
+	    END IF;
+	    IF rec.data_type = 'VARCHAR2' THEN
+	      dbms_output.put_line('`' || rec.column_name || '` ' || 'varchar(' || rec.data_length || ') ' || v_null_sql || ' COMMENT ''' || rec.comments || '''' || ',');
+	    ELSIF rec.data_type = 'DATE' THEN
+	      dbms_output.put_line('`' || rec.column_name || '` ' || 'date' || v_null_sql || 'COMMENT ''' || rec.comments || '''' || ',');
+	    ELSIF rec.data_type = 'NUMBER' THEN
+	      dbms_output.put_line('`' || rec.column_name || '` ' || 'int' || v_null_sql || 'COMMENT ''' || rec.comments || '''' || ',');
+	    ELSIF rec.data_type = 'CLOB' THEN
+	      dbms_output.put_line('`' || rec.column_name || '` ' || 'text' || v_null_sql || 'COMMENT ''' || rec.comments || '''' || ',');
+	    END IF;
+	  END LOOP;
+	  dbms_output.put_line('PRIMARY KEY (`' || v_pk || '`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;');
+	
+	  dbms_output.put_line('ALTER TABLE `' || lower(l_table_name) || '`
+	MODIFY COLUMN `' || v_pk || '` INT(11) NOT NULL AUTO_INCREMENT FIRST ;');
+	
+	END;
+
+
 
 ## 后台导出注册脚本 ##
 
@@ -1405,6 +1494,87 @@ tab页
 
     
 
+js计算问题
+
+	toFixed 精度丢失问题 
+	//重写 toFixed 方法
+	function toFixed1(num, s) {
+             var times = Math.pow(10, s)
+             var des = num * times + 0.5
+             des = parseInt(des, 10) / times
+             return des + ''
+     }
+
+
+
+
+		// 两个浮点数求和
+    function accAdd(num1,num2){
+       var r1,r2,m;
+       try{
+           r1 = num1.toString().split('.')[1].length;
+       }catch(e){
+           r1 = 0;
+       }
+       try{
+           r2=num2.toString().split(".")[1].length;
+       }catch(e){
+           r2=0;
+       }
+       m=Math.pow(10,Math.max(r1,r2));
+       // return (num1*m+num2*m)/m;
+       return Math.round(num1*m+num2*m)/m;
+    }
+    
+    // 两个浮点数相减
+    function accSub(num1,num2){
+       var r1,r2,m;
+       try{
+           r1 = num1.toString().split('.')[1].length;
+       }catch(e){
+           r1 = 0;
+       }
+       try{
+           r2=num2.toString().split(".")[1].length;
+       }catch(e){
+           r2=0;
+       }
+       m=Math.pow(10,Math.max(r1,r2));
+       n=(r1>=r2)?r1:r2;
+       return (Math.round(num1*m-num2*m)/m).toFixed(n);
+    }
+    // 两数相除
+    function accDiv(num1,num2){
+       var t1,t2,r1,r2;
+       try{
+           t1 = num1.toString().split('.')[1].length;
+       }catch(e){
+           t1 = 0;
+       }
+       try{
+           t2=num2.toString().split(".")[1].length;
+       }catch(e){
+           t2=0;
+       }
+       r1=Number(num1.toString().replace(".",""));
+       r2=Number(num2.toString().replace(".",""));
+       return (r1/r2)*Math.pow(10,t2-t1);
+    }
+    
+    function accMul(num1,num2){
+       var m=0,s1=num1.toString(),s2=num2.toString(); 
+    try{m+=s1.split(".")[1].length}catch(e){};
+    try{m+=s2.split(".")[1].length}catch(e){};
+    return Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m);
+    }
+
+
+  	格式化金额
+	to_char(round(SUM((al.unit_price * (al.tax_rate / 100) *
+                               al.quantity)),
+                           2),
+                     'FM99999999990.99')
+
 
 ----------
 
@@ -1676,7 +1846,9 @@ tab页
     
     31 腾讯QQ号：[1-9][0-9]{4,} (腾讯QQ号从10000开始)
     
-    32 中国邮政编码：[1-9]\d{5}(?!\d) (中国邮政编码为6位数字) 33 IP地址：\d+\.\d+\.\d+\.\d+ (提取IP地址时有用) 34 IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)) 
+    32 中国邮政编码：[1-9]\d{5}(?!\d) (中国邮政编码为6位数字) 
+	33 IP地址：\d+\.\d+\.\d+\.\d+ (提取IP地址时有用) 
+	34 IP地址：((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)) 
     
 
 ## 游标向表中插入多条数据 ##
@@ -2041,6 +2213,23 @@ svc保存
     });
     }
 
+查询附件
+
+		SELECT
+	     f.file_name,
+	     f.file_size||'k' as file_size,
+	     TO_CHAR(f.last_update_date, 'yyyy-mm-dd hh24:mi:ss') create_date,
+	     (SELECT su.description FROM sys_user su WHERE f.last_updated_by = su.user_id
+	     ) create_by_desc,
+	     fm.note
+	 FROM
+	     fnd_atm_attachment_multi fm,
+	     fnd_atm_attachment f
+	 WHERE
+	     fm.attachment_id  = f.attachment_id AND
+	     fm.table_name     ='PUR_PO_ATTACHMENT' AND
+     fm.table_pk_value =${@head_id}
+
 检验附件是否上传
 
     SELECT COUNT(1)
@@ -2346,7 +2535,27 @@ svc保存
 	alter table tableName modify 字段 null;  
     alter table student modify(id number(4));---将student表中id字段改为number，长度4   
     alter table student modify(id number(4),studentName varchar2(100));
- 
+
+增加唯一性约束
+
+	ALTER TABLE table_name
+	ADD CONSTRAINT constraint_name
+	UNIQUE (column1, column2, ... , column_n); 
+
+	异常：DUP_VAL_ON_INDEX
+	when DUP_VAL_ON_INDEX then
+
+唯一索引/普通索引
+	
+	唯一
+	CREATE UNIQUE INDEX  索引名 on 表名（想要创建索引的列名） TABLESPACE 表空间名；
+
+	查询表空间
+	select tablespace_name,file_id,bytes/1024/1024,file_name  from dba_data_files order by file_id;
+	
+	普通
+	CREATE INDEX 索引名 on 表名(列名 DESC)
+
 
 值集：
 
@@ -2439,6 +2648,37 @@ lov bm文件：
 	.grid-hc[dataindex=display_po_number] {
       background: #FFFF33 !important;
   	 }
+
+单点登录页面显示问题
+
+	login_sso.srceen   ,跳转页面 加：
+				var topBarHeight = 75;
+                var screenWidth = Aurora.getViewportWidth();
+                var screenHeight = Aurora.getViewportHeight();
+                var bottomHeight = screenHeight - topBarHeight;
+                document.cookie = "vh=" + (bottomHeight);
+                document.cookie = "vw=" + (screenWidth);
+
+获取url后面的参数
+
+	function pur2620_itemPriceImportUploadErrorBack() {
+                var data = GetRequest();
+                var head_id = data.head_id;
+                window.location.href = $('pur7010_per_price_itemPrice_import_upload_link').getUrl()+'?head_id='+head_id;
+            }
+     function GetRequest() {
+          var url = location.search; //获取url中"?"符后的字串
+          var theRequest = new Object();
+          if (url.indexOf("?") != -1) {
+          var str = url.substr(1);
+          strs = str.split("&");
+           for (var i = 0;i < strs.length;i++) {
+             theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                return theRequest;
+            }
+	
 
 
 # 包package #

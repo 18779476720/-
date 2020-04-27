@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application" trace="true">
+    <a:view>
+        <a:link id="hn_fnd1010_vendor_source_edit_save_link" url="${/request/@context_path}/modules/cux/HN/fnd/FND1010/hn_fnd_vendor_source_save_opt.svc"/>
+        <a:link id="hn_fnd1010_vendor_source_edit_opt_link" model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_head_edit" modelaction="execute"/>
+        <script><![CDATA[
+            var head_id = '${/parameter/@head_id}';
+            
+            function hn_fnd1010_vendor_source_edit_back() {
+                //主页面刷新查询：维护页面可能会对头信息进行变更，所以在返回时重新查询
+                $('hn_fnd1010_vendor_source_result_ds').query();
+                $('hn_vendor_source_detail_win').close();
+            }
+            
+            function hn_fnd1010_vendor_source_edit_head_update(ds, record, name, value, oldvalue) {
+                if (name == 'scheme_type_code') {
+                    if (value == 'EQUIPMENT') {
+                        record.getField('item_type_desc').setRequired(true);
+                    } else {
+                        record.getField('item_type_desc').setRequired(false);
+                    }
+                } else if (name == 'category_id') {
+                    record.set('item_id', '');
+                    record.set('item_code', '');
+                    record.set('item_name', '');
+                    if (value) {
+                        record.getField('item_code').setRequired(true);
+                        record.getField('item_code').setReadOnly(false);
+                        record.getField('item_code').setLovPara('category_id', value);
+                    } else {
+                        record.getField('item_code').setRequired(false);
+                        record.getField('item_code').setReadOnly(true);
+                        record.getField('item_code').setLovPara('category_id', '');
+                    }
+                } else if (name == 'reason_others_flag') {
+                    if (value == 'Y') {
+                        record.getField('vendor_reason_remark').setRequired(true);
+                        document.getElementById('hn_fnd1010_vendor_reason_remark_div').style.display = "block";
+                    } else {
+                        record.set('vendor_reason_remark', '');
+                        record.getField('vendor_reason_remark').setRequired(false);
+                        document.getElementById('hn_fnd1010_vendor_reason_remark_div').style.display = "none";
+                    }
+                } else if (name == 'vendor_type_code') {
+                    if (value == 'OTHERS') {
+                        record.getField('vendor_type_remark').setRequired(true);
+                        document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "block";
+                    } else {
+                        record.set('vendor_type_remark', '');
+                        record.getField('vendor_type_remark').setRequired(false);
+                        document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "none";
+                    }
+                } else if (name == 'method_others_flag') {
+                    if (value == 'Y') {
+                        record.getField('vendor_method_remark').setRequired(true);
+                        document.getElementById('hn_fnd1010_vendor_method_remark_div').style.display = "block";
+                    } else {
+                        record.set('vendor_method_remark', '');
+                        record.getField('vendor_method_remark').setRequired(false);
+                        document.getElementById('hn_fnd1010_vendor_method_remark_div').style.display = "none";
+                    }
+                }
+            }
+            
+            function hn_fnd1010_vendor_source_edit_head_load(ds) {
+                var record = ds.getCurrentRecord();
+                var scheme_type_code = record.get('scheme_type_code');
+                var category_id = record.get('category_id');
+                var reason_others_flag = record.get('reason_others_flag');
+                var vendor_type_code = record.get('vendor_type_code');
+                var method_others_flag = record.get('method_others_flag');
+                if (scheme_type_code == 'EQUIPMENT') {
+                    record.getField('item_type_desc').setRequired(true);
+                } else {
+                    record.getField('item_type_desc').setRequired(false);
+                }
+                //设置物料
+                if (category_id) {
+                    record.getField('item_code').setRequired(true);
+                    record.getField('item_code').setReadOnly(false);
+                    record.getField('item_code').setLovPara('category_id', category_id);
+                } else {
+                    record.getField('item_code').setRequired(false);
+                    record.getField('item_code').setReadOnly(true);
+                    record.getField('item_code').setLovPara('category_id', '');
+                }
+                //设置 寻源原因
+                if (reason_others_flag == 'Y') {
+                    record.getField('vendor_reason_remark').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_reason_remark_div').style.display = "block";
+                } else {
+                    record.set('vendor_reason_remark', '');
+                    record.getField('vendor_reason_remark').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_reason_remark_div').style.display = "none";
+                }
+                //设置供应商类型备注
+                if (vendor_type_code == 'OTHERS') {
+                    record.getField('vendor_type_remark').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "block";
+                } else {
+                    record.set('vendor_type_remark', '');
+                    record.getField('vendor_type_remark').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_type_remark_div').style.display = "none";
+                }
+                //设置供应商寻找方式北湖
+                if (method_others_flag == 'Y') {
+                    record.getField('vendor_method_remark').setRequired(true);
+                    document.getElementById('hn_fnd1010_vendor_method_remark_div').style.display = "block";
+                } else {
+                    record.set('vendor_method_remark', '');
+                    record.getField('vendor_method_remark').setRequired(false);
+                    document.getElementById('hn_fnd1010_vendor_method_remark_div').style.display = "none";
+                }
+            }
+            
+            function hn_fnd1010_vendor_source_edit_purchase_line_add(ds, record, index) {
+                hn_fnd1010_vendor_source_edit_line_add(ds, record, 'PURCHASE');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_technology_line_add(ds, record, index) {
+                hn_fnd1010_vendor_source_edit_line_add(ds, record, 'TECHNOLOGY');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_quality_line_add(ds, record, index) {
+                hn_fnd1010_vendor_source_edit_line_add(ds, record, 'QUALITY');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_audit_line_add(ds, record, index) {
+                hn_fnd1010_vendor_source_edit_line_add(ds, record, 'MONITORING_AUDIT');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_line_add(ds, record, member_type_code) {
+                //获取当前数据的长度
+                var line_records = ds.getAll();
+                var length = line_records.length;
+                if (length == 1) {
+                    record.set('line_num', 1);
+                } else {
+                    var max_line_num = line_records[length - 2].get('line_num');
+                    record.set('line_num', max_line_num + 1);
+                } //设置头 head_id
+                record.set('head_id', head_id);
+                record.set('member_type_code', member_type_code);
+            }
+            
+            function hn_fnd1010_vendor_source_edit_save() {
+                var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
+                var purchase_line_ds = $('hn_fnd1010_vendor_source_edit_purchase_line_ds');
+                var technology_line_ds = $('hn_fnd1010_vendor_source_edit_technology_line_ds');
+                var quality_line_ds = $('hn_fnd1010_vendor_source_edit_quality_line_ds');
+                var audit_line_ds = $('hn_fnd1010_vendor_source_edit_audit_line_ds');
+                //校验必输字段
+                if (!head_ds.validate() || !purchase_line_ds.validate() || !technology_line_ds.validate() || !quality_line_ds.validate() || !audit_line_ds.validate()) {
+                    return;
+                }
+                var data = head_ds.getCurrentRecord().data;
+                data['purchase_line_datas'] = purchase_line_ds.getJsonData();
+                data['technology_line_datas'] = technology_line_ds.getJsonData();
+                data['quality_line_datas'] = quality_line_ds.getJsonData();
+                data['audit_line_datas'] = audit_line_ds.getJsonData();
+                Aurora.Masker.mask(Ext.get('hn_vendor_source_detail_win'), '${l:LJ.EXECUTING}');
+                Aurora.request({
+                    url: $('hn_fnd1010_vendor_source_edit_save_link').getUrl(),
+                    para: data,
+                    success: function(args) {
+                        Aurora.Masker.unmask(Ext.get('hn_vendor_source_detail_win'));
+                        head_ds.query();
+                        purchase_line_ds.query();
+                        technology_line_ds.query();
+                        quality_line_ds.query();
+                        audit_line_ds.query();
+                        Aurora.showMessage('${l:PROMPT}', '${l:LJ.UPDATE_SUCCESS}');
+                    },
+                    failure: function() {
+                        Aurora.Masker.unmask(Ext.get('hn_vendor_source_detail_win'));
+                    },
+                    error: function() {
+                        Aurora.Masker.unmask(Ext.get('hn_vendor_source_detail_win'));
+                    },
+                    scope: this
+                });
+            }
+            
+            function hn_fnd1010_vendor_source_edit_submit() {
+                var head_ds = $('hn_fnd1010_vendor_source_edit_head_ds');
+                var purchase_line_ds = $('hn_fnd1010_vendor_source_edit_purchase_line_ds');
+                var technology_line_ds = $('hn_fnd1010_vendor_source_edit_technology_line_ds');
+                var quality_line_ds = $('hn_fnd1010_vendor_source_edit_quality_line_ds');
+                var audit_line_ds = $('hn_fnd1010_vendor_source_edit_audit_line_ds');
+                //校验必输字段
+                if (!head_ds.validate() || !purchase_line_ds.validate() || !technology_line_ds.validate() || !quality_line_ds.validate() || !audit_line_ds.validate()) {
+                    return;
+                }
+                //校验是否有数据未保存
+                var head_record = head_ds.getCurrentRecord();
+                var purchase_line_records = purchase_line_ds.getAll();
+                var technology_line_records = technology_line_ds.getAll();
+                var quality_line_records = quality_line_ds.getAll();
+                var audit_line_records = audit_line_ds.getAll();
+                if (purchase_line_records.length == 0 || technology_line_records.length == 0 || quality_line_records.length == 0 || audit_line_records.length == 0) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:HN_FND.NO_LINE_DATA}');
+                    return;
+                }
+                if (head_record.dirty) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:HN.HEAD_DATA_NO_SAVE}');
+                    return;
+                }
+                for (var i = 0;i < purchase_line_records.length;i++) {
+                    if (purchase_line_records[i].dirty) {
+                        Aurora.showMessage('${l:PROMPT}', '${l:HN.LINE_DATA_NO_SAVE}');
+                        return;
+                    }
+                }
+                for (var j = 0;j < technology_line_records.length;j++) {
+                    if (technology_line_records[j].dirty) {
+                        Aurora.showMessage('${l:PROMPT}', '${l:HN.LINE_DATA_NO_SAVE}');
+                        return;
+                    }
+                }
+                for (var m = 0;m < quality_line_records.length;m++) {
+                    if (quality_line_records[m].dirty) {
+                        Aurora.showMessage('${l:PROMPT}', '${l:HN.LINE_DATA_NO_SAVE}');
+                        return;
+                    }
+                }
+                for (var n = 0;n < audit_line_records.length;n++) {
+                    if (audit_line_records[n].dirty) {
+                        Aurora.showMessage('${l:PROMPT}', '${l:HN.LINE_DATA_NO_SAVE}');
+                        return;
+                    }
+                }
+                hn_fnd1010_vendor_source_edit_opt('APPROVING');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_cancel() {
+                hn_fnd1010_vendor_source_edit_opt('CANCELLED');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_delete() {
+                hn_fnd1010_vendor_source_edit_opt('DELETED');
+            }
+            
+            function hn_fnd1010_vendor_source_edit_opt(opt_status) {
+                Aurora.showConfirm('${l:PROMPT}', '${l:HN.COMFIRM}', function() {
+                    Aurora.Masker.mask(Ext.get('hn_vendor_source_detail_win'), '${l:HN.EXECUTING}');
+                    Aurora.request({
+                        url: $('hn_fnd1010_vendor_source_edit_opt_link').getUrl(),
+                        para: {
+                            'head_id': head_id,
+                            'opt_status': opt_status
+                        },
+                        success: function(args) {
+                            Aurora.Masker.unmask(Ext.get('hn_vendor_source_detail_win'));
+                            Aurora.showMessage('${l:PROMPT}', '${l:HN.EXECUTE_SUCCESS}');
+                            hn_fnd1010_vendor_source_edit_back();
+                        },
+                        failure: function() {
+                            Aurora.Masker.unmask(Ext.get('hn_vendor_source_detail_win'));
+                        },
+                        error: function() {
+                            Aurora.Masker.unmask(Ext.get('hn_vendor_source_detail_win'));
+                        },
+                        scope: this
+                    });
+                });
+            }
+            
+            function hn_fnd1010_vendor_source_edit_atta() {
+                var url = '${/request/@context_path}/attachment_file_upload.screen?pkvalue=' + head_id + '&table_name=HN_SOURCE_SCHEME_HEAD';
+                new Aurora.Window({
+                    id: 'hn_fnd1010_vendor_source_edit_atta_win',
+                    title: '${l:HN.UPLOAD_ATTM}',
+                    url: url,
+                    width: 500,
+                    height: 400
+                });
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="hn_fnd1010_vendor_source_edit_head_ds" autoQuery="true" queryUrl="${/request/@context_path}/autocrud/cux.HN.fnd.FND1010.hn_fnd_vendor_source_head_query/query?head_id=${/parameter/@head_id}">
+                <a:fields>
+                    <a:field name="scheme_number" readOnly="true"/>
+                    <a:field name="scheme_title" required="true"/>
+                    <a:field name="create_by_desc" readOnly="true"/>
+                    <a:field name="create_date_desc" readOnly="true"/>
+                    <a:field name="scheme_status_desc" readOnly="true"/>
+                    <a:field name="scheme_type_desc" displayField="code_value_name" options="hn_fnd1010_scheme_type_ds" required="true" returnField="scheme_type_code" valueField="code_value"/>
+                    <a:field name="item_type_desc" displayField="code_value_name" options="hn_fnd1010_item_type_ds" returnField="item_type_code" valueField="code_value"/>
+                    <a:field name="company_name" readOnly="true"/>
+                    <a:field name="company_code" lovHeight="510" lovService="cux.HN.public.hn_fnd_company_lov" lovWidth="600" required="true" title="HN.COMPANY_NAME">
+                        <a:mapping>
+                            <a:map from="company_id" to="company_id"/>
+                            <a:map from="company_code" to="company_code"/>
+                            <a:map from="company_name" to="company_name"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="unit_name" readOnly="true"/>
+                    <a:field name="unit_name" lovHeight="510" lovService="cux.HN.public.hn_hrm_unit_lov" lovWidth="600" required="true" title="HN.UNIT_NAME">
+                        <a:mapping>
+                            <a:map from="unit_id" to="unit_id"/>
+                            <a:map from="unit_code" to="unit_code"/>
+                            <a:map from="unit_name" to="unit_name"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="category_name" lovHeight="510" lovService="cux.HN.public.hn_mtl_category_lov" lovWidth="600" required="true" title="HN.CATEGORY_NAME">
+                        <a:mapping>
+                            <a:map from="category_id" to="category_id"/>
+                            <a:map from="category_code" to="category_code"/>
+                            <a:map from="category_name" to="category_name"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="item_name" readOnly="true"/>
+                    <a:field name="item_code" lovHeight="510" lovService="cux.HN.public.hn_mtl_item_lov" lovWidth="600" readOnly="true" title="HN_FND.ITEM_NAME">
+                        <a:mapping>
+                            <a:map from="item_id" to="item_id"/>
+                            <a:map from="item_code" to="item_code"/>
+                            <a:map from="item_name" to="item_name"/>
+                        </a:mapping>
+                    </a:field>
+                    <a:field name="production_line" required="true"/>
+                    <a:field name="source_background_info" required="true"/>
+                    <a:field name="source_quantity" required="true"/>
+                    <a:field name="potential_vendor_quantity" required="true"/>
+                    <a:field name="vendor_type_desc" displayField="code_value_name" options="hn_fnd1010_vendor_type_ds" required="true" returnField="vendor_type_code" valueField="code_value"/>
+                    <a:field name="reason_localization_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_debunker_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_capacity_exp_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_lower_cost_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_project_require_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_supplier_library_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_improve_quality_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_strategic_dev_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_insuff_supply_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="reason_others_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="method_internet_query_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="method_exhibition_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="method_dept_recommend_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="method_others_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                </a:fields>
+                <a:events>
+                    <a:event name="update" handler="hn_fnd1010_vendor_source_edit_head_update"/>
+                    <a:event name="load" handler="hn_fnd1010_vendor_source_edit_head_load"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="hn_fnd1010_vendor_source_edit_purchase_line_ds" autoCount="true" autoPageSize="true" autoQuery="true" fetchAll="true" model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit" queryUrl="${/request/@context_path}/autocrud/cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_query/query?head_id=${/parameter/@head_id}&amp;member_type_code=PURCHASE" selectable="true">
+                <a:fields>
+                    <a:field name="team_leader_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="member_user_code" lovHeight="510" lovService="cux.HN.public.hn_sys_user_lov" lovWidth="600" required="true" title="HN_FND.USER_NAME">
+                        <a:mapping>
+                            <a:map from="user_id" to="member_user_id"/>
+                            <a:map from="user_code" to="member_user_code"/>
+                            <a:map from="user_name" to="member_user_name"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+                <a:events>
+                    <a:event name="add" handler="hn_fnd1010_vendor_source_edit_purchase_line_add"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="hn_fnd1010_vendor_source_edit_technology_line_ds" autoCount="true" autoPageSize="true" autoQuery="true" fetchAll="true" model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit" queryUrl="${/request/@context_path}/autocrud/cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_query/query?head_id=${/parameter/@head_id}&amp;member_type_code=TECHNOLOGY" selectable="true">
+                <a:fields>
+                    <a:field name="team_leader_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="member_user_code" lovHeight="510" lovService="cux.HN.public.hn_sys_user_lov" lovWidth="600" required="true" title="HN_FND.USER_NAME">
+                        <a:mapping>
+                            <a:map from="user_id" to="member_user_id"/>
+                            <a:map from="user_code" to="member_user_code"/>
+                            <a:map from="user_name" to="member_user_name"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+                <a:events>
+                    <a:event name="add" handler="hn_fnd1010_vendor_source_edit_technology_line_add"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="hn_fnd1010_vendor_source_edit_quality_line_ds" autoCount="true" autoPageSize="true" autoQuery="true" fetchAll="true" model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit" queryUrl="${/request/@context_path}/autocrud/cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_query/query?head_id=${/parameter/@head_id}&amp;member_type_code=QUALITY" selectable="true">
+                <a:fields>
+                    <a:field name="team_leader_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="member_user_code" lovHeight="510" lovService="cux.HN.public.hn_sys_user_lov" lovWidth="600" required="true" title="HN_FND.USER_NAME">
+                        <a:mapping>
+                            <a:map from="user_id" to="member_user_id"/>
+                            <a:map from="user_code" to="member_user_code"/>
+                            <a:map from="user_name" to="member_user_name"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+                <a:events>
+                    <a:event name="add" handler="hn_fnd1010_vendor_source_edit_quality_line_add"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="hn_fnd1010_vendor_source_edit_audit_line_ds" autoCount="true" autoPageSize="true" autoQuery="true" fetchAll="true" model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit" queryUrl="${/request/@context_path}/autocrud/cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_query/query?head_id=${/parameter/@head_id}&amp;member_type_code=MONITORING_AUDIT" selectable="true">
+                <a:fields>
+                    <a:field name="team_leader_flag" checkedValue="Y" defaultValue="N" uncheckedValue="N"/>
+                    <a:field name="member_user_code" lovHeight="510" lovService="cux.HN.public.hn_sys_user_lov" lovWidth="600" required="true" title="HN_FND.USER_NAME">
+                        <a:mapping>
+                            <a:map from="user_id" to="member_user_id"/>
+                            <a:map from="user_code" to="member_user_code"/>
+                            <a:map from="user_name" to="member_user_name"/>
+                        </a:mapping>
+                    </a:field>
+                </a:fields>
+                <a:events>
+                    <a:event name="add" handler="hn_fnd1010_vendor_source_edit_audit_line_add"/>
+                </a:events>
+            </a:dataSet>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolBar>
+                <a:toolbarButton click="hn_fnd1010_vendor_source_edit_save" text="HN.SAVE"/>
+                <a:toolbarButton click="hn_fnd1010_vendor_source_edit_submit" text="HN.SUBMIT"/>
+                <a:switch test="/parameter/@scheme_status">
+                    <a:case value="NEW">
+                        <a:toolbarButton click="hn_fnd1010_vendor_source_edit_delete" text="HN.DELETE"/>
+                    </a:case>
+                    <a:case value="REJECTED">
+                        <a:toolbarButton click="hn_fnd1010_vendor_source_edit_cancel" text="HN.CANCEL"/>
+                    </a:case>
+                </a:switch>
+                <a:toolbarButton click="hn_fnd1010_vendor_source_edit_atta" text="HN.UPLOAD_ATTM"/>
+                <a:toolbarButton click="hn_fnd1010_vendor_source_edit_back" text="HN.BACK"/>
+            </a:screenTopToolBar>
+            <a:hBox style="margin-right:250px;margin-top:5px;">
+                <a:form marginWidth="400" style="margin-top:-10px;" title="HN.BASIC_INFO">
+                    <a:hBox labelWidth="100">
+                        <a:textField name="scheme_number" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.SCHEME_NUMBER"/>
+                        <a:textField name="scheme_title" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.SCHEME_TITLE" width="665"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:lov name="company_code" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN.COMPANY_CODE"/>
+                        <a:textField name="company_name" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN.COMPANY_NAME"/>
+                        <a:lov name="unit_name" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN.UNIT_NAME"/>
+                        <a:comboBox name="scheme_type_desc" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.SCHEME_TYPE_CODE"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:lov name="category_name" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.CATEGORY_DESC"/>
+                        <a:lov name="item_code" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.ITEM_CODE"/>
+                        <a:textField name="item_name" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.ITEM_NAME"/>
+                        <a:comboBox name="item_type_desc" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.ITEM_TYPE_CODE"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:textField name="scheme_status_desc" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.SCHEME_STATUS"/>
+                        <a:textField name="create_by_desc" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN.CREATE_BY_DESC"/>
+                        <a:textField name="create_date_desc" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN.CREATE_DATE_DESC"/>
+                        <a:textField name="production_line" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.PRODUCTION_LINE"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:textArea name="source_background_info" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" emptyText="HN.MAX_LENGTH_PROMPT" height="60" marginWidth="620" maxLength="2000" prompt="HN_FND.SOURCE_BACKGROUND_INFO"/>
+                    </a:hBox>
+                    <a:fieldSet marginWidth="610" style="margin-left:100px;" title="HN_FND.SOURCE_REASON_CODE">
+                        <a:hBox labelWidth="120">
+                            <a:checkBox name="reason_localization_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_LOCALIZATION_FLAG"/>
+                            <a:checkBox name="reason_debunker_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_DEBUNKER_FLAG"/>
+                            <a:checkBox name="reason_capacity_exp_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_CAPACITY_EXP_FLAG"/>
+                            <a:checkBox name="reason_lower_cost_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_LOWER_COST_FLAG"/>
+                            <a:checkBox name="reason_project_require_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_PROJECT_REQUIRE_FLAG"/>
+                        </a:hBox>
+                        <a:hBox labelWidth="120">
+                            <a:checkBox name="reason_supplier_library_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_SUPPLIER_LIBRARY_FLAG"/>
+                            <a:checkBox name="reason_improve_quality_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_IMPROVE_QUALITY_FLAG"/>
+                            <a:checkBox name="reason_strategic_dev_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_STRATEGIC_DEV_FLAG"/>
+                            <a:checkBox name="reason_insuff_supply_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_INSUFF_SUPPLY_FLAG"/>
+                            <a:checkBox name="reason_others_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.REASON_OTHERS_FLAG"/>
+                        </a:hBox>
+                    </a:fieldSet>
+                    <div id="hn_fnd1010_vendor_reason_remark_div" style="display:none">
+                        <a:hBox labelWidth="100">
+                            <a:textArea name="vendor_reason_remark" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" emptyText="HN.MAX_LENGTH_PROMPT" height="60" marginWidth="620" maxLength="2000" prompt="HN_FND.VENDOR_REASON_REMARK"/>
+                        </a:hBox>
+                    </div>
+                </a:form>
+            </a:hBox>
+            <a:hBox style="margin-right:250px;margin-top:5px;">
+                <a:form marginWidth="400" style="margin-top:-10px;" title="HN_FND.SOURCE_SCHEME">
+                    <a:fieldSet marginWidth="610" style="margin-left:100px;" title="HN_FND.POTENTIAL_VENDOR_METHOD">
+                        <a:hBox labelWidth="120">
+                            <a:checkBox name="method_internet_query_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.METHOD_INTERNET_QUERY_FLAG"/>
+                            <a:checkBox name="method_exhibition_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.METHOD_EXHIBITION_FLAG"/>
+                            <a:checkBox name="method_dept_recommend_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.METHOD_DEPT_RECOMMEND_FLAG"/>
+                            <a:checkBox name="method_others_flag" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.METHOD_OTHERS_FLAG"/>
+                        </a:hBox>
+                    </a:fieldSet>
+                    <div id="hn_fnd1010_vendor_method_remark_div" style="display:none">
+                        <a:hBox labelWidth="100">
+                            <a:textArea name="vendor_method_remark" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" emptyText="HN.MAX_LENGTH_PROMPT" height="60" marginWidth="620" maxLength="2000" prompt="HN_FND.VENDOR_METHOD_REMARK"/>
+                        </a:hBox>
+                    </div>
+                    <a:hBox labelWidth="100">
+                        <a:numberField name="source_quantity" allowDecimals="fasle" allowNegative="fasle" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.SOURCE_QUANTITY"/>
+                        <a:comboBox name="vendor_type_desc" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.VENDOR_TYPE_CODE"/>
+                        <a:numberField name="potential_vendor_quantity" allowDecimals="fasle" allowNegative="fasle" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" prompt="HN_FND.POTENTIAL_VENDOR_QUANTITY"/>
+                    </a:hBox>
+                    <div id="hn_fnd1010_vendor_type_remark_div" style="display:none">
+                        <a:hBox labelWidth="100">
+                            <a:textArea name="vendor_type_remark" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" emptyText="HN.MAX_LENGTH_PROMPT" height="60" marginWidth="620" maxLength="2000" prompt="HN_FND.VENDOR_TYPE_REMARK"/>
+                        </a:hBox>
+                    </div>
+                    <a:hBox labelWidth="100">
+                        <a:textArea name="potential_vendor_list" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" emptyText="HN.MAX_LENGTH_PROMPT" height="60" marginWidth="620" maxLength="2000" prompt="HN_FND.POTENTIAL_VENDOR_LIST"/>
+                    </a:hBox>
+                    <a:hBox labelWidth="100">
+                        <a:textArea name="potential_vendor_source" bindTarget="hn_fnd1010_vendor_source_edit_head_ds" emptyText="HN.MAX_LENGTH_PROMPT" height="60" marginWidth="620" maxLength="2000" prompt="HN_FND.POTENTIAL_VENDOR_SOURCE"/>
+                    </a:hBox>
+                </a:form>
+            </a:hBox>
+            <a:tabPanel marginHeight="350" marginWidth="80">
+                <a:tabs>
+                    <a:tab prompt="HN_FND.PURCHASE" width="100">
+                        <a:grid autoAppend="false" bindTarget="hn_fnd1010_vendor_source_edit_purchase_line_ds" marginHeight="400" marginWidth="65" navBar="true" style="margin-top:0px;">
+                            <a:toolBar>
+                                <a:button type="add"/>
+                                <a:button type="delete"/>
+                            </a:toolBar>
+                            <a:columns>
+                                <a:column name="line_num" align="center" prompt="HN.LINE_NUM" width="50"/>
+                                <a:column name="member_user_code" align="center" editor="hn_fnd1010_edit_purchase_lov" prompt="HN_FND.USER_CODE" width="50"/>
+                                <a:column name="member_user_name" align="center" prompt="HN_FND.USER_NAME" width="60"/>
+                                <a:column name="team_leader_flag" align="center" editor="hn_fnd1010_edit_purchase_cb" prompt="HN_FND.TEAM_LEADER_FLAG" width="60"/>
+                            </a:columns>
+                            <a:editors>
+                                <a:lov id="hn_fnd1010_edit_purchase_lov"/>
+                                <a:checkBox id="hn_fnd1010_edit_purchase_cb"/>
+                            </a:editors>
+                        </a:grid>
+                    </a:tab>
+                    <a:tab prompt="HN_FND.TECHNOLOGY" width="100">
+                        <a:grid autoAppend="false" bindTarget="hn_fnd1010_vendor_source_edit_technology_line_ds" marginHeight="400" marginWidth="65" navBar="true" style="margin-top:0px;">
+                            <a:toolBar>
+                                <a:button type="add"/>
+                                <a:button type="delete"/>
+                            </a:toolBar>
+                            <a:columns>
+                                <a:column name="line_num" align="center" prompt="HN.LINE_NUM" width="50"/>
+                                <a:column name="member_user_code" align="center" editor="hn_fnd1010_edit_technology_lov" prompt="HN_FND.USER_CODE" width="50"/>
+                                <a:column name="member_user_name" align="center" prompt="HN_FND.USER_NAME" width="60"/>
+                                <a:column name="team_leader_flag" align="center" editor="hn_fnd1010_edit_technology_cb" prompt="HN_FND.TEAM_LEADER_FLAG" width="60"/>
+                            </a:columns>
+                            <a:editors>
+                                <a:lov id="hn_fnd1010_edit_technology_lov"/>
+                                <a:checkBox id="hn_fnd1010_edit_technology_cb"/>
+                            </a:editors>
+                        </a:grid>
+                    </a:tab>
+                    <a:tab prompt="HN_FND.QUALITY" width="100">
+                        <a:grid autoAppend="false" bindTarget="hn_fnd1010_vendor_source_edit_quality_line_ds" marginHeight="400" marginWidth="65" navBar="true" style="margin-top:0px;">
+                            <a:toolBar>
+                                <a:button type="add"/>
+                                <a:button type="delete"/>
+                            </a:toolBar>
+                            <a:columns>
+                                <a:column name="line_num" align="center" prompt="HN.LINE_NUM" width="50"/>
+                                <a:column name="member_user_code" align="center" editor="hn_fnd1010_edit_quality_lov" prompt="HN_FND.USER_CODE" width="50"/>
+                                <a:column name="member_user_name" align="center" prompt="HN_FND.USER_NAME" width="60"/>
+                                <a:column name="team_leader_flag" align="center" editor="hn_fnd1010_edit_quality_cb" prompt="HN_FND.TEAM_LEADER_FLAG" width="60"/>
+                            </a:columns>
+                            <a:editors>
+                                <a:lov id="hn_fnd1010_edit_quality_lov"/>
+                                <a:checkBox id="hn_fnd1010_edit_quality_cb"/>
+                            </a:editors>
+                        </a:grid>
+                    </a:tab>
+                    <a:tab prompt="HN_FND.MONITORING_AUDIT" width="100">
+                        <a:grid autoAppend="false" bindTarget="hn_fnd1010_vendor_source_edit_audit_line_ds" marginHeight="400" marginWidth="65" navBar="true" style="margin-top:0px;">
+                            <a:toolBar>
+                                <a:button type="add"/>
+                                <a:button type="delete"/>
+                            </a:toolBar>
+                            <a:columns>
+                                <a:column name="line_num" align="center" prompt="HN.LINE_NUM" width="50"/>
+                                <a:column name="member_user_code" align="center" editor="hn_fnd1010_edit_audit_lov" prompt="HN_FND.USER_CODE" width="50"/>
+                                <a:column name="member_user_name" align="center" prompt="HN_FND.USER_NAME" width="60"/>
+                                <a:column name="team_leader_flag" align="center" editor="hn_fnd1010_edit_audit_cb" prompt="HN_FND.TEAM_LEADER_FLAG" width="60"/>
+                            </a:columns>
+                            <a:editors>
+                                <a:lov id="hn_fnd1010_edit_audit_lov"/>
+                                <a:checkBox id="hn_fnd1010_edit_audit_cb"/>
+                            </a:editors>
+                        </a:grid>
+                    </a:tab>
+                </a:tabs>
+            </a:tabPanel>
+        </a:screenBody>
+    </a:view>
+</a:screen>

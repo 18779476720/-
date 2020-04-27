@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bm:model xmlns:bm="http://www.aurora-framework.org/schema/bm" needAccessControl="false">
+    <bm:operations>
+        <bm:operation name="query">
+            <bm:query-sql><![CDATA[
+                SELECT
+                    *
+                FROM
+                    (SELECT
+                        u.user_id,
+                        u.user_name user_code,
+                        u.user_desc user_name
+                    FROM
+                        sys_user_v u
+                    WHERE
+                        u.business_group=${/session/@business_group}
+                    ORDER BY
+                        u.user_name
+                    ) v #WHERE_CLAUSE#
+            ]]></bm:query-sql>
+        </bm:operation>
+    </bm:operations>
+    <bm:fields>
+        <bm:field name="user_id"/>
+        <bm:field name="user_code" displayWidth="150" forDisplay="true" forQuery="true" prompt="HN_FND.USER_CODE"/>
+        <bm:field name="user_name" displayWidth="200" forDisplay="true" forQuery="true" prompt="HN_FND.USER_NAME"/>
+    </bm:fields>
+    <bm:query-fields>
+        <bm:query-field name="user_code" queryExpression="v.user_code like &apos;%&apos;||${@user_code}||&apos;%&apos;"/>
+        <bm:query-field name="user_name" queryExpression="v.user_name like &apos;%&apos;||${@user_name}||&apos;%&apos;"/>
+    </bm:query-fields>
+</bm:model>

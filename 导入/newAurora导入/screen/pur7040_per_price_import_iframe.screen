@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:view>
+        <script><![CDATA[
+            function closeWindow() {
+                $('pur7040_per_price_iframe_win').close();
+                $('pur7040_per_price_item_line_ds').query();
+            }
+        ]]></script>
+        <a:screenBody>
+            <iframe id="upload_att" frameborder="no" height="400" src="${/request/@context_path}/modules/cux/CGR/pur/PUR7040/pur7040_per_price_upload.screen?head_id=${/parameter/@head_id}" width="500"/>
+        </a:screenBody>
+        <script><![CDATA[
+        ]]></script>
+    </a:view>
+</a:screen>

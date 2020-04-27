@@ -1,0 +1,3 @@
+  #!/bin/bash
+   echo starting
+   java -jar joke.jar > log.file 2>&1 &

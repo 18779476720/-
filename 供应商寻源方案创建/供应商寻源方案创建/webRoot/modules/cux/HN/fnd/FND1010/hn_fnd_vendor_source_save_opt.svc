@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:service xmlns:a="http://www.aurora-framework.org/application" xmlns:p="uncertain.proc" checkSessionLock="true" lockKey="${/session/@session_id}" trace="true">
+    <a:init-procedure>
+        <a:model-update model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_head_edit"/>
+        <a:batch-apply sourcepath="/parameter/purchase_line_datas">
+            <p:switch test="@current_parameter/@_status">
+                <p:case value="insert">
+                    <a:model-insert model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+                <p:case value="update">
+                    <a:model-update model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+            </p:switch>
+        </a:batch-apply>
+        <a:batch-apply sourcepath="/parameter/technology_line_datas">
+            <p:switch test="@current_parameter/@_status">
+                <p:case value="insert">
+                    <a:model-insert model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+                <p:case value="update">
+                    <a:model-update model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+            </p:switch>
+        </a:batch-apply>
+        <a:batch-apply sourcepath="/parameter/quality_line_datas">
+            <p:switch test="@current_parameter/@_status">
+                <p:case value="insert">
+                    <a:model-insert model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+                <p:case value="update">
+                    <a:model-update model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+            </p:switch>
+        </a:batch-apply>
+        <a:batch-apply sourcepath="/parameter/audit_line_datas">
+            <p:switch test="@current_parameter/@_status">
+                <p:case value="insert">
+                    <a:model-insert model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+                <p:case value="update">
+                    <a:model-update model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+                </p:case>
+            </p:switch>
+        </a:batch-apply>
+        <!--统一校验-->
+        <a:model-execute model="cux.HN.fnd.FND1010.hn_fnd_vendor_source_line_edit"/>
+    </a:init-procedure>
+    <a:service-output output="/parameter"/>
+</a:service>

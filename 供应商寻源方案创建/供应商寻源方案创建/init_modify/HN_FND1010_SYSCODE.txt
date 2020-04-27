@@ -1,0 +1,75 @@
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+spool INITIALIZE_PROMPT.log
+set feedback off
+set define off
+begin
+begin
+  sys_code_pkg.delete_sys_code('HN_SCHEME_STATUS_SYSCODE'); 
+  sys_code_pkg.insert_sys_code('HN_SCHEME_STATUS_SYSCODE', '寻源方案状态', '寻源方案状态', '寻源方案状态', 'ZHS', ''); 
+  sys_code_pkg.update_sys_code('HN_SCHEME_STATUS_SYSCODE', 'SCHEME_STATUS', 'SCHEME_STATUS', 'SCHEME_STATUS', 'US', ''); 
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','NEW','新建','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','NEW','NEW','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVING','审批中','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVING','APPROVING','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','CANCELLED','已取消','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','CANCELLED','CANCELLED','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVED','审批通过','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','APPROVED','APPROVED','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_STATUS_SYSCODE','REJECTED','审批拒绝','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_STATUS_SYSCODE','REJECTED','REJECTED','US','');
+
+  sys_code_pkg.delete_sys_code('HN_SCHEME_TYPE_SYSCODE'); 
+  sys_code_pkg.insert_sys_code('HN_SCHEME_TYPE_SYSCODE', '寻源方案类型', '寻源方案类型', '寻源方案类型', 'ZHS', ''); 
+  sys_code_pkg.update_sys_code('HN_SCHEME_TYPE_SYSCODE', 'SCHEME_TYPE', 'SCHEME_TYPE', 'SCHEME_TYPE', 'US', ''); 
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_TYPE_SYSCODE','EQUIPMENT','装备供应商寻源方案','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_TYPE_SYSCODE','EQUIPMENT','EQUIPMENT','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_TYPE_SYSCODE','MANUFACTURE','制造供应商寻源方案','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_TYPE_SYSCODE','MANUFACTURE','MANUFACTURE','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_TYPE_SYSCODE','APPLICATION_PRODUCT','应用产品供应商寻源方案','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_TYPE_SYSCODE','APPLICATION_PRODUCT','APPLICATION_PRODUCT','US','');
+  sys_code_pkg.insert_sys_code_value('HN_SCHEME_TYPE_SYSCODE','MINING','间采供应商寻源方案','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_SCHEME_TYPE_SYSCODE','MINING','MINING','US','');
+
+  sys_code_pkg.delete_sys_code('HN_ITEM_TYPE_SYSCODE'); 
+  sys_code_pkg.insert_sys_code('HN_ITEM_TYPE_SYSCODE', '物料类型', '物料类型', '物料类型', 'ZHS', ''); 
+  sys_code_pkg.update_sys_code('HN_ITEM_TYPE_SYSCODE', 'ITEM_TYPE', 'ITEM_TYPE', 'ITEM_TYPE', 'US', '');
+  sys_code_pkg.insert_sys_code_value('HN_ITEM_TYPE_SYSCODE','EQUIPMENT','成套设备','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_ITEM_TYPE_SYSCODE','EQUIPMENT','EQUIPMENT','US','');
+  sys_code_pkg.insert_sys_code_value('HN_ITEM_TYPE_SYSCODE','COATER_MADE','coater自制','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_ITEM_TYPE_SYSCODE','COATER_MADE','COATER_MADE','US','');
+  
+  sys_code_pkg.delete_sys_code('HN_VENDOR_TYPE_SYSCODE'); 
+  sys_code_pkg.insert_sys_code('HN_VENDOR_TYPE_SYSCODE', '供应商类型', '供应商类型', '供应商类型', 'ZHS', ''); 
+  sys_code_pkg.update_sys_code('HN_VENDOR_TYPE_SYSCODE', 'VENDOR_TYPE', 'VENDOR_TYPE', 'VENDOR_TYPE', 'US', '');
+  sys_code_pkg.insert_sys_code_value('HN_VENDOR_TYPE_SYSCODE','EQUIPMENT','成套设备生产商','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_VENDOR_TYPE_SYSCODE','EQUIPMENT','EQUIPMENT','US','');
+  sys_code_pkg.insert_sys_code_value('HN_VENDOR_TYPE_SYSCODE','PARTS','零部件生产商','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_VENDOR_TYPE_SYSCODE','PARTS','PARTS','US','');
+  sys_code_pkg.insert_sys_code_value('HN_VENDOR_TYPE_SYSCODE','TECHNICAL_SERVICES','技术服务供应商','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_VENDOR_TYPE_SYSCODE','TECHNICAL_SERVICES','TECHNICAL_SERVICES','US','');
+  sys_code_pkg.insert_sys_code_value('HN_VENDOR_TYPE_SYSCODE','OTHERS','其他(请注明)','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_VENDOR_TYPE_SYSCODE','OTHERS','OTHERS','US','');
+  
+  
+  sys_code_pkg.delete_sys_code('HN_MEMBER_TYPE_SYSCODE'); 
+  sys_code_pkg.insert_sys_code('HN_MEMBER_TYPE_SYSCODE', '成员类型', '成员类型', '成员类型', 'ZHS', ''); 
+  sys_code_pkg.update_sys_code('HN_MEMBER_TYPE_SYSCODE', 'MEMBER_TYPE', 'MEMBER_TYPE', 'MEMBER_TYPE', 'US', '');
+  sys_code_pkg.insert_sys_code_value('HN_MEMBER_TYPE_SYSCODE','PURCHASE','采购','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_MEMBER_TYPE_SYSCODE','PURCHASE','PURCHASE','US','');
+  sys_code_pkg.insert_sys_code_value('HN_MEMBER_TYPE_SYSCODE','TECHNOLOGY','技术','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_MEMBER_TYPE_SYSCODE','TECHNOLOGY','TECHNOLOGY','US','');
+  sys_code_pkg.insert_sys_code_value('HN_MEMBER_TYPE_SYSCODE','QUALITY','质量','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_MEMBER_TYPE_SYSCODE','QUALITY','QUALITY','US','');
+  sys_code_pkg.insert_sys_code_value('HN_MEMBER_TYPE_SYSCODE','MONITORING_AUDIT','监察审计','ZHS','');
+  sys_code_pkg.update_sys_code_value('HN_MEMBER_TYPE_SYSCODE','MONITORING_AUDIT','MONITORING_AUDIT','US','');
+
+  
+end;
+end;
+/
+commit;
+set feedback on
+set define on
+spool off
+exit

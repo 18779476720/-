@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:screen xmlns:a="http://www.aurora-framework.org/application">
+    <a:init-procedure>
+        <a:model-query defaultWhereClause="v.imp_template_code = &apos;CGR_PUR_PER_ITEM_IMPORT&apos;" fetchAll="true" model="public.get_fnd_excel_import_template" rootPath="import_template"/>
+        <a:model-query defaultWhereClause="v.flex_value_set_code = &apos;DATA_SOURCE&apos;" fetchAll="true" model="public.fnd_flex_value_v_lov" rootPath="data_source"/>
+    </a:init-procedure>
+    <a:view>
+        <a:link id="cgr_pur7010_per_itemPriceImportUpload_link" url="${/request/@context_path}/modules/cux/CGR/pur/PUR7010/pur7010_per_price_item_import_upload.screen"/>
+        <a:link id="cgr_pur7010_per_itemPriceCheckSubmit_link" model="cux.CGR.pur.PUR7010.pur7010_per_price_import_check_and_submit" modelaction="execute"/>
+        <a:link id="cgr_pur7010_per_itemPrice_excel_import_template_uploadtimes_link" model="public.get_fnd_excel_import_template" modelaction="execute"/>
+        <script><![CDATA[
+            //Close
+            
+            function cgr_pur7010_per_itemPriceImportCancelData() {
+                window.close();
+            }
+            
+            function cgr_pur7010_per_itemPriceImportLoadData() {
+                var data = GetRequest();
+                var head_id = data.head_id;
+                new Aurora.Window({
+                    id: 'cgr_pur7010_per_itemPriceImportUpload_window',
+                    url: $('cgr_pur7010_per_itemPriceImportUpload_link').getUrl() + '?head_id=' + head_id,
+                    title: '${l:PROMPT.BATCH_IMPORT}',
+                    width: 450,
+                    height: 420
+                });
+            }
+            //获取传参
+            
+            function init() {
+                var data = GetRequest();
+                var head_id = data.head_id;
+                $('cgr_pur7010_per_item_import_temp_ds').setQueryParameter('head_id', head_id);
+                $('cgr_pur7010_per_itemPrice_import_error_ds').setQueryParameter('head_id', head_id);
+            }
+            
+            function GetRequest() {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0;i < strs.length;i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                return theRequest;
+            }
+            
+            
+            function cgr_pur7010_per_itemPriceImportCheckData() {
+                var data = GetRequest();
+                var head_id = data.head_id;
+                var allData = $('cgr_pur7010_per_item_import_temp_ds').getAll();
+                if (allData.length == 0) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:PROMPT.NO_DATA_TO_IMPORT}');
+                    return;
+                } else {
+                    if (!$('cgr_pur7010_per_externalSystem_ds').validate()) {
+                        return;
+                    }
+                    //锁定界面
+                    Aurora.Masker.mask(Ext.getBody());
+                    var external_system_id = $('cgr_pur7010_per_externalSystem_ds').getAt(0).get('external_system_id');
+                    var data_source = $('cgr_pur7010_per_externalSystem_ds').getAt(0).get('data_source');
+                    Aurora.request({
+                        url: $('cgr_pur7010_per_itemPriceCheckSubmit_link').getUrl(),
+                        para: {
+                            'head_id': head_id,
+                            'external_system_id': external_system_id,
+                            'data_source': data_source
+                        },
+                        success: function() {
+                            Aurora.Masker.unmask(Ext.getBody());
+                            Aurora.showMessage('${l:PROMPT}', '${l:PROMPT.SUBMIT_SUCCESS}');
+                            $('cgr_pur7010_per_item_import_temp_ds').query();
+                            $('cgr_pur7010_per_itemPrice_import_error_ds').query();
+                        },
+                        error: function() {
+                            Aurora.Masker.unmask(Ext.getBody());
+                            $('cgr_pur7010_per_itemPrice_import_error_ds').query();
+                        },
+                        failure: function() {
+                            Aurora.Masker.unmask(Ext.getBody());
+                            $('cgr_pur7010_per_itemPrice_import_error_ds').query();
+                        },
+                        scope: this
+                    });
+                }
+            }
+            
+            function cgr_pur7010_per_itemPriceImportRrrorDsLoad(ds) {
+                var error_lines = ds.getAll().length;
+                if (error_lines > 0) {
+                    $('cgr_pur7010_per_itemPriceImportTab').setEnabled(1);
+                }
+            }
+            
+            function cgr_pur7010_per_itemPriceImportTemplateDownload() {
+                var attachment_id = '${/model/import_template/record/@attachment_id}';
+                if (attachment_id == undefined || Aurora.isEmpty(attachment_id)) {
+                    Aurora.showMessage('${l:PROMPT}', '${l:PUR5611_VENDOR_IMPORT.NO_IMPORT_TEMPLATE_TO_DOWNLOAD}');
+                    return;
+                } else {
+                    Aurora.request({
+                        url: $('cgr_pur7010_per_itemPrice_excel_import_template_uploadtimes_link').getUrl(),
+                        para: {
+                            imp_template_code: 'PUR_ITEM_PRICE_IMPORT'
+                        },
+                        success: function() {
+                            document.getElementById('attachment_id').value = attachment_id;
+                            document.downloadform.submit();
+                        },
+                        scope: this
+                    });
+                }
+            }
+            
+            function cgr_pur7010_per_itemPriceErrorDs_indexChangeFun(ds, record) {
+                document.getElementById('cgr_pur7010_per_ErrorMsgDiv').innerHTML = record.get('error_message');
+            }
+            
+            function cgr_pur7010_per_externalSystemOnUpdate(ds, record, name, value, oldvalue) {
+                if (name == 'data_source') {
+                    if (value == 'ERP') {
+                        record.getField("external_system_name").setRequired(true);
+                    } else {
+                        record.getField("external_system_name").setRequired(false);
+                    }
+                }
+            }
+        ]]></script>
+        <a:dataSets>
+            <a:dataSet id="cgr_pur7010_per_data_source_list_query_ds" autoCreate="true">
+                <a:datas dataSource="/model/data_source"/>
+            </a:dataSet>
+            <a:dataSet id="cgr_pur7010_per_externalSystemList_ds" fetchAll="true" loadData="true" model="public.fnd_bg_external_system_query"/>
+            <a:dataSet id="cgr_pur7010_per_externalSystem_ds" autoCreate="true">
+                <a:fields>
+                    <a:field name="external_system_id"/>
+                    <a:field name="external_system_name" displayField="external_system_name" options="cgr_pur7010_per_externalSystemList_ds" prompt="PUR2620.EXTERNAL_SYSTEM" returnField="external_system_id" valueField="external_system_id"/>
+                    <a:field name="data_source"/>
+                    <a:field name="data_source_display" displayField="flex_desc" options="cgr_pur7010_per_data_source_list_query_ds" returnField="data_source" valueField="flex_value"/>
+                </a:fields>
+                <a:events>
+                    <a:event name="update" handler="cgr_pur7010_per_externalSystemOnUpdate"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="cgr_pur7010_per_itemPrice_import_error_ds" autoCount="true" autoQuery="true" model="cux.CGR.pur.PUR7010.pur7010_per_item_price_import_errors">
+                <a:events>
+                    <a:event name="load" handler="cgr_pur7010_per_itemPriceImportRrrorDsLoad"/>
+                    <a:event name="indexchange" handler="cgr_pur7010_per_itemPriceErrorDs_indexChangeFun"/>
+                </a:events>
+            </a:dataSet>
+            <a:dataSet id="cgr_pur7010_per_item_import_temp_ds" autoCount="true" autoPageSize="true" autoQuery="true" model="cux.CGR.pur.PUR7010.pur7010_per_item_price_imports"/>
+        </a:dataSets>
+        <a:screenBody>
+            <a:screenTopToolbar>
+                <a:toolbarButton click="cgr_pur7010_per_itemPriceImportTemplateDownload" style="margin-left:20px;" text="PROMPT.DOWNLOAD_IMPORT_TEMPLATE" width="100"/>
+                <a:toolbarButton click="cgr_pur7010_per_itemPriceImportLoadData" style="margin-left:20px;" text="PROMPT.LOADDATA" width="100"/>
+                <a:toolbarButton click="cgr_pur7010_per_itemPriceImportCheckData" style="margin-left:20px;" text="PROMPT.CHECK_AND_SUBMIT" width="100"/>
+                <a:toolbarButton click="cgr_pur7010_per_itemPriceImportCancelData" style="margin-left:20px;" text="HAP_BACK" width="100"/>
+            </a:screenTopToolbar>
+            <a:hBox style="margin-top:10px;margin-left:20px">
+                <!-- <a:comboBox name="data_source_display" bindTarget="cgr_pur7010_per_externalSystem_ds" prompt="PROMPT.DATA_SOURCE" width="150"/> -->
+                <!-- <a:comboBox name="external_system_name" bindTarget="cgr_pur7010_per_externalSystem_ds" width="150"/> -->
+                <!-- <label for="male"> -->
+                <!-- </label> --><![CDATA[
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                     
+                ${l:PUR2620.ERP_DATA_NEED_CHOOSE_EXTERNAL_SYSTEM}
+            
+            ]]></a:hBox>
+            <a:tabPanel id="cgr_pur7010_per_itemPriceImportTab" marginHeight="100" marginWidth="100">
+                <a:tabs>
+                    <a:tab prompt="PUR2620.IMPORTS_DATA" width="130">
+                        <a:grid id="cgr_pur7010_per_item_import_temp_ds_grid" autoAppend="false" bindTarget="cgr_pur7010_per_item_import_temp_ds" marginHeight="140" marginWidth="120" navBar="true" style="margin-top:5px;">
+                            <a:columns>
+                                <a:column name="line_num" lock="true" prompt="行号" width="40"/>
+                                <a:column name="item_code" lock="true" prompt="物料编码" width="80"/>
+                                <a:column name="item_desc" lock="true" prompt="物料名称" width="80"/>
+                                <a:column name="item_long_desc" prompt="物料长描述" width="120"/>
+                                <a:column name="coop_company_code" prompt="供应商代码" width="80"/>
+                                <a:column name="coop_company_name" prompt="供应商名称" width="100"/>
+                                <a:column name="unit_prcie" align="rigth" prompt="不含税单价" width="60"/>
+                                <a:column name="rax_rate" align="rigth" prompt="税率(%)" width="40"/>
+                                <a:column name="tax_code" prompt="税率代码" width="60"/>
+                                <!-- <a:column name="tax_price" align="rigth" prompt="含税单价" width="60"/> -->
+                                <a:column name="last_period_price" align="rigth" prompt="上期报价" width="60"/>
+                                <a:column name="market_price" align="rigth" prompt="市场采价" width="60"/>
+                                <a:column name="last_year_price" align="rigth" prompt="上年同期报价" width="60"/>
+                                <!-- <a:column name="difference_price" align="rigth" prompt="价差" width="60"/> -->
+                                <a:column name="price_comments" prompt="报价说明" width="160"/>
+                            </a:columns>
+                        </a:grid>
+                    </a:tab>
+                    <a:tab disabled="true" prompt="PUR2620.IMPORT_ERROR_DATA" width="130">
+                        <a:fieldSet height="100" marginWidth="120" title="PROMPT.CHECK_IMPORT_ERROR">
+                            <div id="cgr_pur7010_per_ErrorMsgDiv"/>
+                        </a:fieldSet>
+                        <a:grid id="cgr_pur7010_per_itemPrice_import_error_ds_grid" autoAppend="false" bindTarget="cgr_pur7010_per_itemPrice_import_error_ds" marginHeight="250" marginWidth="120" navBar="true" style="margin-top:5px;">
+                            <a:columns>
+                                <a:column name="line_num" lock="true" prompt="行号" width="40"/>
+                                <a:column name="item_code" lock="true" prompt="物料编码" width="80"/>
+                                <a:column name="item_desc" lock="true" prompt="物料名称" width="80"/>
+                                <a:column name="item_lond_desc" prompt="物料长描述" width="120"/>
+                                <a:column name="coop_company_code" prompt="供应商代码" width="80"/>
+                                <a:column name="coop_company_name" prompt="供应商名称" width="100"/>
+                                <a:column name="unit_prcie" align="rigth" prompt="不含税单价" width="60"/>
+                                <a:column name="rax_rate" align="rigth" prompt="税率(%)" width="40"/>
+                                <a:column name="tax_code" prompt="税率代码" width="60"/>
+                                <!-- <a:column name="tax_price" align="rigth" prompt="含税单价" width="60"/> -->
+                                <a:column name="last_period_price" align="rigth" prompt="上期报价" width="60"/>
+                                <a:column name="market_price" align="rigth" prompt="市场采价" width="60"/>
+                                <a:column name="last_year_price" align="rigth" prompt="上年同期报价" width="60"/>
+                                <a:column name="difference_price" align="rigth" prompt="价差" width="60"/>
+                                <a:column name="price_comments" prompt="报价说明" width="160"/>
+                            </a:columns>
+                        </a:grid>
+                    </a:tab>
+                </a:tabs>
+            </a:tabPanel>
+            <form name="downloadform" action="${/request/@context_path}/atm_download.svc" enctype="multipart/form-data" method="get" style="display:none;">
+                <input name="attachment_id" id="attachment_id" type="hidden"/>
+            </form>
+        </a:screenBody>
+        <script><![CDATA[
+        init();
+        ]]></script>
+    </a:view>
+</a:screen>

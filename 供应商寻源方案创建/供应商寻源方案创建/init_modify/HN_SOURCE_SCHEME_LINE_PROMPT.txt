@@ -1,0 +1,35 @@
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK;
+WHENEVER OSERROR  EXIT FAILURE ROLLBACK;
+spool INITIALIZE_PROMPT.log
+set feedback off
+set define off
+begin
+sys_prompt_pkg.sys_prompts_load('HN_FND.LINE_ID','ZHS','行ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.LINE_ID','US','line_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.HEAD_ID','ZHS','头ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.HEAD_ID','US','head_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.PURCHASE','ZHS','采购');
+sys_prompt_pkg.sys_prompts_load('HN_FND.PURCHASE','US','PURCHASE');
+sys_prompt_pkg.sys_prompts_load('HN_FND.QUALITY','ZHS','质量');
+sys_prompt_pkg.sys_prompts_load('HN_FND.QUALITY','US','QUALITY');
+sys_prompt_pkg.sys_prompts_load('HN_FND.TECHNOLOGY','ZHS','技术');
+sys_prompt_pkg.sys_prompts_load('HN_FND.TECHNOLOGY','US','TECHNOLOGY');
+sys_prompt_pkg.sys_prompts_load('HN_FND.MONITORING_AUDIT','ZHS','监察审计');
+sys_prompt_pkg.sys_prompts_load('HN_FND.MONITORING_AUDIT','US','MONITORING_AUDIT');
+sys_prompt_pkg.sys_prompts_load('HN_FND.MEMBER_TYPE_CODE','ZHS','成员类型：HN_MEMBER_TYPE_SYSCODE');
+sys_prompt_pkg.sys_prompts_load('HN_FND.MEMBER_TYPE_CODE','US','member_type_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.MEMBER_USER_ID','ZHS','成员ID');
+sys_prompt_pkg.sys_prompts_load('HN_FND.MEMBER_USER_ID','US','member_user_id');
+sys_prompt_pkg.sys_prompts_load('HN_FND.TEAM_LEADER_FLAG','ZHS','团队组长标记');
+sys_prompt_pkg.sys_prompts_load('HN_FND.TEAM_LEADER_FLAG','US','team_leader_flag');
+sys_prompt_pkg.sys_prompts_load('HN_FND.USER_CODE','ZHS','成员账号');
+sys_prompt_pkg.sys_prompts_load('HN_FND.USER_CODE','US','user_code');
+sys_prompt_pkg.sys_prompts_load('HN_FND.USER_NAME','ZHS','成员名称');
+sys_prompt_pkg.sys_prompts_load('HN_FND.USER_NAME','US','user_name');
+end;
+/
+commit;
+set feedback on
+set define on
+spool off
+exit
